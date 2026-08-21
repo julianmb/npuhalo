@@ -1,0 +1,1490 @@
+diff --git a/src/common/AutoModel/automodel.cpp b/src/common/AutoModel/automodel.cpp
+index 2f3a1fe..58c54de 100644
+--- a/src/common/AutoModel/automodel.cpp
++++ b/src/common/AutoModel/automodel.cpp
+@@ -140,6 +140,7 @@ void AutoModel::_shared_load_model(std::string model_path, json model_info, int
+     this->token_history.clear();
+     this->token_history.reserve(this->MAX_L);
+     this->tokenizer = std::make_unique<Tokenizer>(this->model_path);
++    this->token_pieces_cache_.clear();  // force rebuild on next grammar use
+ 
+     this->last_token = -1;
+     this->total_tokens = 0;
+@@ -173,6 +174,7 @@ bool AutoModel::_shared_insert(chat_meta_info_t& meta_info, std::vector<int>& to
+ std::string AutoModel::_shared_generate(chat_meta_info_t& meta_info, int length_limit, std::ostream& os, std::function<bool()> is_cancelled) {
+     std::vector<int> sampled_tokens;
+     std::string result;
++    generation_logprobs_.clear();
+     if (length_limit > 0){
+         sampled_tokens.reserve(length_limit);
+     }
+@@ -189,6 +191,24 @@ std::string AutoModel::_shared_generate(chat_meta_info_t& meta_info, int length_
+         result += token_str;
+         os << token_str << std::flush;
+ 
++        // Capture logprobs for the first token (sampled during prefill)
++        if (collect_logprobs_ > 0) {
++            generation_token_logprob_t tlp;
++            tlp.token_id = last_sampled_token;
++            tlp.token_text = token_str;
++            tlp.logprob = this->sampler->last_sampled_logprob;
++            for (const auto& top : this->sampler->last_top_logprobs) {
++                std::string top_text = this->tokenizer->run_time_decoder(top.token_id);
++                std::string safe_text;
++                for (unsigned char c : top_text) {
++                    if (c < 0x80 && c >= 0x20) safe_text += c;
++                    else if (c >= 0x80) safe_text += c;
++                    else safe_text += '?';
++                }
++                tlp.top_logprobs.push_back({safe_text, top.logprob});
++            }
++            generation_logprobs_.push_back(std::move(tlp));
++        }
+     }
+     if (this->is_eos(last_sampled_token)){
+         return result;
+@@ -225,6 +245,46 @@ std::string AutoModel::_shared_generate(chat_meta_info_t& meta_info, int length_
+             std::string token_str = this->tokenizer->run_time_decoder(sampled_token);
+             os << token_str << std::flush;
+             result += token_str;
++
++            // Collect logprobs for this token if enabled
++            if (collect_logprobs_ > 0) {
++                generation_token_logprob_t tlp;
++                tlp.token_id = sampled_token;
++                tlp.token_text = token_str;
++                tlp.logprob = this->sampler->last_sampled_logprob;
++                for (const auto& top : this->sampler->last_top_logprobs) {
++                    std::string top_text = this->tokenizer->run_time_decoder(top.token_id);
++                    // Replace invalid UTF-8 bytes with replacement character
++                    // Validate UTF-8: replace any invalid/incomplete sequences
++                    std::string safe_text;
++                    size_t len = top_text.size();
++                    for (size_t ci = 0; ci < len; ) {
++                        unsigned char c = top_text[ci];
++                        int seq_len = 0;
++                        if (c < 0x80) { seq_len = 1; }
++                        else if ((c & 0xE0) == 0xC0) { seq_len = 2; }
++                        else if ((c & 0xF0) == 0xE0) { seq_len = 3; }
++                        else if ((c & 0xF8) == 0xF0) { seq_len = 4; }
++                        if (seq_len == 0 || ci + seq_len > len) {
++                            safe_text += "\xEF\xBF\xBD"; // U+FFFD replacement char
++                            ci++;
++                        } else {
++                            bool valid = true;
++                            for (int k = 1; k < seq_len; k++) {
++                                if ((top_text[ci + k] & 0xC0) != 0x80) { valid = false; break; }
++                            }
++                            if (valid) {
++                                safe_text.append(top_text, ci, seq_len);
++                            } else {
++                                safe_text += "\xEF\xBF\xBD";
++                            }
++                            ci += valid ? seq_len : 1;
++                        }
++                    }
++                    tlp.top_logprobs.push_back({safe_text, top.logprob});
++                }
++                generation_logprobs_.push_back(std::move(tlp));
++            }
+         }
+         this->profiler_list[TKOEN_DECODE_TIME].stop(1);
+         this->token_history.push_back(sampled_token);
+@@ -240,6 +300,16 @@ std::string AutoModel::_shared_generate(chat_meta_info_t& meta_info, int length_
+     }
+     meta_info.decoding_duration = (uint64_t)(time_utils::cast_to_us(this->profiler_list[DECODING_TIME].get_total_time()).first) * 1e3;
+     meta_info.stop_reason = reason;
++
++    // Clear grammar after generation so it doesn't leak to the next request.
++    clear_grammar();
++
++    // Reset logprobs collection (data stays in generation_logprobs_ for the caller)
++    if (this->sampler) {
++        this->sampler->collect_logprobs = 0;
++    }
++    collect_logprobs_ = 0;
++
+     if (this->total_tokens >= this->MAX_L){
+         header_print("WARNING", "Max length reached, stopping generation...");
+     }
+@@ -592,6 +662,47 @@ void AutoModel::set_penalty_window(int penalty_window) {
+     this->sampler->repeat_last_n = penalty_window;
+ }
+ 
++void AutoModel::set_grammar(const std::string & grammar_str, const std::string & grammar_root) {
++    if (grammar_str.empty()) {
++        clear_grammar();
++        return;
++    }
++
++    // Build the token-pieces lookup on first use (one decode per vocab entry).
++    // This is cached across calls — only rebuilt if the cache is empty (i.e.
++    // after a model switch).
++    if (token_pieces_cache_.empty() && this->tokenizer && this->lm_config) {
++        int vocab_size = this->lm_config->vocab_size;
++        token_pieces_cache_.resize(vocab_size);
++        for (int i = 0; i < vocab_size; i++) {
++            token_pieces_cache_[i] = this->tokenizer->run_time_decoder(i);
++        }
++    }
++
++    grammar_ = FlmGrammar::create(grammar_str, grammar_root,
++                                  token_pieces_cache_, eos_token_ids);
++    if (grammar_ && this->sampler) {
++        this->sampler->set_grammar(grammar_.get());
++    } else if (!grammar_) {
++        fprintf(stderr, "AutoModel::set_grammar: failed to parse grammar\n");
++    }
++}
++
++void AutoModel::clear_grammar() {
++    if (this->sampler) {
++        this->sampler->set_grammar(nullptr);
++    }
++    grammar_.reset();
++}
++
++void AutoModel::set_logprobs(int n) {
++    collect_logprobs_ = n;
++    generation_logprobs_.clear();
++    if (this->sampler) {
++        this->sampler->collect_logprobs = n;
++    }
++}
++
+ /// \brief Start the ttft timer
+ /// \note The function will start the ttft timer
+ /// \note The function will reset the ttft timer
+diff --git a/src/common/grammar/grammar.cpp b/src/common/grammar/grammar.cpp
+new file mode 100644
+index 0000000..dfe5d8b
+--- /dev/null
++++ b/src/common/grammar/grammar.cpp
+@@ -0,0 +1,863 @@
++/// \file grammar.cpp
++/// \brief GBNF grammar-constrained sampling — implementation
++/// \note  Ported from llama.cpp's llama-grammar.cpp (MIT license).
++///        See grammar.hpp for the full attribution and scope notes.
++#include "grammar/grammar.hpp"
++
++#include <algorithm>
++#include <cassert>
++#include <cmath>
++#include <cstdint>
++#include <cstdio>
++#include <limits>
++#include <set>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++#define MAX_REPETITION_THRESHOLD 2000
++
++// ===== UTF-8 helpers =======================================================
++
++static std::pair<uint32_t, const char *> decode_utf8(const char * src) {
++    static const int lookup[] = {1,1,1,1,1,1,1,1,1,1,1,1,2,2,3,4};
++    uint8_t  first = static_cast<uint8_t>(*src);
++    uint8_t  high  = first >> 4;
++    int      len   = lookup[high];
++    uint8_t  mask  = (1 << (8 - len)) - 1;
++    uint32_t value = first & mask;
++    const char * end = src + len;
++    const char * pos = src + 1;
++    for (; pos < end && *pos; pos++) {
++        value = (value << 6) + (static_cast<uint8_t>(*pos) & 0x3F);
++    }
++    return {value, pos};
++}
++
++static std::pair<std::vector<uint32_t>, flm_partial_utf8> decode_utf8(
++        const std::string & src, flm_partial_utf8 partial_start) {
++    static const int lookup[] = {1,1,1,1,1,1,1,1,0,0,0,0,2,2,3,4};
++    const char * pos = src.c_str();
++    std::vector<uint32_t> code_points;
++    code_points.reserve(src.size() + 1);
++
++    uint32_t value    = partial_start.value;
++    int      n_remain = partial_start.n_remain;
++
++    while (*pos != 0 && n_remain > 0) {
++        uint8_t next = static_cast<uint8_t>(*pos);
++        if ((next >> 6) != 2) {
++            code_points.push_back(0);
++            return {std::move(code_points), {0, -1}};
++        }
++        value = (value << 6) + (next & 0x3F);
++        ++pos; --n_remain;
++    }
++    if (partial_start.n_remain > 0 && n_remain == 0) {
++        code_points.push_back(value);
++    }
++
++    while (*pos != 0) {
++        uint8_t first = static_cast<uint8_t>(*pos);
++        uint8_t high  = first >> 4;
++        n_remain = lookup[high] - 1;
++        if (n_remain < 0) {
++            code_points.clear();
++            code_points.push_back(0);
++            return {std::move(code_points), {0, n_remain}};
++        }
++        uint8_t mask = (1 << (7 - n_remain)) - 1;
++        value = first & mask;
++        ++pos;
++        while (*pos != 0 && n_remain > 0) {
++            value = (value << 6) + (static_cast<uint8_t>(*pos) & 0x3F);
++            ++pos; --n_remain;
++        }
++        if (n_remain == 0) code_points.push_back(value);
++    }
++    code_points.push_back(0);
++    return {std::move(code_points), {value, n_remain}};
++}
++
++// ===== parsing helpers =====================================================
++
++static bool is_digit_char(char c) { return '0' <= c && c <= '9'; }
++static bool is_word_char(char c) {
++    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '-' || is_digit_char(c);
++}
++
++static std::pair<uint32_t, const char *> parse_hex(const char * src, int size) {
++    const char * pos = src;
++    const char * end = src + size;
++    uint32_t value = 0;
++    for (; pos < end && *pos; pos++) {
++        value <<= 4;
++        char c = *pos;
++        if      ('a' <= c && c <= 'f') value += c - 'a' + 10;
++        else if ('A' <= c && c <= 'F') value += c - 'A' + 10;
++        else if ('0' <= c && c <= '9') value += c - '0';
++        else break;
++    }
++    if (pos != end) {
++        throw std::runtime_error("expecting " + std::to_string(size) + " hex chars at " + src);
++    }
++    return {value, pos};
++}
++
++static const char * parse_space(const char * src, bool newline_ok) {
++    const char * pos = src;
++    while (*pos == ' ' || *pos == '\t' || *pos == '#' ||
++           (newline_ok && (*pos == '\r' || *pos == '\n'))) {
++        if (*pos == '#') { while (*pos && *pos != '\r' && *pos != '\n') pos++; }
++        else pos++;
++    }
++    return pos;
++}
++
++static const char * parse_name(const char * src) {
++    const char * pos = src;
++    while (is_word_char(*pos)) pos++;
++    if (pos == src) throw std::runtime_error(std::string("expecting name at ") + src);
++    return pos;
++}
++
++static const char * parse_int(const char * src) {
++    const char * pos = src;
++    while (is_digit_char(*pos)) pos++;
++    if (pos == src) throw std::runtime_error(std::string("expecting integer at ") + src);
++    return pos;
++}
++
++static std::pair<uint32_t, const char *> parse_char(const char * src) {
++    if (*src == '\\') {
++        switch (src[1]) {
++            case 'x': return parse_hex(src + 2, 2);
++            case 'u': return parse_hex(src + 2, 4);
++            case 'U': return parse_hex(src + 2, 8);
++            case 't': return {'\t', src + 2};
++            case 'r': return {'\r', src + 2};
++            case 'n': return {'\n', src + 2};
++            case '\\': case '"': case '[': case ']':
++                return {static_cast<uint32_t>(src[1]), src + 2};
++            default:
++                throw std::runtime_error(std::string("unknown escape at ") + src);
++        }
++    } else if (*src) {
++        return decode_utf8(src);
++    }
++    throw std::runtime_error("unexpected end of input");
++}
++
++// ===== token parsing (<[id]>) =============================================
++
++static std::pair<uint32_t, const char *> parse_token(const char * src) {
++    const char * pos = src;
++    if (*pos != '<') throw std::runtime_error(std::string("expecting '<' at ") + pos);
++    pos++;
++    if (*pos != '[') throw std::runtime_error(std::string("expecting '[' at ") + pos);
++    pos++;
++    const char * int_end = pos;
++    while (is_digit_char(*int_end)) int_end++;
++    if (int_end == pos) throw std::runtime_error(std::string("expecting digit at ") + pos);
++    uint32_t token_id = std::stoul(std::string(pos, int_end - pos));
++    pos = int_end;
++    if (*pos != ']') throw std::runtime_error(std::string("expecting ']' at ") + pos);
++    pos++;
++    if (*pos != '>') throw std::runtime_error(std::string("expecting '>' at ") + pos);
++    pos++;
++    return {token_id, pos};
++}
++
++static bool grammar_match_token(const flm_grammar_element * pos, int token) {
++    if (pos->type == FLM_GRETYPE_TOKEN)
++        return pos->value == static_cast<uint32_t>(token);
++    if (pos->type == FLM_GRETYPE_TOKEN_NOT)
++        return pos->value != static_cast<uint32_t>(token);
++    return false;
++}
++
++// ===== grammar element helpers =============================================
++
++static bool is_end_of_sequence(const flm_grammar_element * pos) {
++    return pos->type == FLM_GRETYPE_END || pos->type == FLM_GRETYPE_ALT;
++}
++
++static bool is_char_element(flm_grammar_element elem) {
++    switch (elem.type) {
++        case FLM_GRETYPE_CHAR:
++        case FLM_GRETYPE_CHAR_NOT:
++        case FLM_GRETYPE_CHAR_ALT:
++        case FLM_GRETYPE_CHAR_RNG_UPPER:
++        case FLM_GRETYPE_CHAR_ANY:
++            return true;
++        default:
++            return false;
++    }
++}
++
++static std::pair<bool, const flm_grammar_element *> grammar_match_char(
++        const flm_grammar_element * pos, uint32_t chr) {
++    bool found = false;
++    bool is_positive = pos->type == FLM_GRETYPE_CHAR || pos->type == FLM_GRETYPE_CHAR_ANY;
++    assert(is_positive || pos->type == FLM_GRETYPE_CHAR_NOT);
++
++    do {
++        if (pos[1].type == FLM_GRETYPE_CHAR_RNG_UPPER) {
++            found = found || (pos->value <= chr && chr <= pos[1].value);
++            pos += 2;
++        } else if (pos->type == FLM_GRETYPE_CHAR_ANY) {
++            found = true;
++            pos += 1;
++        } else {
++            found = found || pos->value == chr;
++            pos += 1;
++        }
++    } while (pos->type == FLM_GRETYPE_CHAR_ALT);
++
++    return {found == is_positive, pos};
++}
++
++static bool grammar_match_partial_char(
++        const flm_grammar_element * pos, flm_partial_utf8 partial) {
++    bool is_positive = pos->type == FLM_GRETYPE_CHAR || pos->type == FLM_GRETYPE_CHAR_ANY;
++    assert(is_positive || pos->type == FLM_GRETYPE_CHAR_NOT);
++
++    uint32_t pval    = partial.value;
++    int      n_rem   = partial.n_remain;
++
++    if (n_rem < 0 || (n_rem == 1 && pval < 2)) return false;
++
++    uint32_t low  = pval << (n_rem * 6);
++    uint32_t high = low | ((1 << (n_rem * 6)) - 1);
++    if (low == 0) {
++        if (n_rem == 2) low = 1 << 11;
++        else if (n_rem == 3) low = 1 << 16;
++    }
++
++    do {
++        if (pos[1].type == FLM_GRETYPE_CHAR_RNG_UPPER) {
++            if (pos->value <= high && low <= pos[1].value) return is_positive;
++            pos += 2;
++        } else if (pos->type == FLM_GRETYPE_CHAR_ANY) {
++            return true;
++        } else {
++            if (low <= pos->value && pos->value <= high) return is_positive;
++            pos += 1;
++        }
++    } while (pos->type == FLM_GRETYPE_CHAR_ALT);
++
++    return !is_positive;
++}
++
++// ===== left-recursion detector =============================================
++
++static bool detect_left_recursion(
++        const flm_grammar_rules & rules, size_t rule_index,
++        std::vector<bool> & visited, std::vector<bool> & in_progress,
++        std::vector<bool> & may_be_empty) {
++    if (in_progress[rule_index]) return true;
++    in_progress[rule_index] = true;
++
++    const auto & rule = rules[rule_index];
++    bool at_start = true;
++    for (size_t i = 0; i < rule.size(); i++) {
++        if (is_end_of_sequence(&rule[i])) {
++            if (at_start) { may_be_empty[rule_index] = true; break; }
++            at_start = true;
++        } else {
++            at_start = false;
++        }
++    }
++
++    bool recurse = true;
++    for (size_t i = 0; i < rule.size(); i++) {
++        if (rule[i].type == FLM_GRETYPE_RULE_REF && recurse) {
++            if (detect_left_recursion(rules, rule[i].value, visited, in_progress, may_be_empty))
++                return true;
++            if (!may_be_empty[rule[i].value]) recurse = false;
++        } else if (is_end_of_sequence(&rule[i])) {
++            recurse = true;
++        } else {
++            recurse = false;
++        }
++    }
++
++    in_progress[rule_index] = false;
++    visited[rule_index] = true;
++    return false;
++}
++
++// ===== flm_grammar_parser implementation ===================================
++
++uint32_t flm_grammar_parser::get_symbol_id(const char * src, size_t len) {
++    uint32_t next_id = static_cast<uint32_t>(symbol_ids.size());
++    auto result = symbol_ids.emplace(std::string(src, len), next_id);
++    return result.first->second;
++}
++
++uint32_t flm_grammar_parser::generate_symbol_id(const std::string & base_name) {
++    uint32_t next_id = static_cast<uint32_t>(symbol_ids.size());
++    symbol_ids[base_name + '_' + std::to_string(next_id)] = next_id;
++    return next_id;
++}
++
++void flm_grammar_parser::add_rule(uint32_t rule_id, const flm_grammar_rule & rule) {
++    if (rules.size() <= rule_id) rules.resize(rule_id + 1);
++    rules[rule_id] = rule;
++}
++
++const char * flm_grammar_parser::parse_alternates(
++        const char * src, const std::string & rule_name,
++        uint32_t rule_id, bool is_nested) {
++    flm_grammar_rule rule;
++    const char * pos = parse_sequence(src, rule_name, rule, is_nested);
++    while (*pos == '|') {
++        rule.push_back({FLM_GRETYPE_ALT, 0});
++        pos = parse_space(pos + 1, true);
++        pos = parse_sequence(pos, rule_name, rule, is_nested);
++    }
++    rule.push_back({FLM_GRETYPE_END, 0});
++    add_rule(rule_id, rule);
++    return pos;
++}
++
++const char * flm_grammar_parser::parse_sequence(
++        const char * src, const std::string & rule_name,
++        flm_grammar_rule & rule, bool is_nested) {
++    size_t last_sym_start = rule.size();
++    const char * pos = src;
++    uint64_t n_prev_rules = 1;
++
++    auto handle_repetitions = [&](uint64_t min_times, uint64_t max_times) {
++        bool no_max = max_times == UINT64_MAX;
++        if (last_sym_start == rule.size()) {
++            throw std::runtime_error(std::string("expecting preceding item to */+/?/{ at ") + pos);
++        }
++
++        flm_grammar_rule prev_rule(rule.begin() + last_sym_start, rule.end());
++        uint64_t total_rules = 1;
++        if (!no_max && max_times > 0) total_rules = max_times;
++        else if (min_times > 0) total_rules = min_times;
++
++        if (n_prev_rules * total_rules >= MAX_REPETITION_THRESHOLD) {
++            throw std::runtime_error("repetition count exceeds safe threshold");
++        }
++
++        if (min_times == 0) {
++            rule.resize(last_sym_start);
++        } else {
++            for (uint64_t i = 1; i < min_times; i++)
++                rule.insert(rule.end(), prev_rule.begin(), prev_rule.end());
++        }
++
++        uint32_t last_rec_rule_id = 0;
++        auto n_opt = no_max ? 1 : max_times - min_times;
++
++        flm_grammar_rule rec_rule(prev_rule);
++        for (uint64_t i = 0; i < n_opt; i++) {
++            rec_rule.resize(prev_rule.size());
++            uint32_t rec_rule_id = generate_symbol_id(rule_name);
++            if (i > 0 || no_max)
++                rec_rule.push_back({FLM_GRETYPE_RULE_REF, no_max ? rec_rule_id : last_rec_rule_id});
++            rec_rule.push_back({FLM_GRETYPE_ALT, 0});
++            rec_rule.push_back({FLM_GRETYPE_END, 0});
++            add_rule(rec_rule_id, rec_rule);
++            last_rec_rule_id = rec_rule_id;
++        }
++        if (n_opt > 0) rule.push_back({FLM_GRETYPE_RULE_REF, last_rec_rule_id});
++        n_prev_rules *= total_rules;
++    };
++
++    while (*pos) {
++        if (*pos == '"') {
++            pos++;
++            last_sym_start = rule.size();
++            n_prev_rules = 1;
++            while (*pos != '"') {
++                if (!*pos) throw std::runtime_error("unexpected end of input");
++                auto cp = parse_char(pos);
++                pos = cp.second;
++                rule.push_back({FLM_GRETYPE_CHAR, cp.first});
++            }
++            pos = parse_space(pos + 1, is_nested);
++        } else if (*pos == '[') {
++            pos++;
++            auto start_type = FLM_GRETYPE_CHAR;
++            if (*pos == '^') { pos++; start_type = FLM_GRETYPE_CHAR_NOT; }
++            last_sym_start = rule.size();
++            n_prev_rules = 1;
++            while (*pos != ']') {
++                if (!*pos) throw std::runtime_error("unexpected end of input");
++                auto cp = parse_char(pos);
++                pos = cp.second;
++                auto type = last_sym_start < rule.size() ? FLM_GRETYPE_CHAR_ALT : start_type;
++                rule.push_back({type, cp.first});
++                if (pos[0] == '-' && pos[1] != ']') {
++                    if (!pos[1]) throw std::runtime_error("unexpected end of input");
++                    auto ecp = parse_char(pos + 1);
++                    pos = ecp.second;
++                    rule.push_back({FLM_GRETYPE_CHAR_RNG_UPPER, ecp.first});
++                }
++            }
++            pos = parse_space(pos + 1, is_nested);
++        } else if (*pos == '<' || *pos == '!') {
++            // Token matching: <[id]> or !<[id]>
++            auto type = FLM_GRETYPE_TOKEN;
++            if (*pos == '!') { type = FLM_GRETYPE_TOKEN_NOT; pos++; }
++            auto token_pair = parse_token(pos);
++            pos = parse_space(token_pair.second, is_nested);
++            last_sym_start = rule.size();
++            n_prev_rules = 1;
++            rule.push_back({type, token_pair.first});
++        } else if (is_word_char(*pos)) {
++            const char * name_end = parse_name(pos);
++            uint32_t ref_id = get_symbol_id(pos, name_end - pos);
++            pos = parse_space(name_end, is_nested);
++            last_sym_start = rule.size();
++            n_prev_rules = 1;
++            rule.push_back({FLM_GRETYPE_RULE_REF, ref_id});
++        } else if (*pos == '(') {
++            pos = parse_space(pos + 1, true);
++            uint32_t n_before = static_cast<uint32_t>(symbol_ids.size());
++            uint32_t sub_id = generate_symbol_id(rule_name);
++            pos = parse_alternates(pos, rule_name, sub_id, true);
++            n_prev_rules = std::max(1u, static_cast<uint32_t>(symbol_ids.size()) - n_before);
++            last_sym_start = rule.size();
++            rule.push_back({FLM_GRETYPE_RULE_REF, sub_id});
++            if (*pos != ')') throw std::runtime_error(std::string("expecting ')' at ") + pos);
++            pos = parse_space(pos + 1, is_nested);
++        } else if (*pos == '.') {
++            last_sym_start = rule.size();
++            n_prev_rules = 1;
++            rule.push_back({FLM_GRETYPE_CHAR_ANY, 0});
++            pos = parse_space(pos + 1, is_nested);
++        } else if (*pos == '*') {
++            pos = parse_space(pos + 1, is_nested);
++            handle_repetitions(0, UINT64_MAX);
++        } else if (*pos == '+') {
++            pos = parse_space(pos + 1, is_nested);
++            handle_repetitions(1, UINT64_MAX);
++        } else if (*pos == '?') {
++            pos = parse_space(pos + 1, is_nested);
++            handle_repetitions(0, 1);
++        } else if (*pos == '{') {
++            pos = parse_space(pos + 1, is_nested);
++            if (!is_digit_char(*pos))
++                throw std::runtime_error(std::string("expecting int at ") + pos);
++            const char * ie = parse_int(pos);
++            uint64_t min_t = std::stoull(std::string(pos, ie - pos));
++            pos = parse_space(ie, is_nested);
++
++            uint64_t max_t = UINT64_MAX;
++            if (*pos == '}') {
++                max_t = min_t;
++                pos = parse_space(pos + 1, is_nested);
++            } else if (*pos == ',') {
++                pos = parse_space(pos + 1, is_nested);
++                if (is_digit_char(*pos)) {
++                    const char * ie2 = parse_int(pos);
++                    max_t = std::stoull(std::string(pos, ie2 - pos));
++                    pos = parse_space(ie2, is_nested);
++                }
++                if (*pos != '}')
++                    throw std::runtime_error(std::string("expecting '}' at ") + pos);
++                pos = parse_space(pos + 1, is_nested);
++            } else {
++                throw std::runtime_error(std::string("expecting ',' at ") + pos);
++            }
++            bool has_max = max_t != UINT64_MAX;
++            if (min_t > MAX_REPETITION_THRESHOLD || (has_max && max_t > MAX_REPETITION_THRESHOLD))
++                throw std::runtime_error("repetition count exceeds safe threshold");
++            handle_repetitions(min_t, max_t);
++        } else {
++            break;
++        }
++    }
++    return pos;
++}
++
++const char * flm_grammar_parser::parse_rule(const char * src) {
++    const char * name_end = parse_name(src);
++    const char * pos      = parse_space(name_end, false);
++    size_t       name_len = name_end - src;
++    uint32_t     rule_id  = get_symbol_id(src, name_len);
++    const std::string name(src, name_len);
++
++    if (!(pos[0] == ':' && pos[1] == ':' && pos[2] == '='))
++        throw std::runtime_error(std::string("expecting ::= at ") + pos);
++    pos = parse_space(pos + 3, true);
++    pos = parse_alternates(pos, name, rule_id, false);
++
++    if (*pos == '\r') pos += pos[1] == '\n' ? 2 : 1;
++    else if (*pos == '\n') pos++;
++    else if (*pos) throw std::runtime_error(std::string("expecting newline or end at ") + pos);
++    return parse_space(pos, true);
++}
++
++bool flm_grammar_parser::parse(const char * src) {
++    try {
++        const char * pos = parse_space(src, true);
++        while (*pos) pos = parse_rule(pos);
++
++        for (const auto & rule : rules) {
++            if (rule.empty()) throw std::runtime_error("undefined rule");
++            for (const auto & elem : rule) {
++                if (elem.type == FLM_GRETYPE_RULE_REF) {
++                    if (elem.value >= rules.size() || rules[elem.value].empty()) {
++                        for (const auto & kv : symbol_ids) {
++                            if (kv.second == elem.value)
++                                throw std::runtime_error("undefined rule '" + kv.first + "'");
++                        }
++                    }
++                }
++            }
++        }
++    } catch (const std::exception & err) {
++        fprintf(stderr, "flm_grammar: parse error: %s\n", err.what());
++        rules.clear();
++        return false;
++    }
++    return true;
++}
++
++// ===== FlmGrammar — pushdown automaton =====================================
++
++void FlmGrammar::advance_stack(
++        const flm_grammar_rules & rules,
++        const flm_grammar_stack & stack,
++        flm_grammar_stacks & new_stacks) {
++    std::vector<flm_grammar_stack> todo;
++    todo.push_back(stack);
++
++    auto stack_cmp = [](const flm_grammar_stack & a, const flm_grammar_stack & b) {
++        return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(),
++            [](const flm_grammar_element * pa, const flm_grammar_element * pb) {
++                return pa < pb;
++            });
++    };
++    std::set<flm_grammar_stack, decltype(stack_cmp)> seen(stack_cmp);
++
++    while (!todo.empty()) {
++        flm_grammar_stack curr = std::move(todo.back());
++        todo.pop_back();
++
++        if (seen.count(curr)) continue;
++        seen.insert(curr);
++
++        if (curr.empty()) {
++            if (std::find(new_stacks.begin(), new_stacks.end(), curr) == new_stacks.end())
++                new_stacks.emplace_back(std::move(curr));
++            continue;
++        }
++
++        const flm_grammar_element * pos = curr.back();
++        switch (pos->type) {
++        case FLM_GRETYPE_RULE_REF: {
++            size_t rule_id = pos->value;
++            const flm_grammar_element * subpos = rules[rule_id].data();
++            do {
++                flm_grammar_stack next(curr.begin(), curr.end() - 1);
++                if (!is_end_of_sequence(pos + 1)) next.push_back(pos + 1);
++                if (!is_end_of_sequence(subpos))   next.push_back(subpos);
++                todo.push_back(std::move(next));
++                while (!is_end_of_sequence(subpos)) subpos++;
++                if (subpos->type == FLM_GRETYPE_ALT) subpos++;
++                else break;
++            } while (true);
++            break;
++        }
++        case FLM_GRETYPE_CHAR:
++        case FLM_GRETYPE_CHAR_NOT:
++        case FLM_GRETYPE_CHAR_ANY:
++        case FLM_GRETYPE_TOKEN:
++        case FLM_GRETYPE_TOKEN_NOT:
++            if (std::find(new_stacks.begin(), new_stacks.end(), curr) == new_stacks.end())
++                new_stacks.emplace_back(std::move(curr));
++            break;
++        default:
++            assert(false && "grammar advance_stack: unexpected element type");
++            break;
++        }
++    }
++}
++
++flm_grammar_candidates FlmGrammar::reject_candidates_for_stack(
++        const flm_grammar_rules & rules,
++        const flm_grammar_stack & stack,
++        const flm_grammar_candidates & candidates) {
++    flm_grammar_candidates rejects;
++    rejects.reserve(candidates.size());
++
++    if (stack.empty()) {
++        for (const auto & tok : candidates) {
++            if (*tok.code_points != 0 || tok.partial_utf8.n_remain != 0)
++                rejects.push_back(tok);
++        }
++        return rejects;
++    }
++
++    const flm_grammar_element * stack_pos = stack.back();
++
++    // Token-level matching: if the top of stack is a token rule, match by ID
++    if (stack_pos->type == FLM_GRETYPE_TOKEN || stack_pos->type == FLM_GRETYPE_TOKEN_NOT) {
++        for (const auto & tok : candidates) {
++            if (*tok.code_points == 0) {
++                if (tok.partial_utf8.n_remain != 0) rejects.push_back(tok);
++            } else if (!grammar_match_token(stack_pos, tok.token_id)) {
++                rejects.push_back(tok);
++            }
++        }
++        return rejects;
++    }
++
++    flm_grammar_candidates next_candidates;
++    next_candidates.reserve(candidates.size());
++
++    for (const auto & tok : candidates) {
++        if (*tok.code_points == 0) {
++            if (tok.partial_utf8.n_remain != 0 &&
++                    !grammar_match_partial_char(stack_pos, tok.partial_utf8))
++                rejects.push_back(tok);
++        } else if (grammar_match_char(stack_pos, *tok.code_points).first) {
++            next_candidates.push_back({tok.index, tok.code_points + 1, tok.token_id, tok.partial_utf8});
++        } else {
++            rejects.push_back(tok);
++        }
++    }
++
++    const auto * after = grammar_match_char(stack_pos, 0).second;
++    flm_grammar_stack stack_after(stack.begin(), stack.end() - 1);
++    if (!is_end_of_sequence(after)) stack_after.push_back(after);
++
++    flm_grammar_stacks next_stacks;
++    advance_stack(rules, stack_after, next_stacks);
++
++    auto next_rejects = reject_candidates(rules, next_stacks, next_candidates);
++    for (const auto & tok : next_rejects)
++        rejects.push_back({tok.index, tok.code_points - 1, tok.token_id, tok.partial_utf8});
++
++    return rejects;
++}
++
++flm_grammar_candidates FlmGrammar::reject_candidates(
++        const flm_grammar_rules & rules,
++        const flm_grammar_stacks & stacks,
++        const flm_grammar_candidates & candidates) {
++    assert(!stacks.empty());
++    if (candidates.empty()) return {};
++
++    auto rejects = reject_candidates_for_stack(rules, stacks.front(), candidates);
++    for (size_t i = 1; i < stacks.size(); ++i)
++        rejects = reject_candidates_for_stack(rules, stacks[i], rejects);
++    return rejects;
++}
++
++// ===== FlmGrammar public API ===============================================
++
++std::unique_ptr<FlmGrammar> FlmGrammar::create(
++        const std::string & grammar_str,
++        const std::string & grammar_root,
++        const std::vector<std::string> & token_pieces,
++        const std::vector<int> & eog_ids) {
++
++    flm_grammar_parser parser;
++    if (!parser.parse(grammar_str.c_str()) || parser.rules.empty()) {
++        fprintf(stderr, "flm_grammar: failed to parse grammar\n");
++        return nullptr;
++    }
++
++    if (parser.symbol_ids.find(grammar_root) == parser.symbol_ids.end()) {
++        fprintf(stderr, "flm_grammar: grammar has no '%s' rule\n", grammar_root.c_str());
++        return nullptr;
++    }
++
++    // Build flat rule pointer array for init
++    std::vector<const flm_grammar_element *> rule_ptrs;
++    rule_ptrs.reserve(parser.rules.size());
++    for (const auto & r : parser.rules) rule_ptrs.push_back(r.data());
++
++    const size_t n_rules         = rule_ptrs.size();
++    const size_t start_rule_idx  = parser.symbol_ids.at(grammar_root);
++
++    // Copy rules into owned vectors
++    flm_grammar_rules vec_rules(n_rules);
++    for (size_t i = 0; i < n_rules; i++) {
++        const flm_grammar_element * p = rule_ptrs[i];
++        for (; p->type != FLM_GRETYPE_END; p++) vec_rules[i].push_back(*p);
++        vec_rules[i].push_back({FLM_GRETYPE_END, 0});
++    }
++
++    // Check for left recursion
++    std::vector<bool> visited(n_rules, false);
++    std::vector<bool> in_progress(n_rules, false);
++    std::vector<bool> may_be_empty(n_rules, false);
++    for (size_t i = 0; i < n_rules; i++) {
++        if (visited[i]) continue;
++        if (detect_left_recursion(vec_rules, i, visited, in_progress, may_be_empty)) {
++            fprintf(stderr, "flm_grammar: left recursion at rule %zu\n", i);
++            return nullptr;
++        }
++    }
++
++    // Build initial stacks from the start rule
++    flm_grammar_stacks stacks;
++    const flm_grammar_element * pos = vec_rules[start_rule_idx].data();
++    do {
++        flm_grammar_stack stack;
++        if (!is_end_of_sequence(pos)) stack.push_back(pos);
++        advance_stack(vec_rules, stack, stacks);
++        while (!is_end_of_sequence(pos)) pos++;
++        if (pos->type == FLM_GRETYPE_ALT) pos++;
++        else break;
++    } while (true);
++
++    auto g = std::unique_ptr<FlmGrammar>(new FlmGrammar());
++    g->rules_        = std::move(vec_rules);
++    g->stacks_       = std::move(stacks);
++    g->partial_utf8_ = {};
++    g->token_pieces_  = token_pieces;
++    g->eog_ids_       = eog_ids;
++    return g;
++}
++
++void FlmGrammar::apply(float * logits, int vocab_size) const {
++    bool allow_eog = false;
++    for (const auto & stack : stacks_) {
++        if (stack.empty()) { allow_eog = true; break; }
++    }
++
++    // Decode every token to UTF-8 codepoints, build candidate list
++    std::vector<std::pair<std::vector<uint32_t>, flm_partial_utf8>> decoded;
++    decoded.reserve(vocab_size);
++    flm_grammar_candidates candidates;
++    candidates.reserve(vocab_size);
++
++    for (int i = 0; i < vocab_size; i++) {
++        if (logits[i] == -std::numeric_limits<float>::infinity()) continue;
++
++        // Check EOG
++        bool is_eog = false;
++        for (int eid : eog_ids_) {
++            if (i == eid) { is_eog = true; break; }
++        }
++        if (is_eog) {
++            if (!allow_eog) logits[i] = -std::numeric_limits<float>::infinity();
++            continue;
++        }
++
++        if (i >= static_cast<int>(token_pieces_.size())) {
++            logits[i] = -std::numeric_limits<float>::infinity();
++            continue;
++        }
++
++        const std::string & piece = token_pieces_[i];
++        if (piece.empty() || piece[0] == 0) {
++            logits[i] = -std::numeric_limits<float>::infinity();
++            continue;
++        }
++
++        decoded.push_back(decode_utf8(piece, partial_utf8_));
++        candidates.push_back({
++            static_cast<size_t>(i),
++            decoded.back().first.data(),
++            i,  // token_id for token-level matching
++            decoded.back().second
++        });
++    }
++
++    auto rejects = reject_candidates(rules_, stacks_, candidates);
++    for (const auto & r : rejects) {
++        logits[r.index] = -std::numeric_limits<float>::infinity();
++    }
++}
++
++void FlmGrammar::accept(int token_id) {
++    if (token_id < 0 || token_id >= static_cast<int>(token_pieces_.size())) return;
++
++    // Check EOG
++    for (int eid : eog_ids_) {
++        if (token_id == eid) {
++            // EOG token — verify grammar allows ending
++            for (const auto & stack : stacks_) {
++                if (stack.empty()) return;
++            }
++            return;  // best-effort: don't crash if grammar doesn't allow end yet
++        }
++    }
++
++    const std::string & piece = token_pieces_[token_id];
++    if (piece.empty()) return;
++
++    auto decoded = decode_utf8(piece, partial_utf8_);
++    const auto & cps = decoded.first;
++
++    flm_grammar_stacks new_stacks;
++    new_stacks.reserve(stacks_.size());
++
++    for (const auto & stack : stacks_) {
++        if (stack.empty()) continue;
++
++        const flm_grammar_element * pos = stack.back();
++
++        // Token-level matching: if top of stack is a token rule, match by ID
++        if (pos->type == FLM_GRETYPE_TOKEN || pos->type == FLM_GRETYPE_TOKEN_NOT) {
++            if (grammar_match_token(pos, token_id)) {
++                flm_grammar_stack ns(stack.begin(), stack.end() - 1);
++                if (!is_end_of_sequence(pos + 1)) ns.push_back(pos + 1);
++                advance_stack(rules_, ns, new_stacks);
++            }
++            continue;
++        }
++
++        // Character-level matching
++        flm_grammar_stacks current = {stack};
++        for (auto it = cps.begin(), end = cps.end() - 1; it != end; ++it) {
++            flm_grammar_stacks next;
++            for (const auto & s : current) {
++                if (s.empty()) continue;
++                const flm_grammar_element * p = s.back();
++                if (p->type == FLM_GRETYPE_TOKEN || p->type == FLM_GRETYPE_TOKEN_NOT)
++                    continue;  // skip token rules during char processing
++                auto match = grammar_match_char(p, *it);
++                if (match.first) {
++                    flm_grammar_stack ns(s.begin(), s.end() - 1);
++                    if (!is_end_of_sequence(match.second)) ns.push_back(match.second);
++                    advance_stack(rules_, ns, next);
++                }
++            }
++            current = std::move(next);
++            if (current.empty()) break;
++        }
++
++        for (auto & s : current) {
++            if (std::find(new_stacks.begin(), new_stacks.end(), s) == new_stacks.end())
++                new_stacks.emplace_back(std::move(s));
++        }
++    }
++
++    stacks_       = std::move(new_stacks);
++    partial_utf8_ = decoded.second;
++}
++
++std::unique_ptr<FlmGrammar> FlmGrammar::clone() const {
++    auto g = std::unique_ptr<FlmGrammar>(new FlmGrammar());
++    g->rules_        = rules_;
++    g->stacks_       = stacks_;
++    g->partial_utf8_ = partial_utf8_;
++    g->token_pieces_  = token_pieces_;
++    g->eog_ids_       = eog_ids_;
++
++    // Fix up stack pointers to point into the cloned rules
++    for (size_t is = 0; is < g->stacks_.size(); is++) {
++        for (size_t ie = 0; ie < g->stacks_[is].size(); ie++) {
++            for (size_t ir = 0; ir < rules_.size(); ir++) {
++                for (size_t je = 0; je < rules_[ir].size(); je++) {
++                    if (stacks_[is][ie] == &rules_[ir][je]) {
++                        g->stacks_[is][ie] = &g->rules_[ir][je];
++                    }
++                }
++            }
++        }
++    }
++    return g;
++}
+diff --git a/src/common/modules/sampler.cpp b/src/common/modules/sampler.cpp
+index 7cc60e1..bc123f8 100644
+--- a/src/common/modules/sampler.cpp
++++ b/src/common/modules/sampler.cpp
+@@ -7,6 +7,7 @@
+ #pragma once
+ 
+ #include "modules/sampler.hpp"
++#include "grammar/grammar.hpp"
+ 
+ #include <deque>
+ #include <algorithm>  // for std::sort
+@@ -371,13 +372,50 @@ int Sampler::sample(buffer<bf16>& x) {
+     #endif
+ 
+     sampler_penalty_apply_sparse();
++
++    // Grammar-constrained sampling: reject tokens that violate the grammar
++    // BEFORE top-k, so the full vocabulary is considered for filtering.
++    if (this->grammar) {
++        this->grammar->apply(this->logits.data(), this->in_features);
++    }
++
++
++    // ── Capture logprobs from FULL vocabulary logits (before any filtering) ──
++    if (this->collect_logprobs > 0) {
++        float max_l = this->logits[0];
++        for (int i = 1; i < in_features; i++) {
++            max_l = std::max(max_l, this->logits[i]);
++        }
++        double sum_exp = 0.0;
++        for (int i = 0; i < in_features; i++) {
++            sum_exp += std::exp(double(this->logits[i] - max_l));
++        }
++        float log_sum = max_l + float(std::log(sum_exp));
++
++        // Find top-N by partial sort on log-probabilities
++        std::vector<std::pair<float, int>> candidates(in_features);
++        for (int i = 0; i < in_features; i++) {
++            candidates[i] = {this->logits[i] - log_sum, i};
++        }
++        int n = std::min(this->collect_logprobs, in_features);
++        std::partial_sort(candidates.begin(), candidates.begin() + n, candidates.end(),
++            [](const auto& a, const auto& b) { return a.first > b.first; });
++
++        last_top_logprobs.clear();
++        last_top_logprobs.reserve(n);
++        for (int i = 0; i < n; i++) {
++            last_top_logprobs.push_back({candidates[i].second, candidates[i].first});
++        }
++
++    }
++
+     sampler_topk_apply(this->top_k);
++
+     if (this->use_optimized_sampling) {
+         softmax_with_topp_minp(this->top_p, this->min_p);
+         sampler_temp_apply(this->temperature);
+         softmax_inplace();
+     } else {
+-        // Legacy behavior is kept as the default for output compatibility.
+         softmax_inplace();
+         sampler_topp_apply(this->top_p);
+         softmax_inplace();
+@@ -387,7 +425,24 @@ int Sampler::sample(buffer<bf16>& x) {
+     }
+ 
+     int sampled_index = sample_from_probs();
++
++    // ── Set the sampled token's logprob from the pre-temperature snapshot ──
++    if (this->collect_logprobs > 0) {
++        last_sampled_logprob = -std::numeric_limits<float>::infinity();
++        for (const auto& top : last_top_logprobs) {
++            if (top.token_id == sampled_index) {
++                last_sampled_logprob = top.logprob;
++                break;
++            }
++        }
++    }
++
+     ring_buffer_update_sparse(sampled_index);
+ 
++    // Advance the grammar state after the token is selected
++    if (this->grammar) {
++        this->grammar->accept(sampled_index);
++    }
++
+     return sampled_index;
+ }
+\ No newline at end of file
+diff --git a/src/include/AutoModel/automodel.hpp b/src/include/AutoModel/automodel.hpp
+index fef57f3..19b773e 100644
+--- a/src/include/AutoModel/automodel.hpp
++++ b/src/include/AutoModel/automodel.hpp
+@@ -33,6 +33,7 @@
+ #include "models/nanbeige/nanbeige_npu.hpp"
+ #include "tokenizer/tokenizer.hpp"
+ #include "modules/sampler.hpp"
++#include "grammar/grammar.hpp"
+ #include "utils/utils.hpp"
+ #include "utils/profiler.hpp"
+ #include "tensor_utils/q4_npu_eXpress.hpp"
+@@ -172,12 +173,31 @@ protected:
+ 	std::vector<profiler> profiler_list;
+ 	time_utils::time_with_unit last_prefill_time;
+ 
+-	std::string tool_name_; 
++	std::string tool_name_;
+ 	bool is_in_tool_block_ = false;
+ 	std::string buffer_;
+ 	StreamEventType current_mode_ = StreamEventType::CONTENT;
+ 	bool waiting_for_header_ = true;
+ 
++	// Grammar-constrained sampling state (per-request)
++	std::unique_ptr<FlmGrammar> grammar_;
++	std::vector<std::string> token_pieces_cache_;
++
++	// Logprobs collection state (per-request)
++	int collect_logprobs_ = 0;  // 0 = disabled, N = collect top-N per token
++
++	struct top_logprob_entry_t {
++		std::string token_text;
++		float logprob;
++	};
++	struct generation_token_logprob_t {
++		int    token_id;
++		std::string token_text;
++		float  logprob;
++		std::vector<top_logprob_entry_t> top_logprobs;
++	};
++	std::vector<generation_token_logprob_t> generation_logprobs_;
++
+ 
+ 	void _shared_load_model(std::string model_path, json model_info, int default_context_length = -1, bool enable_preemption = false);
+ 	nlohmann::json _shared_setup_tokenizer(std::string model_path);
+@@ -272,6 +292,23 @@ public:
+ 	/// \param penalty_window the penalty window
+ 	void set_penalty_window(int penalty_window);
+ 
++	/// \brief Set a GBNF grammar for constrained decoding.
++	/// Builds token-piece lookup on first call (cached), parses the grammar,
++	/// and wires it into the sampler.  Pass empty string to clear.
++	/// \param grammar_str  GBNF grammar text
++	/// \param grammar_root name of the start rule (default "root")
++	void set_grammar(const std::string & grammar_str, const std::string & grammar_root = "root");
++
++	/// \brief Clear any active grammar constraint.
++	void clear_grammar();
++
++	/// \brief Enable logprobs collection for the next generation.
++	/// \param n  number of top logprobs to collect per token (0 = disable)
++	void set_logprobs(int n);
++
++	/// \brief Get collected logprobs from the last generation.
++	const std::vector<generation_token_logprob_t>& get_logprobs() const { return generation_logprobs_; }
++
+ 	/// \brief Start the ttft timer
+ 	/// \return the ttft timer
+ 	void start_ttft_timer();
+diff --git a/src/include/grammar/grammar.hpp b/src/include/grammar/grammar.hpp
+new file mode 100644
+index 0000000..b4c9c02
+--- /dev/null
++++ b/src/include/grammar/grammar.hpp
+@@ -0,0 +1,132 @@
++/// \file grammar.hpp
++/// \brief GBNF grammar-constrained sampling for FastFlowLM
++/// \author FastFlowLM Community (ported from llama.cpp)
++/// \date 2026-04-12
++/// \note GBNF grammar parser and pushdown-automaton enforcer, adapted from
++///       llama.cpp's llama-grammar.h / llama-grammar.cpp (MIT-licensed).
++///       Strips lazy grammars, trigger patterns, and vocab-dependent token
++///       parsing (<token> syntax) to keep the port minimal and self-contained.
++///       Only character-level matching and numeric token IDs (<[id]>) are
++///       supported.
++#pragma once
++
++#include <cassert>
++#include <cstdint>
++#include <map>
++#include <memory>
++#include <set>
++#include <string>
++#include <vector>
++
++// ---- grammar element types (mirrors llama.cpp) ----------------------------
++
++enum flm_gretype {
++    FLM_GRETYPE_END            = 0,  // end of rule definition
++    FLM_GRETYPE_ALT            = 1,  // start of alternate definition
++    FLM_GRETYPE_RULE_REF       = 2,  // non-terminal: reference to rule
++    FLM_GRETYPE_CHAR           = 3,  // terminal: character (code point)
++    FLM_GRETYPE_CHAR_NOT       = 4,  // inverse char(s)
++    FLM_GRETYPE_CHAR_RNG_UPPER = 5,  // inclusive range upper bound
++    FLM_GRETYPE_CHAR_ALT       = 6,  // alternate char in set
++    FLM_GRETYPE_CHAR_ANY       = 7,  // any character (.)
++    FLM_GRETYPE_TOKEN          = 8,  // terminal: token (<[id]>)
++    FLM_GRETYPE_TOKEN_NOT      = 9,  // inverse token (!<[id]>)
++};
++
++struct flm_grammar_element {
++    flm_gretype type;
++    uint32_t    value;  // Unicode code point or rule ID
++};
++
++// ---- partial UTF-8 state --------------------------------------------------
++
++struct flm_partial_utf8 {
++    uint32_t value    = 0;   // accumulated bits (unshifted)
++    int      n_remain = 0;   // bytes remaining; -1 = invalid
++};
++
++// ---- candidate for grammar filtering --------------------------------------
++
++struct flm_grammar_candidate {
++    size_t             index;        // position in the logits array
++    const uint32_t   * code_points;  // decoded UTF-8 codepoints (0-terminated)
++    int                token_id;     // token ID for token-level matching
++    flm_partial_utf8   partial_utf8;
++};
++
++// ---- type aliases ---------------------------------------------------------
++
++using flm_grammar_rule   = std::vector<flm_grammar_element>;
++using flm_grammar_stack  = std::vector<const flm_grammar_element *>;
++using flm_grammar_rules  = std::vector<flm_grammar_rule>;
++using flm_grammar_stacks = std::vector<flm_grammar_stack>;
++using flm_grammar_candidates = std::vector<flm_grammar_candidate>;
++
++// ---- GBNF parser ----------------------------------------------------------
++
++struct flm_grammar_parser {
++    std::map<std::string, uint32_t> symbol_ids;
++    flm_grammar_rules rules;
++
++    uint32_t get_symbol_id(const char * src, size_t len);
++    uint32_t generate_symbol_id(const std::string & base_name);
++    void     add_rule(uint32_t rule_id, const flm_grammar_rule & rule);
++
++    const char * parse_alternates(const char * src, const std::string & rule_name,
++                                  uint32_t rule_id, bool is_nested);
++    const char * parse_sequence(const char * src, const std::string & rule_name,
++                                flm_grammar_rule & rule, bool is_nested);
++    const char * parse_rule(const char * src);
++    bool parse(const char * src);
++};
++
++// ---- grammar state (pushdown automaton) -----------------------------------
++
++class FlmGrammar {
++public:
++    /// Create from a GBNF grammar string.
++    /// \param grammar_str   GBNF text
++    /// \param grammar_root  name of the start rule (default "root")
++    /// \param token_pieces   vector mapping token-id → decoded text
++    /// \param eog_ids        end-of-generation token ids
++    /// \return nullptr on parse error
++    static std::unique_ptr<FlmGrammar> create(
++        const std::string & grammar_str,
++        const std::string & grammar_root,
++        const std::vector<std::string> & token_pieces,
++        const std::vector<int> & eog_ids);
++
++    /// Apply grammar constraints: set logits[i] = -inf for every token that
++    /// the grammar rejects in the current state.  Call BEFORE top-k / softmax.
++    void apply(float * logits, int vocab_size) const;
++
++    /// Accept a sampled token and advance the grammar state.
++    /// Call AFTER sampling.
++    void accept(int token_id);
++
++    /// Deep-clone the grammar (including internal stack state).
++    std::unique_ptr<FlmGrammar> clone() const;
++
++private:
++    flm_grammar_rules  rules_;
++    flm_grammar_stacks stacks_;
++    flm_partial_utf8   partial_utf8_;
++
++    std::vector<std::string> token_pieces_;  // token-id → text
++    std::vector<int>         eog_ids_;
++
++    // internal helpers
++    static void advance_stack(const flm_grammar_rules & rules,
++                              const flm_grammar_stack & stack,
++                              flm_grammar_stacks & new_stacks);
++
++    static flm_grammar_candidates reject_candidates(
++        const flm_grammar_rules & rules,
++        const flm_grammar_stacks & stacks,
++        const flm_grammar_candidates & candidates);
++
++    static flm_grammar_candidates reject_candidates_for_stack(
++        const flm_grammar_rules & rules,
++        const flm_grammar_stack & stack,
++        const flm_grammar_candidates & candidates);
++};
+diff --git a/src/include/modules/sampler.hpp b/src/include/modules/sampler.hpp
+index 088246f..8b511cb 100644
+--- a/src/include/modules/sampler.hpp
++++ b/src/include/modules/sampler.hpp
+@@ -9,9 +9,13 @@
+ #include "typedef.hpp"
+ #include <cstdint>
+ #include <deque>
++#include <memory>
+ #include <random>
+ #include <unordered_map>
+ 
++// Forward declaration for grammar-constrained sampling
++class FlmGrammar;
++
+ /// \brief sampler config
+ /// \param temperature the temperature
+ /// \param top_k the top k
+@@ -73,6 +77,11 @@ public:
+     std::uniform_real_distribution<float> uniform_dist_{0.0f, 1.0f};
+     bool use_optimized_sampling = true;
+ 
++    // Grammar-constrained sampling (optional, non-owning pointer).
++    // When set, the grammar filter is applied before top-k and the grammar
++    // state is advanced after sampling.
++    FlmGrammar * grammar = nullptr;
++
+     /// \brief Constructor
+     /// \param in_features the input features
+     /// \param config the configuration
+@@ -102,6 +111,24 @@ public:
+     void ring_buffer_update(int sampled_index);
+     void ring_buffer_update_sparse(int sampled_index);
+     
++    /// \brief Set or clear the grammar used for constrained sampling.
++    /// \param g  pointer to a FlmGrammar instance (non-owning), or nullptr
++    void set_grammar(FlmGrammar * g) { grammar = g; }
++
++    // ── Logprobs support ─────────────────────────────────────────────
++    // After each sample() call, if collect_logprobs > 0, these contain
++    // the sampled token's logprob and the top-N alternatives.
++
++    int collect_logprobs = 0;  // how many top logprobs to return (0 = disabled)
++
++    struct token_logprob_t {
++        int    token_id;
++        float  logprob;   // log(prob) after softmax+filtering
++    };
++
++    float              last_sampled_logprob = 0.0f;
++    std::vector<token_logprob_t> last_top_logprobs;
++
+     /// \brief Sample the token
+     /// \param x the input buffer
+     /// \return the sampled token
+diff --git a/src/server/rest_handler.cpp b/src/server/rest_handler.cpp
+index 1184098..95d3b54 100644
+--- a/src/server/rest_handler.cpp
++++ b/src/server/rest_handler.cpp
+@@ -317,6 +317,23 @@ void RestHandler::configure_chat_engine_parameters(const json& options, const js
+         std::string reasoning_effort = request["reasoning_effort"];
+         auto_chat_engine->configure_parameter("reasoning_effort", reasoning_effort);
+     }
++    // GBNF grammar-constrained decoding
++    if (request.contains("grammar")) {
++        std::string grammar_str = request["grammar"].get<std::string>();
++        std::string grammar_root = request.value("grammar_root", "root");
++        auto_chat_engine->set_grammar(grammar_str, grammar_root);
++    }
++    // Logprobs collection (OpenAI-compatible: integer = top-N logprobs per token)
++    if (request.contains("logprobs")) {
++        if (request["logprobs"].is_boolean() && request["logprobs"].get<bool>()) {
++            auto_chat_engine->set_logprobs(5);  // default top-5 when logprobs=true
++        } else if (request["logprobs"].is_number_integer()) {
++            auto_chat_engine->set_logprobs(request["logprobs"].get<int>());
++        }
++    }
++    if (request.contains("top_logprobs")) {
++        auto_chat_engine->set_logprobs(request["top_logprobs"].get<int>());
++    }
+ }
+ 
+ json RestHandler::build_nstream_response(std::string response_text) {
+@@ -337,7 +354,7 @@ json RestHandler::build_nstream_response(std::string response_text) {
+         message["tool_calls"] = json::array({
+             {
+                 {"index", 0},
+-                {"id", "call_" + std::to_string(std::time(nullptr))}, 
++                {"id", "call_" + std::to_string(std::time(nullptr))},
+                 {"type", "function"},
+                 {"function", {
+                     {"name", result.tool_name},
+@@ -350,13 +367,34 @@ json RestHandler::build_nstream_response(std::string response_text) {
+         message["content"] = result.content;
+     }
+ 
++    // Build logprobs object (OpenAI chat.completion format)
++    json logprobs_json = nullptr;
++    const auto& gen_logprobs = auto_chat_engine->get_logprobs();
++    if (!gen_logprobs.empty()) {
++        json content_logprobs = json::array();
++        for (const auto& tlp : gen_logprobs) {
++            json top_lps = json::array();
++            for (const auto& top : tlp.top_logprobs) {
++                top_lps.push_back({
++                    {"token", top.token_text},
++                    {"logprob", top.logprob}
++                });
++            }
++            content_logprobs.push_back({
++                {"token", tlp.token_text},
++                {"logprob", tlp.logprob},
++                {"top_logprobs", top_lps}
++            });
++        }
++        logprobs_json = {{"content", content_logprobs}};
++    }
+ 
+     // Construct the final choice object
+     return json::array({
+         {
+             {"index", 0},
+             {"message", message},
+-            {"logprobs", nullptr},
++            {"logprobs", logprobs_json},
+             {"finish_reason", is_tool_call ? "tool_calling" : "stop"}
+         }
+     });
+@@ -1184,6 +1222,29 @@ void RestHandler::handle_openai_completion(const json& request,
+             std::string response_text = ss.str();
+             auto history = this->auto_chat_engine->get_history();
+ 
++            // Build logprobs for completions endpoint
++            json completions_logprobs = nullptr;
++            const auto& comp_logprobs = auto_chat_engine->get_logprobs();
++            if (!comp_logprobs.empty()) {
++                json tokens_arr = json::array();
++                json token_logprobs_arr = json::array();
++                json top_logprobs_arr = json::array();
++                for (const auto& tlp : comp_logprobs) {
++                    tokens_arr.push_back(tlp.token_text);
++                    token_logprobs_arr.push_back(tlp.logprob);
++                    json top_map = json::object();
++                    for (const auto& top : tlp.top_logprobs) {
++                        top_map[top.token_text] = top.logprob;
++                    }
++                    top_logprobs_arr.push_back(top_map);
++                }
++                completions_logprobs = {
++                    {"tokens", tokens_arr},
++                    {"token_logprobs", token_logprobs_arr},
++                    {"top_logprobs", top_logprobs_arr}
++                };
++            }
++
+             json response = {
+                 {"id", "fastflowlm-chat-completion"},
+                 {"object", "text_completion"},
+@@ -1193,7 +1254,7 @@ void RestHandler::handle_openai_completion(const json& request,
+                     {
+                         {"text", response_text},
+                         {"index", 0},
+-                        {"logprobs", nullptr},
++                        {"logprobs", completions_logprobs},
+                         {"finish_reason", "stop"}
+                     }
+                 })},

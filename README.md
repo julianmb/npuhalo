@@ -206,7 +206,7 @@ Stock FastFlowLM returns `"logprobs": null` over HTTP, which blocks distribution
 * OpenAI-compatible `logprobs` and `top_logprobs` on `/v1/chat/completions` and `/v1/completions`
 * GBNF grammar-constrained decoding ported from `llama.cpp`
 
-The FastFlowLM source diff is not bundled in this repository. The tracked reference implementation and evaluation tooling are [`npu_logit_adapter.py`](standalone-eval/scripts/npu_logit_adapter.py) and [`test_logprobs.py`](standalone-eval/scripts/test_logprobs.py). With the modified server, the verifier tier can run on the NPU while leaving the iGPU available for the primary generator.
+The modification is published as a unified diff: [`patches/0003-flm-logprobs-and-grammars.patch`](patches/0003-flm-logprobs-and-grammars.patch) (see [`patches/README.md`](patches/README.md) for scope and apply instructions). The tracked Python-side validation tooling is [`npu_logit_adapter.py`](standalone-eval/scripts/npu_logit_adapter.py) and [`test_logprobs.py`](standalone-eval/scripts/test_logprobs.py). With the patched server, the verifier tier can run on the NPU while leaving the iGPU available for the primary generator.
 
 ---
 
@@ -238,6 +238,7 @@ npuhalo/
 ├── tests/                       # Automated regression and unit tests (25 tests)
 ├── docs/                        # Reviewed reports, baselines, archived experiments, and public roadmap
 │   └── research/                # Curated research index and evidence boundaries
+├── patches/                     # Out-of-tree FastFlowLM / llama.cpp modifications (logprobs, GBNF)
 ├── Makefile                     # 1-command targets (make test, make demo, make shadow, make sweep)
 ├── pyproject.toml               # Python 3.12+ package, dependencies, prompt data, and CLI entry point
 ├── CONTRIBUTING.md              # Development workflow and benchmark contribution requirements

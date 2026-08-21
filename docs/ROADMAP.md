@@ -10,7 +10,7 @@ continued work on routing, compression, and conservative anomaly triage.
 2. Publish sanitized aggregate telemetry and a machine-readable result schema.
 3. Validate context-compression fidelity on larger, independently labeled tool outputs.
 4. Measure verifier behavior on real agent traffic rather than synthetic-only tasks.
-5. Package the FastFlowLM logprob modification as a reproducible upstream patch.
+5. Upstream the published FastFlowLM logprob patch ([`patches/`](../patches/)) to the FastFlowLM repository.
 
 ## Engineering
 
