@@ -1,0 +1,7 @@
+git_commit: 8470d1112768fe130c2816f4460e26b22d584e24
+branch: main
+launched_utc: 2026-08-21T05:03:36Z
+command: python3 verifier/scripts/run_active_recovery.py --exp-dir verifier/results/active_recovery_20260821_1040 --modes baseline active_esc --seeds 1 2 --resume
+generator: Ornith-1.5-35B-A3B-ROCmFP4.gguf ctx16384 --no-context-shift -np 1 (supervised)
+verifier: lfm2.5-tk:1.2b FLM v0.9.46 :8001
+judge: Qwen3.5-2B-Q4_K_M :8013
