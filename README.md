@@ -219,6 +219,13 @@ The modification is published as a unified diff: [`patches/0003-flm-logprobs-and
 5. **Set D tasks topped out at ~80% baseline pass rate:** Ornith-1.5 is a strong generator; verification headroom is naturally bounded on simple tasks. Value claims should be understood as **insurance economics**, not magical pass-rate uplift.
 6. **Active rollback is incomplete:** Shadow detection is measured, but whether abort-and-resample converts failures into successful runs is still an open experiment.
 7. **Evaluation executors are not security sandboxes:** Agent and code-evaluation scripts may execute generated Python or shell commands with the current user's privileges. Run only trusted tasks inside a disposable container or VM; do not point them at sensitive workspaces.
+8. **Router speed is measured; router accuracy is not:** The 1,384 ms fast-lane figure measures latency only. No A/B evaluation has compared answer quality of NPU-routed short queries against always-GPU generation.
+9. **Compressor size reduction is measured; end-to-end time savings are not:** The 80–98% context reduction and ~1s NPU latency are measured, but no live-loop experiment has verified that the prefill tokens saved outweigh the compression latency on this hardware.
+10. **TTFT handoff coherence is unscored:** The 347 ms first-token handoff ([archived prototype](docs/HYBRID_NPU_PIPELINE.md)) streams NPU text before the iGPU continues. Perceived-latency gains are measured; output coherence of the stitched text versus pure GPU generation has never been formally evaluated.
+
+### Positioning
+
+The measured evidence supports one framing: the NPU is a **low-power sidecar for small-model auxiliary work** (routing, compression, triage, first-token bursts) that leaves the unified memory bus untouched — not a second inference engine. Every attempt to make it accelerate big-model decode was measured and lost to memory-bus contention.
 
 ---
 
