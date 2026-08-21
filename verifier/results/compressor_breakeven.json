@@ -1,0 +1,59 @@
+{
+  "breakeven_chars": 32000,
+  "verdict": "Compression pays off end-to-end above ~32000 chars",
+  "rows": [
+    {
+      "size_chars": 1000,
+      "prefill_raw_ms": 435,
+      "prefill_compressed_ms": 360,
+      "compression_latency_ms": 3014,
+      "mean_size_ratio": 0.606,
+      "net_saving_ms": -2939
+    },
+    {
+      "size_chars": 2000,
+      "prefill_raw_ms": 766,
+      "prefill_compressed_ms": 407,
+      "compression_latency_ms": 3133,
+      "mean_size_ratio": 0.287,
+      "net_saving_ms": -2775
+    },
+    {
+      "size_chars": 4000,
+      "prefill_raw_ms": 1175,
+      "prefill_compressed_ms": 450,
+      "compression_latency_ms": 3433,
+      "mean_size_ratio": 0.152,
+      "net_saving_ms": -2708
+    },
+    {
+      "size_chars": 8000,
+      "prefill_raw_ms": 1532,
+      "prefill_compressed_ms": 560,
+      "compression_latency_ms": 3703,
+      "mean_size_ratio": 0.083,
+      "net_saving_ms": -2731
+    },
+    {
+      "size_chars": 16000,
+      "prefill_raw_ms": 2491,
+      "prefill_compressed_ms": 769,
+      "compression_latency_ms": 3712,
+      "mean_size_ratio": 0.042,
+      "net_saving_ms": -1990
+    },
+    {
+      "size_chars": 32000,
+      "prefill_raw_ms": 8882,
+      "prefill_compressed_ms": 1284,
+      "compression_latency_ms": 3853,
+      "mean_size_ratio": 0.021,
+      "net_saving_ms": 3745
+    }
+  ],
+  "caveats": [
+    "Prefill isolated via max_tokens=1; decode-phase effects not modeled.",
+    "Median of 3 trials per size; single-seed synthetic outputs.",
+    "Generator KV/prompt-cache state may favor later trials; sizes interleaved identically per trial."
+  ]
+}

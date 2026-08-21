@@ -23,9 +23,9 @@ All numbers below were measured on real hardware (128 GB LPDDR5X, Linux 7.0 / Ub
 
 | Approach | Status | Measured Result | Production Verdict |
 | :--- | :---: | :--- | :--- |
-| **Tool-Output Context Compression** | 🟡 **Prototype** | **80–98% context reduction**, ~1.0s NPU latency | Promising on long outputs; fidelity needs broader validation |
+| **Tool-Output Context Compression** | 🟡 **Prototype** | 80–98% smaller context; net-positive only above **~32K chars** | Compression itself costs ~3–4s (thinking-model extraction); below breakeven it adds latency |
 | **Deterministic Parser Guard** | 🟢 **Ship** | <0.1ms, zero model compute | Deterministic schema validation + format hints; harness truncation was fixed separately |
-| **NPU Query Router (Fast Lane)** | 🟡 **Feature** | **1,384 ms NPU-direct** vs 14,635 ms GPU-thinking | Fast, low-power (~2 W) classification & routing for short queries |
+| **NPU Query Router (Fast Lane)** | 🔴 **Blocked** | Routing accuracy **25%**; NPU-direct answers 78% vs GPU 100% | Latency parity in A/B (~1.9s vs ~2.2s); needs a better classifier before the fast lane is real |
 | **Live Stream Verification** | 🔵 **Research** | 4/4 catchable failures flagged, 0/22 clean false alarms, −8.2% throughput | Detection is measured; end-to-end rollback conversion remains unmeasured |
 | **Speculative Decoding (NPU $\to$ GPU)** | 🔴 **Archived** | 2,640 ms vs 1,313 ms GPU-only (**2× slower**) | Active-parameter-light MoE targets decode faster than NPU drafters |
 
@@ -219,13 +219,13 @@ The modification is published as a unified diff: [`patches/0003-flm-logprobs-and
 5. **Set D tasks topped out at ~80% baseline pass rate:** Ornith-1.5 is a strong generator; verification headroom is naturally bounded on simple tasks. Value claims should be understood as **insurance economics**, not magical pass-rate uplift.
 6. **Active rollback is incomplete:** Shadow detection is measured, but whether abort-and-resample converts failures into successful runs is still an open experiment.
 7. **Evaluation executors are not security sandboxes:** Agent and code-evaluation scripts may execute generated Python or shell commands with the current user's privileges. Run only trusted tasks inside a disposable container or VM; do not point them at sensitive workspaces.
-8. **Router speed is measured; router accuracy is not:** The 1,384 ms fast-lane figure measures latency only. No A/B evaluation has compared answer quality of NPU-routed short queries against always-GPU generation.
-9. **Compressor size reduction is measured; end-to-end time savings are not:** The 80–98% context reduction and ~1s NPU latency are measured, but no live-loop experiment has verified that the prefill tokens saved outweigh the compression latency on this hardware.
-10. **TTFT handoff coherence is unscored:** The 347 ms first-token handoff ([archived prototype](docs/HYBRID_NPU_PIPELINE.md)) streams NPU text before the iGPU continues. Perceived-latency gains are measured; output coherence of the stitched text versus pure GPU generation has never been formally evaluated.
+8. **Router accuracy is poor (measured):** In an A/B evaluation ([`eval_router_ab.py`](verifier/scripts/eval_router_ab.py)), the LFM2.5 classifier routed correctly in only **25%** of cases (it sends nearly everything to the GPU, and occasionally sends reasoning queries to the NPU). NPU-direct answers scored **78%** vs **100%** on GPU for trivial factual questions, at near-identical latency (~1.9s vs ~2.2s). The earlier "1,384 ms vs 14,635 ms" figure measured latency only, on a different configuration.
+9. **Compressor breakeven is ~32K chars (measured):** Live-loop measurement ([`eval_compressor_breakeven.py`](verifier/scripts/eval_compressor_breakeven.py)) shows NPU compression costs **~3–4s** (the thinking model emits reasoning tokens before the structured summary), while prefill savings grow with output size. Net saving is negative below ~16K chars and only turns positive around **32K chars** (+3.7s there). The earlier ">500 chars" guidance was wrong for this stack.
+10. **TTFT handoff loses on current firmware (measured):** A/B evaluation ([`eval_handoff_coherence.py`](verifier/scripts/eval_handoff_coherence.py)) found the NPU-burst handoff is *slower* than direct GPU generation even on long prompts (**~1,430 ms vs ~730 ms** first token) — the NPU must prefill the same long context and is slower at it than the iGPU. Output quality was a statistical tie (2B judge; 92% of bursts end mid-sentence but the continuation recovers). The earlier "347 ms vs 1,587 ms" claim does not reproduce on today's stack; the archived prototype stays archived.
 
 ### Positioning
 
-The measured evidence supports one framing: the NPU is a **low-power sidecar for small-model auxiliary work** (routing, compression, triage, first-token bursts) that leaves the unified memory bus untouched — not a second inference engine. Every attempt to make it accelerate big-model decode was measured and lost to memory-bus contention.
+The measured evidence supports one framing: the NPU is a **low-power sidecar for small-model auxiliary work** (verification triage, and compression of *very* large tool outputs) that leaves the unified memory bus untouched — not a second inference engine. Every attempt to make it accelerate or front-run big-model generation — speculative drafting, TTFT bursts, query routing — was measured and lost, to memory-bus contention, prefill slowness, or classifier inaccuracy.
 
 ---
 
