@@ -40,6 +40,7 @@ sys.path.insert(0, os.path.join(REPO, "verifier", "src"))
 sys.path.insert(0, HERE)
 
 import run_narrow_eval as base  # noqa: E402
+from gated_escalator import GatedEscalator  # noqa: E402
 
 GEN_BASE = "http://127.0.0.1:8012"
 DATA = os.path.join(REPO, "verifier", "data", "set_d_agentic.jsonl")
@@ -233,6 +234,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--tasks", nargs="+", default=None,
                     help="restrict to these task IDs (smoke tests); default = full manifest")
+    ap.add_argument("--policy", default=None,
+                    help="path to frozen triage policy JSON; wraps the judge with the escalation gate")
     args = ap.parse_args()
 
     exp_dir = Path(args.exp_dir) if args.exp_dir else Path(
@@ -258,10 +261,20 @@ def main():
 
     verifier = None
     escalator = None
+    gate = None
     if "active_esc" in args.modes:
         verifier = base.NPUVerifierClient(base.NPU)
         verifier.evaluate_checkpoint("warm", "warm", "{task} {trajectory}", k_samples=3, temperature=0.7)
         escalator = base.QwenEscalator(base.ESC, threshold=0.50)
+        if args.policy:
+            policy_cfg = json.load(open(args.policy))
+            policy_hash = hashlib.sha256(
+                json.dumps(policy_cfg, indent=2, sort_keys=True).encode()).hexdigest()
+            gate = GatedEscalator(escalator, policy_cfg["policy_id"])
+            escalator = gate
+            event_log.emit(event="policy_frozen", policy_id=policy_cfg["policy_id"],
+                           policy_sha256=policy_hash, path=args.policy)
+            print(f"[policy] {policy_cfg['policy_id']} (sha256 {policy_hash[:16]}…)")
     prompt = open(base.PROMPT_FILE).read()
 
     counts = {"COMPLETED": 0, "INFRA_FAILURE": 0, "CONTEXT_OVERFLOW": 0}
@@ -300,6 +313,10 @@ def main():
                     rec["seed"] = seed
                 rec["outcome"] = outcome
                 rec["wall_time_s"] = round(time.time() - t0, 1)
+                if gate is not None and mode == "active_esc":
+                    rec["gate_stats"] = dict(gate.stats)
+                    event_log.emit(event="gate_stats", task=task["id"], mode=mode, seed=seed,
+                                   **gate.stats)
                 counts[outcome] += 1
                 out = result_path(exp_dir, task["id"], mode, seed)
                 with open(out, "w") as f:

@@ -1,0 +1,59 @@
+{
+  "frozen_dataset": "<home>/source/npuhalo/verifier/results/active_recovery_20260821_1040",
+  "seeds_used_for_calibration": [
+    1,
+    2
+  ],
+  "escalation_cost_fit": {
+    "alpha_s": 6.48,
+    "beta_s_per_escalation": 0.94,
+    "n_runs": 32
+  },
+  "policies": {
+    "A_reference": {
+      "checkpoints": 174,
+      "suspect_checkpoints": 174,
+      "escalations": 174,
+      "aborts": 12,
+      "est_harmful_aborts": 6,
+      "aborted_in_baseline_failed_catchable": 6,
+      "npu_latency_ms": 182924.6804714203,
+      "escalations_per_task": 5.44,
+      "suspect_rate_pct": 100.0,
+      "post_policy_escalation_rate_pct": 100.0,
+      "est_latency_saved_s_vs_A": 0.0,
+      "escalations_cut_vs_A": 0
+    },
+    "B_consecutive": {
+      "checkpoints": 174,
+      "suspect_checkpoints": 174,
+      "escalations": 142,
+      "aborts": 12,
+      "est_harmful_aborts": 6,
+      "aborted_in_baseline_failed_catchable": 6,
+      "npu_latency_ms": 182924.6804714203,
+      "escalations_per_task": 4.44,
+      "suspect_rate_pct": 100.0,
+      "post_policy_escalation_rate_pct": 81.6,
+      "est_latency_saved_s_vs_A": 30.1,
+      "escalations_cut_vs_A": 32
+    },
+    "C_unanimous": {
+      "checkpoints": 174,
+      "suspect_checkpoints": 174,
+      "escalations": 0,
+      "aborts": 0,
+      "est_harmful_aborts": 0,
+      "aborted_in_baseline_failed_catchable": 0,
+      "npu_latency_ms": 182924.6804714203,
+      "escalations_per_task": 0.0,
+      "suspect_rate_pct": 100.0,
+      "post_policy_escalation_rate_pct": 0.0,
+      "est_latency_saved_s_vs_A": 163.5,
+      "escalations_cut_vs_A": 174
+    }
+  },
+  "champion": "C_unanimous",
+  "champion_rationale": "pre-registered ranking: subset-of-A aborts, then largest escalation cut",
+  "replay_limitation": "counterfactual aborts only evaluable where policy A scored the judge; B/C can only remove aborts relative to A in replay"
+}

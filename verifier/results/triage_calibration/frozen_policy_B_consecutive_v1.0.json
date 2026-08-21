@@ -1,0 +1,24 @@
+{
+  "amendment_note": "champion rule amended pre-held-out with recall-preservation constraint; see triage_calibration_protocol_2026-08-21.md AMENDMENT 1",
+  "calibration_evidence": {
+    "abort_set": "identical to A (12 aborts incl. all 6 on baseline-failed catchable tasks)",
+    "cut": 32,
+    "dataset": "active_recovery_20260821_1040 seeds 1-2 (32 pairs, 174 checkpoints)",
+    "escalations_A": 174,
+    "escalations_B": 142,
+    "est_latency_saved_s_per_32_runs": 30.1,
+    "marginal_escalation_cost_s": 0.94,
+    "suspect_rate_pct": 100.0,
+    "unanimous_suspect_checkpoints": 0
+  },
+  "frozen_utc": "2026-08-21",
+  "policy_id": "B_consecutive",
+  "rule": {
+    "abort_rule": "unchanged: only judge jeopardy r<=0.50 aborts; max_rollbacks=2; raw NPU ABORT still aborts directly",
+    "abstain_semantics": "ABSTAIN logs LOW-risk, makes no judge call, advances rollback snapshot like CONTINUE",
+    "checkpoint_definition": "one Tier-2 _verify_step_npu call, k=3 votes, lfm2.5-tk:1.2b temp 0.7 (unchanged)",
+    "escalation_gate": "escalate to Tier-3 judge iff the last 2 checkpoints were both majority-SUSPECT; isolated SUSPECT -> ABSTAIN",
+    "majority_suspect": ">=2/3 votes SUSPECT (unchanged)"
+  },
+  "version": "1.0"
+}
