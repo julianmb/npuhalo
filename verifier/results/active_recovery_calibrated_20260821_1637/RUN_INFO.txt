@@ -1,0 +1,4 @@
+git_commit: 4f426f4850c432d6c9ddf28b139bb5536f8c0763
+policy: B_consecutive sha256 16a215f26d6b1e3f6d6d896b05070a40b30efccc783a59b3ed0ac6c50fd92940
+launched_utc: 2026-08-21T06:37:38Z
+seeds: 3 4 5 (held-out)
