@@ -1,0 +1,150 @@
+{
+  "task": "D02",
+  "category": "debug",
+  "instruction": "dedup.py: dedup() has TWO bugs \u2014 it drops the FIRST occurrence instead of keeping it, AND it mishandles unhashable/mixed types. Fix both. Hidden grader checks order and stability.",
+  "passed": false,
+  "num_steps": 15,
+  "wall_time": 84.87819027900696,
+  "steps": [
+    {
+      "step": 1,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "def dedup(items):\n    seen=set()\n    out=[]\n    for it in reversed(items):\n        if it not in seen:\n            seen.add(it); out.append(it)\n    return list(reversed(out))\n---TEST---\nfrom dedup import dedup\nassert dedup(['a','b','a'])==['a','b']\nprint('VISIBLE PASS')\n\n"
+    },
+    {
+      "step": 2,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 3,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 4,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 5,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 6,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 7,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 8,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 9,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 10,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 11,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 12,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 13,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 14,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 15,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    }
+  ],
+  "first_evidence_step": null,
+  "caught_at_evidence": null
+}

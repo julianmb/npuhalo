@@ -1,0 +1,26 @@
+name: Benchmark result
+description: Submit a reproducible, sanitized measurement
+title: "[Benchmark]: "
+labels: ["benchmark"]
+body:
+  - type: textarea
+    id: result
+    attributes:
+      label: Result
+      description: State the measured metric, units, sample size, and uncertainty.
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Reproduction setup
+      description: Include model and hash, runtime revision, driver and firmware, prompts or dataset, seeds, and commands.
+    validations:
+      required: true
+  - type: textarea
+    id: telemetry
+    attributes:
+      label: Sanitized telemetry
+      description: Attach or link data with usernames, hostnames, private paths, and secrets removed.
+    validations:
+      required: true

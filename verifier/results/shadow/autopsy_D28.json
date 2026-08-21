@@ -1,0 +1,205 @@
+{
+  "task": "D28",
+  "category": "pipeline",
+  "instruction": "Write bump.sh: version.json (1.2.3) -> bump patch to 4, write back, write tag.txt 'v1.2.4'. Hidden test checks both files.",
+  "passed": false,
+  "num_steps": 15,
+  "wall_time": 66.01136112213135,
+  "steps": [
+    {
+      "step": 1,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "total 52\ndrwx------   3 user user  4096 Aug 20 19:02 .\ndrwxrwxrwt 223 root root 36864 Aug 20 19:02 ..\ndrwxrwxr-x   2 user user  4096 Aug 20 19:02 tests\n-rw-rw-r--   1 user user    32 Aug 20 19:02 version.json\n---version.json---\n{\"major\":1,\"minor\":2,\"patch\":3}\n---test---\nimport json\nv=json.load(open('version.json'))\nassert v['patch']==4\nprint('VISIBLE PASS')\n\n"
+    },
+    {
+      "step": 2,
+      "tool": "write",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "OK wrote 425 chars\n"
+    },
+    {
+      "step": 3,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "---version.json---\n{\"major\": 1, \"minor\": 2, \"patch\": 4}\n---tag.txt---\nv1.2.4\n\n"
+    },
+    {
+      "step": 4,
+      "tool": "test",
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\n"
+    },
+    {
+      "step": 5,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [
+        "python_traceback",
+        "python_exception",
+        "missing_file"
+      ],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "exit: 1\n---hexdump tag---\n00000000: 7631 2e32 2e35 0a                        v1.2.5.\n---hexdump version---\n00000000: 7b22 6d61 6a6f 7222 3a20 312c 2022 6d69  {\"major\": 1, \"mi\n00000010: 6e6f 7222 3a20 322c 2022 7061 7463 6822  nor\": 2, \"patch\"\n00000020: 3a20 357d 0a                             : 5}.\n\nTraceback (most recent call last):\n  File \"/tmp/setd_D28_<redacted>/tests/test_version.py\", "
+    },
+    {
+      "step": 6,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 7,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 8,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 9,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 10,
+      "tool": "shell",
+      "exit_code": 127,
+      "evidence_kinds": [
+        "missing_file"
+      ],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\nbash: line 1: ./bump.sh: No such file or directory\n"
+    },
+    {
+      "step": 11,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "/tmp/setd_D28_<redacted>\ntotal 60\ndrwx------   3 user user  4096 Aug 20 19:03 .\ndrwxrwxrwt 223 root root 36864 Aug 20 19:03 ..\n-rwxrwxr-x   1 user user   425 Aug 20 19:02 bump.sh\n-rw-rw-r--   1 user user     7 Aug 20 19:03 tag.txt\ndrwxrwxr-x   2 user user  4096 Aug 20 19:02 tests\n-rw-rw-r--   1 user user    37 Aug 20 19:03 version.json\n\n"
+    },
+    {
+      "step": 12,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "{\"major\": 1, \"minor\": 2, \"patch\": 5}\n---\n---after---\n{\"major\": 1, \"minor\": 2, \"patch\": 6}\n---tag---\nv1.2.6\n\n"
+    },
+    {
+      "step": 13,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "---version.json---\n{\"major\": 1, \"minor\": 2, \"patch\": 4}\n---tag.txt---\nv1.2.4\n\n"
+    },
+    {
+      "step": 14,
+      "tool": "test",
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\n"
+    },
+    {
+      "step": 15,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [
+        "python_traceback",
+        "python_exception",
+        "test_failure_marker"
+      ],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "exit: 1\n\nTraceback (most recent call last):\n  File \"/tmp/setd_D28_<redacted>/tests/test_version.py\", line 3, in <module>\n    assert v['patch']==4\n           ^^^^^^^^^^^^^\nAssertionError\n"
+    }
+  ],
+  "first_evidence_step": {
+    "step": 5,
+    "tool": "shell",
+    "exit_code": 0,
+    "evidence_kinds": [
+      "python_traceback",
+      "python_exception",
+      "missing_file"
+    ],
+    "verifier_votes": {
+      "CONTINUE": 1,
+      "SUSPECT": 2
+    },
+    "verifier_verdict": "SUSPECT",
+    "output_head": "exit: 1\n---hexdump tag---\n00000000: 7631 2e32 2e35 0a                        v1.2.5.\n---hexdump version---\n00000000: 7b22 6d61 6a6f 7222 3a20 312c 2022 6d69  {\"major\": 1, \"mi\n00000010: 6e6f 7222 3a20 322c 2022 7061 7463 6822  nor\": 2, \"patch\"\n00000020: 3a20 357d 0a                             : 5}.\n\nTraceback (most recent call last):\n  File \"/tmp/setd_D28_<redacted>/tests/test_version.py\", "
+  },
+  "caught_at_evidence": true
+}

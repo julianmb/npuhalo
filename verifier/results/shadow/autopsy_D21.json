@@ -1,0 +1,180 @@
+{
+  "task": "D21",
+  "category": "pipeline",
+  "instruction": "Write run.sh: create data/x.csv (header id,name; 2 rows), run csv2json.py -> out.json. Hidden grader checks exact out.json content.",
+  "passed": false,
+  "num_steps": 15,
+  "wall_time": 67.17806887626648,
+  "steps": [
+    {
+      "step": 1,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "total 52\ndrwx------   3 user user  4096 Aug 20 18:59 .\ndrwxrwxrwt 216 root root 36864 Aug 20 18:59 ..\n-rw-rw-r--   1 user user   124 Aug 20 18:59 csv2json.py\ndrwxrwxr-x   2 user user  4096 Aug 20 18:59 tests\n---csv2json.py---\nimport csv,json\nrows=list(csv.DictReader(open('data/x.csv')))\njson.dump(rows,open('out.json','w'))\nprint('wrote',len(rows))\n---test_out.py---\nimport json\nrows=json.load(open("
+    },
+    {
+      "step": 2,
+      "tool": "write",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "OK wrote 122 chars\n"
+    },
+    {
+      "step": 3,
+      "tool": "shell",
+      "exit_code": 126,
+      "evidence_kinds": [
+        "nonzero_exit"
+      ],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\nbash: line 1: ./run.sh: Permission denied\n"
+    },
+    {
+      "step": 4,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "wrote 2\n---out.json---\n[{\"id\": \"1\", \"name\": \"alice\"}, {\"id\": \"2\", \"name\": \"bob\"}]\n\n"
+    },
+    {
+      "step": 5,
+      "tool": "test",
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\n"
+    },
+    {
+      "step": 6,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 7,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 8,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 9,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3\ncachedir: .pytest_cache\nrootdir: /tmp/setd_D21_<redacted>\nplugins: anyio-4.12.1\ncollecting ... collected 0 items\n\n============================ no tests ran in 0.00s =============================\n\n"
+    },
+    {
+      "step": 10,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 11,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 12,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 13,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 14,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 15,
+      "tool": "test",
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    }
+  ],
+  "first_evidence_step": {
+    "step": 3,
+    "tool": "shell",
+    "exit_code": 126,
+    "evidence_kinds": [
+      "nonzero_exit"
+    ],
+    "verifier_votes": {
+      "CONTINUE": 1,
+      "SUSPECT": 2
+    },
+    "verifier_verdict": "SUSPECT",
+    "output_head": "\nbash: line 1: ./run.sh: Permission denied\n"
+  },
+  "caught_at_evidence": true
+}

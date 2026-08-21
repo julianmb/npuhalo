@@ -1,0 +1,150 @@
+{
+  "task": "D03",
+  "category": "debug",
+  "instruction": "temperature.py: f_to_k() is wrong AND c_to_f() has a subtle precision bug. Fix both. Hidden grader checks the full chain with tight tolerance.",
+  "passed": false,
+  "num_steps": 15,
+  "wall_time": 85.45172047615051,
+  "steps": [
+    {
+      "step": 1,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "total 52\ndrwx------   2 user user  4096 Aug 20 18:48 .\ndrwxrwxrwt 197 root root 36864 Aug 20 18:48 ..\n-rw-rw-r--   1 user user   180 Aug 20 18:48 temperature.py\n-rw-rw-r--   1 user user    81 Aug 20 18:48 test_temperature.py\n---temperature.py---\ndef c_to_f(c): return c*9/5+32\ndef f_to_c(f): return (f-32)*5/9\ndef c_to_k(c): return c+273.15\ndef k_to_c(k): return k-273.15\ndef f_to_k(f): return f+273."
+    },
+    {
+      "step": 2,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 3,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 4,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 5,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 6,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 7,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 8,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 9,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 10,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 11,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 12,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 13,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 14,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 15,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    }
+  ],
+  "first_evidence_step": null,
+  "caught_at_evidence": null
+}

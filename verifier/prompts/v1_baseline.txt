@@ -1,0 +1,9 @@
+Task:
+{task}
+
+Trajectory Checkpoint:
+{trajectory}
+
+Evaluate if there is an error in this checkpoint.
+Output CONTINUE if valid, or ABORT if there is an error.
+Verdict:

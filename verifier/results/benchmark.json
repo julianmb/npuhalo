@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "host": "AMD Strix Halo (Ryzen AI Max+ 395, Radeon 8060S)",
+    "generator": "Ornith-1.5-35B-A3B-ROCmFP4 (llama-server :8012)",
+    "verifier": "LiquidAI/LFM2.5-1.2B-Thinking (NPU / FastFlowLM)",
+    "date": "2026-08-20"
+  },
+  "configurations": {
+    "baseline": {
+      "math_pass": 9,
+      "code_pass": 5,
+      "tokens": 7250,
+      "time_sec": 192.1584951877594
+    },
+    "live": {
+      "math_pass": 9,
+      "code_pass": 5,
+      "tokens": 7217,
+      "time_sec": 192.65632271766663,
+      "rollbacks": 0
+    },
+    "streaming_bon": {
+      "math_pass": 9,
+      "code_pass": 5,
+      "tokens": 29565,
+      "time_sec": 816.2469866275787
+    }
+  },
+  "planted_error_metrics": {
+    "total": 20,
+    "tp": 0,
+    "fp": 0,
+    "tn": 0,
+    "fn": 0,
+    "precision": 0.0,
+    "recall": 0.0
+  }
+}

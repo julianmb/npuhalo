@@ -1,0 +1,31 @@
+# Binaries and weights
+models/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+
+# Python
+**/__pycache__/
+*.pyc
+*.egg-info/
+.ruff_cache/
+.venv/
+venv/
+build/
+dist/
+
+# Local runtime artifacts
+/tmp/
+*.log
+*.sock
+*.pid
+docs/benchmark_results.json
+verifier/config.env
+verifier/results/raw/
+docs/research/raw/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store

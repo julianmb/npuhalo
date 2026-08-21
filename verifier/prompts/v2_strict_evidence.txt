@@ -1,0 +1,13 @@
+Task:
+{task}
+
+Trajectory Checkpoint:
+{trajectory}
+
+Instructions:
+1. ABORT only on objective, evidence-backed errors: syntax error, failed test, wrong command, contradiction, or invalid logic.
+2. If there are no objective errors, output CONTINUE.
+3. If uncertain, output SUSPECT.
+Quote the exact offending line if aborting:
+<evidence>quoted line</evidence>
+<verdict>CONTINUE/SUSPECT/ABORT</verdict>

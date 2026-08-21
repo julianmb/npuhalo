@@ -1,0 +1,30 @@
+name: tests
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Run unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Syntax check
+        run: python3 -m compileall -q scripts verifier standalone-eval tests examples
+      - name: Build and smoke-test wheel
+        run: |
+          pip wheel . --no-deps --wheel-dir dist
+          pip install --force-reinstall --no-deps dist/npuhalo-*.whl
+          cd /tmp
+          python -c "import verifier.src.stream_tap, verifier.src.verifier_client"
+          npuhalo-demo --help

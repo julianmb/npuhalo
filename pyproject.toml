@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "npuhalo"
+version = "0.1.0"
+description = "Heterogeneous NPU + iGPU inference pipeline and live verification suite on AMD Strix Halo"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    { name = "npuhalo contributors" }
+]
+requires-python = ">=3.12"
+keywords = ["amd", "strix-halo", "xdna", "npu", "llm-inference"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.13.0",
+    "transformers>=5.14.0",
+    "numpy>=2.5.0",
+    "aiohttp>=3.14.0",
+    "gguf>=0.19.0",
+    "safetensors>=0.8.0",
+    "tokenizers>=0.22.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+npuhalo-demo = "examples.demo_stream:main"
+
+[project.urls]
+Repository = "https://github.com/julianmb/npuhalo"
+Issues = "https://github.com/julianmb/npuhalo/issues"
+Documentation = "https://github.com/julianmb/npuhalo/tree/main/docs"
+
+[tool.setuptools]
+packages = ["examples", "verifier", "verifier.src"]
+include-package-data = false
+
+[tool.setuptools.package-data]
+verifier = ["prompts/*.txt"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E9", "F"]

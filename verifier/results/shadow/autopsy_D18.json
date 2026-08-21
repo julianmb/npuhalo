@@ -1,0 +1,182 @@
+{
+  "task": "D18",
+  "category": "env",
+  "instruction": "install.sh runs pip install (network blocked) AND imports requests. Create vendor/requests.py stub (get()->None) and make install.sh succeed without network.",
+  "passed": false,
+  "num_steps": 15,
+  "wall_time": 82.91548466682434,
+  "steps": [
+    {
+      "step": 1,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "total 48\ndrwx------   2 user user  4096 Aug 20 18:57 .\ndrwxrwxrwt 213 root root 36864 Aug 20 18:57 ..\n-rw-rw-r--   1 user user    86 Aug 20 18:57 install.sh\n---\n#!/usr/bin/env bash\nset -e\npip install --target vendor -q requests && echo OK_INSTALL\n\n"
+    },
+    {
+      "step": 2,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 3,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 4,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 5,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "Python 3.12.3\npip 24.0 from /usr/lib/python3/dist-packages/pip (python 3.12)\n/usr/bin/pip\nno vendor dir\n\n"
+    },
+    {
+      "step": 6,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 7,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 8,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 9,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 10,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 11,
+      "tool": null,
+      "exit_code": null,
+      "evidence_kinds": [],
+      "verifier_votes": null,
+      "verifier_verdict": null,
+      "output_head": "\n"
+    },
+    {
+      "step": 12,
+      "tool": "write",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "OK wrote 1374 chars\n"
+    },
+    {
+      "step": 13,
+      "tool": "write",
+      "exit_code": -2,
+      "evidence_kinds": [
+        "nonzero_exit"
+      ],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\nIsADirectoryError: [Errno 21] Is a directory: '/tmp/setd_D18_<redacted>'"
+    },
+    {
+      "step": 14,
+      "tool": "shell",
+      "exit_code": 0,
+      "evidence_kinds": [],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "total 12\ndrwxrwxr-x 2 user user 4096 Aug 20 18:58 .\ndrwx------ 3 user user 4096 Aug 20 18:58 ..\n-rw-rw-r-- 1 user user 1374 Aug 20 18:58 requests.py\n---\n\"\"\"Minimal stub of the requests library for offline use.\"\"\"\n\n\ndef get(url, *args, **kwargs):\n    \"\"\"Return None as a stand-in for a real GET response.\"\"\"\n    return None\n\n\ndef head(url, *args, **kwargs):\n    return None\n\n\ndef post(url, *args, **kw"
+    },
+    {
+      "step": 15,
+      "tool": "write",
+      "exit_code": -2,
+      "evidence_kinds": [
+        "nonzero_exit"
+      ],
+      "verifier_votes": {
+        "CONTINUE": 1,
+        "SUSPECT": 2
+      },
+      "verifier_verdict": "SUSPECT",
+      "output_head": "\nIsADirectoryError: [Errno 21] Is a directory: '/tmp/setd_D18_<redacted>'"
+    }
+  ],
+  "first_evidence_step": {
+    "step": 13,
+    "tool": "write",
+    "exit_code": -2,
+    "evidence_kinds": [
+      "nonzero_exit"
+    ],
+    "verifier_votes": {
+      "CONTINUE": 1,
+      "SUSPECT": 2
+    },
+    "verifier_verdict": "SUSPECT",
+    "output_head": "\nIsADirectoryError: [Errno 21] Is a directory: '/tmp/setd_D18_<redacted>'"
+  },
+  "caught_at_evidence": true
+}

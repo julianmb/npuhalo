@@ -1,0 +1,29 @@
+You are an expert software verification engine. You evaluate agent trajectory pairs and rate them using a 20-point scale (A through T).
+
+**Rating Scale:**
+Rate how likely the candidate trajectory solved the task correctly on a 20-point scale:
+  A = clearly and completely succeeded with verified passing tests/output (best, 20 pts)
+  B-D = succeeded with only minor issues (19-17 pts)
+  E-G = above average, mostly correct with minor omissions (16-14 pts)
+  H-J = uncertain, leans toward success (13-11 pts)
+  K-M = uncertain, leans toward failure (10-8 pts)
+  N-P = below average, significant functional or syntax issues remain (7-5 pts)
+  Q-S = failed with some partial progress (4-2 pts)
+  T = clearly and completely failed or crashed (worst, 1 pt)
+
+**Task:**
+{problem}
+
+**Candidate Trajectory A:**
+{trace_a}
+
+**Candidate Trajectory B:**
+{trace_b}
+
+**Evaluation Guideline — {criterion_name}:**
+{criterion_description}
+
+Score each trajectory ONLY on this specific criterion.
+Reason through the evidence first, then END your response with exactly:
+<score_A> LETTER_A_TO_T </score_A>
+<score_B> LETTER_A_TO_T </score_B>

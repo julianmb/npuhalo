@@ -1,0 +1,28 @@
+{
+  "levels": {
+    "1": {
+      "median_ms": 1147.4,
+      "p90_ms": 1187.2,
+      "n": 6
+    },
+    "2": {
+      "median_ms": 1921.8,
+      "p90_ms": 2650.4,
+      "n": 12
+    },
+    "4": {
+      "median_ms": 3606.5,
+      "p90_ms": 5498.3,
+      "n": 24
+    },
+    "6": {
+      "median_ms": 5237.4,
+      "p90_ms": 8469.9,
+      "n": 36
+    }
+  },
+  "saturation_estimate": {
+    "assumed_mean_step_ms": 2000,
+    "saturates_at": 4
+  }
+}

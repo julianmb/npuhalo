@@ -1,0 +1,1150 @@
+{
+  "metadata": {
+    "num_pairs": 30,
+    "date": "2026-08-20",
+    "scale": "A-T (20-point granularity)",
+    "host": "AMD Strix Halo (Ryzen AI Max+ 395)"
+  },
+  "models": {
+    "LiquidAI/LFM2.5-1.2B-Thinking": {
+      "holistic": {
+        "accuracy": 0.9666666666666667,
+        "correct_count": 29,
+        "total_pairs": 30,
+        "tie_rate": 0.0,
+        "mean_margin": 0.04912014965158336,
+        "avg_latency_ms": 410.15649239222205,
+        "tokens_per_second": 300.8607745796591,
+        "records": [
+          {
+            "id": "pair_01",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7533,
+            "score_b": 0.7405,
+            "margin": 0.0128,
+            "is_correct": true
+          },
+          {
+            "id": "pair_02",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.79,
+            "score_b": 0.7697,
+            "margin": 0.0202,
+            "is_correct": true
+          },
+          {
+            "id": "pair_03",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7766,
+            "score_b": 0.7532,
+            "margin": 0.0233,
+            "is_correct": true
+          },
+          {
+            "id": "pair_04",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8999,
+            "score_b": 0.7874,
+            "margin": 0.1125,
+            "is_correct": true
+          },
+          {
+            "id": "pair_05",
+            "preferred": "A",
+            "chosen": "B",
+            "score_a": 0.792,
+            "score_b": 0.8605,
+            "margin": 0.0684,
+            "is_correct": false
+          },
+          {
+            "id": "pair_06",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7477,
+            "score_b": 0.6806,
+            "margin": 0.0671,
+            "is_correct": true
+          },
+          {
+            "id": "pair_07",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8533,
+            "score_b": 0.8089,
+            "margin": 0.0445,
+            "is_correct": true
+          },
+          {
+            "id": "pair_08",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7876,
+            "score_b": 0.7371,
+            "margin": 0.0505,
+            "is_correct": true
+          },
+          {
+            "id": "pair_09",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7789,
+            "score_b": 0.7454,
+            "margin": 0.0336,
+            "is_correct": true
+          },
+          {
+            "id": "pair_10",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7711,
+            "score_b": 0.7249,
+            "margin": 0.0463,
+            "is_correct": true
+          },
+          {
+            "id": "pair_11",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8259,
+            "score_b": 0.781,
+            "margin": 0.045,
+            "is_correct": true
+          },
+          {
+            "id": "pair_12",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7572,
+            "score_b": 0.7144,
+            "margin": 0.0428,
+            "is_correct": true
+          },
+          {
+            "id": "pair_13",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7594,
+            "score_b": 0.7029,
+            "margin": 0.0565,
+            "is_correct": true
+          },
+          {
+            "id": "pair_14",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7825,
+            "score_b": 0.7767,
+            "margin": 0.0057,
+            "is_correct": true
+          },
+          {
+            "id": "pair_15",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8,
+            "score_b": 0.7195,
+            "margin": 0.0806,
+            "is_correct": true
+          },
+          {
+            "id": "pair_16",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7412,
+            "score_b": 0.719,
+            "margin": 0.0222,
+            "is_correct": true
+          },
+          {
+            "id": "pair_17",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8644,
+            "score_b": 0.7947,
+            "margin": 0.0697,
+            "is_correct": true
+          },
+          {
+            "id": "pair_18",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.755,
+            "score_b": 0.7118,
+            "margin": 0.0432,
+            "is_correct": true
+          },
+          {
+            "id": "pair_19",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7986,
+            "score_b": 0.7203,
+            "margin": 0.0783,
+            "is_correct": true
+          },
+          {
+            "id": "pair_20",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8165,
+            "score_b": 0.8023,
+            "margin": 0.0143,
+            "is_correct": true
+          },
+          {
+            "id": "pair_21",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8266,
+            "score_b": 0.7848,
+            "margin": 0.0417,
+            "is_correct": true
+          },
+          {
+            "id": "pair_22",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7389,
+            "score_b": 0.6987,
+            "margin": 0.0402,
+            "is_correct": true
+          },
+          {
+            "id": "pair_23",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7391,
+            "score_b": 0.7055,
+            "margin": 0.0335,
+            "is_correct": true
+          },
+          {
+            "id": "pair_24",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.721,
+            "score_b": 0.6533,
+            "margin": 0.0678,
+            "is_correct": true
+          },
+          {
+            "id": "pair_25",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7695,
+            "score_b": 0.7387,
+            "margin": 0.0308,
+            "is_correct": true
+          },
+          {
+            "id": "pair_26",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7797,
+            "score_b": 0.7361,
+            "margin": 0.0436,
+            "is_correct": true
+          },
+          {
+            "id": "pair_27",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8231,
+            "score_b": 0.7625,
+            "margin": 0.0606,
+            "is_correct": true
+          },
+          {
+            "id": "pair_28",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7856,
+            "score_b": 0.7255,
+            "margin": 0.0601,
+            "is_correct": true
+          },
+          {
+            "id": "pair_29",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7892,
+            "score_b": 0.6429,
+            "margin": 0.1463,
+            "is_correct": true
+          },
+          {
+            "id": "pair_30",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8185,
+            "score_b": 0.807,
+            "margin": 0.0114,
+            "is_correct": true
+          }
+        ]
+      },
+      "decomposed": {
+        "accuracy": 0.8333333333333334,
+        "correct_count": 25,
+        "total_pairs": 30,
+        "tie_rate": 0.03333333333333333,
+        "mean_margin": 0.0668593081277946,
+        "avg_latency_ms": 417.2109454870224,
+        "tokens_per_second": 286.1861638376264,
+        "records": [
+          {
+            "id": "pair_01",
+            "preferred": "A",
+            "chosen": "TIE",
+            "score_a": 0.7465,
+            "score_b": 0.7478,
+            "margin": 0.0013,
+            "is_correct": false
+          },
+          {
+            "id": "pair_02",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.813,
+            "score_b": 0.679,
+            "margin": 0.134,
+            "is_correct": true
+          },
+          {
+            "id": "pair_03",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7516,
+            "score_b": 0.7141,
+            "margin": 0.0375,
+            "is_correct": true
+          },
+          {
+            "id": "pair_04",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8117,
+            "score_b": 0.7175,
+            "margin": 0.0942,
+            "is_correct": true
+          },
+          {
+            "id": "pair_05",
+            "preferred": "A",
+            "chosen": "B",
+            "score_a": 0.722,
+            "score_b": 0.8513,
+            "margin": 0.1293,
+            "is_correct": false
+          },
+          {
+            "id": "pair_06",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7662,
+            "score_b": 0.6938,
+            "margin": 0.0725,
+            "is_correct": true
+          },
+          {
+            "id": "pair_07",
+            "preferred": "A",
+            "chosen": "B",
+            "score_a": 0.7127,
+            "score_b": 0.735,
+            "margin": 0.0223,
+            "is_correct": false
+          },
+          {
+            "id": "pair_08",
+            "preferred": "A",
+            "chosen": "B",
+            "score_a": 0.5162,
+            "score_b": 0.5475,
+            "margin": 0.0314,
+            "is_correct": false
+          },
+          {
+            "id": "pair_09",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6795,
+            "score_b": 0.5525,
+            "margin": 0.127,
+            "is_correct": true
+          },
+          {
+            "id": "pair_10",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7674,
+            "score_b": 0.7448,
+            "margin": 0.0226,
+            "is_correct": true
+          },
+          {
+            "id": "pair_11",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7167,
+            "score_b": 0.7089,
+            "margin": 0.0078,
+            "is_correct": true
+          },
+          {
+            "id": "pair_12",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.735,
+            "score_b": 0.6842,
+            "margin": 0.0508,
+            "is_correct": true
+          },
+          {
+            "id": "pair_13",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.5744,
+            "score_b": 0.4408,
+            "margin": 0.1336,
+            "is_correct": true
+          },
+          {
+            "id": "pair_14",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7131,
+            "score_b": 0.6933,
+            "margin": 0.0199,
+            "is_correct": true
+          },
+          {
+            "id": "pair_15",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8054,
+            "score_b": 0.7424,
+            "margin": 0.0629,
+            "is_correct": true
+          },
+          {
+            "id": "pair_16",
+            "preferred": "A",
+            "chosen": "B",
+            "score_a": 0.6289,
+            "score_b": 0.6955,
+            "margin": 0.0667,
+            "is_correct": false
+          },
+          {
+            "id": "pair_17",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7537,
+            "score_b": 0.6432,
+            "margin": 0.1105,
+            "is_correct": true
+          },
+          {
+            "id": "pair_18",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6924,
+            "score_b": 0.6229,
+            "margin": 0.0695,
+            "is_correct": true
+          },
+          {
+            "id": "pair_19",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7539,
+            "score_b": 0.6666,
+            "margin": 0.0874,
+            "is_correct": true
+          },
+          {
+            "id": "pair_20",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7116,
+            "score_b": 0.6633,
+            "margin": 0.0483,
+            "is_correct": true
+          },
+          {
+            "id": "pair_21",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7517,
+            "score_b": 0.7252,
+            "margin": 0.0265,
+            "is_correct": true
+          },
+          {
+            "id": "pair_22",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.679,
+            "score_b": 0.6237,
+            "margin": 0.0553,
+            "is_correct": true
+          },
+          {
+            "id": "pair_23",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6522,
+            "score_b": 0.6178,
+            "margin": 0.0344,
+            "is_correct": true
+          },
+          {
+            "id": "pair_24",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.4908,
+            "score_b": 0.4089,
+            "margin": 0.0819,
+            "is_correct": true
+          },
+          {
+            "id": "pair_25",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6191,
+            "score_b": 0.6074,
+            "margin": 0.0116,
+            "is_correct": true
+          },
+          {
+            "id": "pair_26",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6422,
+            "score_b": 0.5826,
+            "margin": 0.0596,
+            "is_correct": true
+          },
+          {
+            "id": "pair_27",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7504,
+            "score_b": 0.6666,
+            "margin": 0.0838,
+            "is_correct": true
+          },
+          {
+            "id": "pair_28",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6784,
+            "score_b": 0.6111,
+            "margin": 0.0673,
+            "is_correct": true
+          },
+          {
+            "id": "pair_29",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6752,
+            "score_b": 0.5195,
+            "margin": 0.1556,
+            "is_correct": true
+          },
+          {
+            "id": "pair_30",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7162,
+            "score_b": 0.616,
+            "margin": 0.1002,
+            "is_correct": true
+          }
+        ]
+      }
+    },
+    "Qwen/Qwen2.5-1.5B-Instruct": {
+      "holistic": {
+        "accuracy": 1.0,
+        "correct_count": 30,
+        "total_pairs": 30,
+        "tie_rate": 0.0,
+        "mean_margin": 0.10111662681425235,
+        "avg_latency_ms": 519.9497977892557,
+        "tokens_per_second": 249.1586698385615,
+        "records": [
+          {
+            "id": "pair_01",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9783,
+            "score_b": 0.9512,
+            "margin": 0.0271,
+            "is_correct": true
+          },
+          {
+            "id": "pair_02",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9546,
+            "score_b": 0.8769,
+            "margin": 0.0777,
+            "is_correct": true
+          },
+          {
+            "id": "pair_03",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.972,
+            "score_b": 0.9158,
+            "margin": 0.0562,
+            "is_correct": true
+          },
+          {
+            "id": "pair_04",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9727,
+            "score_b": 0.9569,
+            "margin": 0.0158,
+            "is_correct": true
+          },
+          {
+            "id": "pair_05",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9382,
+            "score_b": 0.9325,
+            "margin": 0.0058,
+            "is_correct": true
+          },
+          {
+            "id": "pair_06",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9861,
+            "score_b": 0.9474,
+            "margin": 0.0387,
+            "is_correct": true
+          },
+          {
+            "id": "pair_07",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9353,
+            "score_b": 0.8012,
+            "margin": 0.1341,
+            "is_correct": true
+          },
+          {
+            "id": "pair_08",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9781,
+            "score_b": 0.9409,
+            "margin": 0.0371,
+            "is_correct": true
+          },
+          {
+            "id": "pair_09",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9606,
+            "score_b": 0.85,
+            "margin": 0.1106,
+            "is_correct": true
+          },
+          {
+            "id": "pair_10",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.979,
+            "score_b": 0.8394,
+            "margin": 0.1396,
+            "is_correct": true
+          },
+          {
+            "id": "pair_11",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9535,
+            "score_b": 0.8926,
+            "margin": 0.0609,
+            "is_correct": true
+          },
+          {
+            "id": "pair_12",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9542,
+            "score_b": 0.6701,
+            "margin": 0.2841,
+            "is_correct": true
+          },
+          {
+            "id": "pair_13",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9737,
+            "score_b": 0.8822,
+            "margin": 0.0915,
+            "is_correct": true
+          },
+          {
+            "id": "pair_14",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9395,
+            "score_b": 0.8783,
+            "margin": 0.0612,
+            "is_correct": true
+          },
+          {
+            "id": "pair_15",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9691,
+            "score_b": 0.8265,
+            "margin": 0.1426,
+            "is_correct": true
+          },
+          {
+            "id": "pair_16",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9818,
+            "score_b": 0.9059,
+            "margin": 0.0759,
+            "is_correct": true
+          },
+          {
+            "id": "pair_17",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.943,
+            "score_b": 0.8651,
+            "margin": 0.0779,
+            "is_correct": true
+          },
+          {
+            "id": "pair_18",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9713,
+            "score_b": 0.794,
+            "margin": 0.1772,
+            "is_correct": true
+          },
+          {
+            "id": "pair_19",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9599,
+            "score_b": 0.8415,
+            "margin": 0.1184,
+            "is_correct": true
+          },
+          {
+            "id": "pair_20",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.974,
+            "score_b": 0.8752,
+            "margin": 0.0988,
+            "is_correct": true
+          },
+          {
+            "id": "pair_21",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9561,
+            "score_b": 0.86,
+            "margin": 0.096,
+            "is_correct": true
+          },
+          {
+            "id": "pair_22",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9388,
+            "score_b": 0.8863,
+            "margin": 0.0525,
+            "is_correct": true
+          },
+          {
+            "id": "pair_23",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9761,
+            "score_b": 0.8577,
+            "margin": 0.1184,
+            "is_correct": true
+          },
+          {
+            "id": "pair_24",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9799,
+            "score_b": 0.8598,
+            "margin": 0.1201,
+            "is_correct": true
+          },
+          {
+            "id": "pair_25",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9814,
+            "score_b": 0.8217,
+            "margin": 0.1598,
+            "is_correct": true
+          },
+          {
+            "id": "pair_26",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9678,
+            "score_b": 0.8806,
+            "margin": 0.0872,
+            "is_correct": true
+          },
+          {
+            "id": "pair_27",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9546,
+            "score_b": 0.8263,
+            "margin": 0.1283,
+            "is_correct": true
+          },
+          {
+            "id": "pair_28",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9693,
+            "score_b": 0.8047,
+            "margin": 0.1645,
+            "is_correct": true
+          },
+          {
+            "id": "pair_29",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9749,
+            "score_b": 0.8015,
+            "margin": 0.1734,
+            "is_correct": true
+          },
+          {
+            "id": "pair_30",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9797,
+            "score_b": 0.8778,
+            "margin": 0.1019,
+            "is_correct": true
+          }
+        ]
+      },
+      "decomposed": {
+        "accuracy": 0.9666666666666667,
+        "correct_count": 29,
+        "total_pairs": 30,
+        "tie_rate": 0.03333333333333333,
+        "mean_margin": 0.06630289776754318,
+        "avg_latency_ms": 544.8319415251414,
+        "tokens_per_second": 228.60260294458638,
+        "records": [
+          {
+            "id": "pair_01",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9166,
+            "score_b": 0.8436,
+            "margin": 0.0729,
+            "is_correct": true
+          },
+          {
+            "id": "pair_02",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8349,
+            "score_b": 0.7876,
+            "margin": 0.0474,
+            "is_correct": true
+          },
+          {
+            "id": "pair_03",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8972,
+            "score_b": 0.8579,
+            "margin": 0.0393,
+            "is_correct": true
+          },
+          {
+            "id": "pair_04",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8478,
+            "score_b": 0.7793,
+            "margin": 0.0685,
+            "is_correct": true
+          },
+          {
+            "id": "pair_05",
+            "preferred": "A",
+            "chosen": "TIE",
+            "score_a": 0.7466,
+            "score_b": 0.7476,
+            "margin": 0.0011,
+            "is_correct": false
+          },
+          {
+            "id": "pair_06",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9421,
+            "score_b": 0.8979,
+            "margin": 0.0441,
+            "is_correct": true
+          },
+          {
+            "id": "pair_07",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8285,
+            "score_b": 0.7163,
+            "margin": 0.1121,
+            "is_correct": true
+          },
+          {
+            "id": "pair_08",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8748,
+            "score_b": 0.8486,
+            "margin": 0.0262,
+            "is_correct": true
+          },
+          {
+            "id": "pair_09",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8158,
+            "score_b": 0.7401,
+            "margin": 0.0757,
+            "is_correct": true
+          },
+          {
+            "id": "pair_10",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.9062,
+            "score_b": 0.8413,
+            "margin": 0.0649,
+            "is_correct": true
+          },
+          {
+            "id": "pair_11",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.6968,
+            "score_b": 0.6782,
+            "margin": 0.0186,
+            "is_correct": true
+          },
+          {
+            "id": "pair_12",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7589,
+            "score_b": 0.6518,
+            "margin": 0.1071,
+            "is_correct": true
+          },
+          {
+            "id": "pair_13",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8604,
+            "score_b": 0.794,
+            "margin": 0.0664,
+            "is_correct": true
+          },
+          {
+            "id": "pair_14",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.69,
+            "score_b": 0.6401,
+            "margin": 0.0499,
+            "is_correct": true
+          },
+          {
+            "id": "pair_15",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7887,
+            "score_b": 0.7558,
+            "margin": 0.0329,
+            "is_correct": true
+          },
+          {
+            "id": "pair_16",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8683,
+            "score_b": 0.8121,
+            "margin": 0.0561,
+            "is_correct": true
+          },
+          {
+            "id": "pair_17",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7702,
+            "score_b": 0.7163,
+            "margin": 0.0539,
+            "is_correct": true
+          },
+          {
+            "id": "pair_18",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8562,
+            "score_b": 0.7704,
+            "margin": 0.0858,
+            "is_correct": true
+          },
+          {
+            "id": "pair_19",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8317,
+            "score_b": 0.7444,
+            "margin": 0.0873,
+            "is_correct": true
+          },
+          {
+            "id": "pair_20",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8951,
+            "score_b": 0.7944,
+            "margin": 0.1007,
+            "is_correct": true
+          },
+          {
+            "id": "pair_21",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8561,
+            "score_b": 0.7812,
+            "margin": 0.0749,
+            "is_correct": true
+          },
+          {
+            "id": "pair_22",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7107,
+            "score_b": 0.6306,
+            "margin": 0.0801,
+            "is_correct": true
+          },
+          {
+            "id": "pair_23",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8362,
+            "score_b": 0.7803,
+            "margin": 0.0559,
+            "is_correct": true
+          },
+          {
+            "id": "pair_24",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8453,
+            "score_b": 0.7389,
+            "margin": 0.1064,
+            "is_correct": true
+          },
+          {
+            "id": "pair_25",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8814,
+            "score_b": 0.7329,
+            "margin": 0.1485,
+            "is_correct": true
+          },
+          {
+            "id": "pair_26",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8298,
+            "score_b": 0.7791,
+            "margin": 0.0507,
+            "is_correct": true
+          },
+          {
+            "id": "pair_27",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.7902,
+            "score_b": 0.6651,
+            "margin": 0.1251,
+            "is_correct": true
+          },
+          {
+            "id": "pair_28",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8261,
+            "score_b": 0.7792,
+            "margin": 0.0469,
+            "is_correct": true
+          },
+          {
+            "id": "pair_29",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.829,
+            "score_b": 0.7827,
+            "margin": 0.0463,
+            "is_correct": true
+          },
+          {
+            "id": "pair_30",
+            "preferred": "A",
+            "chosen": "A",
+            "score_a": 0.8555,
+            "score_b": 0.8122,
+            "margin": 0.0433,
+            "is_correct": true
+          }
+        ]
+      }
+    }
+  },
+  "baselines": {
+    "hard_rules": {
+      "accuracy": 0.9,
+      "tie_rate": 0.1,
+      "correct": 27,
+      "total": 30
+    },
+    "random": {
+      "accuracy": 0.5,
+      "tie_rate": 0.0
+    }
+  }
+}

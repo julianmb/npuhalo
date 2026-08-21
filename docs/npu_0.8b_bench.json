@@ -1,0 +1,80 @@
+{
+  "hardware": {
+    "backends": {
+      "flm/npu": "v0.9.46"
+    },
+    "cpu": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S",
+    "gpu": [
+      {
+        "integrated": true,
+        "name": "110501",
+        "type": "amd",
+        "vram_gb": 0.5
+      }
+    ],
+    "os": "linux",
+    "ram_gb": 124.94
+  },
+  "models": [
+    {
+      "config": {
+        "measurement_runs": 1,
+        "memory_tracking": true,
+        "warmup_runs": 0
+      },
+      "model": "qwen3.5-0.8b-FLM",
+      "results": [
+        {
+          "backend": "npu",
+          "backend_args": "",
+          "ctx_size": 4096,
+          "recipe": "flm",
+          "scenarios": [
+            {
+              "all_runs_failed": true,
+              "category": "chat",
+              "failed_runs": 1,
+              "input_tokens": 0,
+              "name": "chat-short",
+              "output_tokens": 0
+            },
+            {
+              "all_runs_failed": true,
+              "category": "chat",
+              "failed_runs": 1,
+              "input_tokens": 0,
+              "name": "chat-long-output",
+              "output_tokens": 0
+            },
+            {
+              "all_runs_failed": true,
+              "category": "coding",
+              "failed_runs": 1,
+              "input_tokens": 0,
+              "name": "code-short",
+              "output_tokens": 0
+            },
+            {
+              "all_runs_failed": true,
+              "category": "coding",
+              "failed_runs": 1,
+              "input_tokens": 0,
+              "name": "code-explain",
+              "output_tokens": 0
+            },
+            {
+              "all_runs_failed": true,
+              "category": "coding",
+              "failed_runs": 1,
+              "input_tokens": 0,
+              "name": "code-debug",
+              "output_tokens": 0
+            }
+          ]
+        }
+      ],
+      "timestamp": "2026-08-18T18:53:01Z"
+    }
+  ],
+  "timestamp": "2026-08-18T18:53:01Z"
+}
