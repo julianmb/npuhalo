@@ -1,0 +1,92 @@
+{
+  "date": "2026-08-21",
+  "repo_commit": "dbd36d22385bfb673f9ebf0c5fd727dfd13c753c",
+  "companion_repo": {
+    "path": "~/source/strix-halo-speculative-decoding-tests",
+    "branch": "update/flm1-ornith",
+    "head": "414e4f6"
+  },
+  "decision_question": "Can the existing shadow-mode verifier signal (4/4 catchable failures detected, 0/22 false alarms) be converted into a safe, measurable end-to-end agent improvement when it is allowed to abort and recover?",
+  "hardware": [
+    {
+      "component": "primary_generator",
+      "runtime": "llama-server ROCmFPX fork, Vulkan0",
+      "model": "Ornith-1.5-35B-A3B-ROCmFP4.gguf ctx16384 --no-context-shift -np 1",
+      "endpoint": "http://127.0.0.1:8012",
+      "measured_prefill": {"ttft_short_ms": 151.4, "note": "long-prompt TTFT varies 176ms-16s with cache state"},
+      "measured_decode_tok_s": {"claimed": 72.04, "band": [50, 72], "reproduced": false},
+      "evidence": ["verifier/results/benchmark.md", "docs/baselines.md", "strix-halo-speculative-decoding-tests/REPORT.md"]
+    },
+    {
+      "component": "generator_plus_npu_concurrent",
+      "runtime": "same + FLM generating",
+      "model": "qwen3.5-0.8b-FLM",
+      "endpoint": ":8012 + :8001",
+      "measured_decode_delta": {"gpu_delta_pct": -16.5, "npu_alone_tok_s": [42.9, 40.1]},
+      "evidence": ["docs/final_verdict.md#6.1", "scripts/phase0_real_npu.py"]
+    },
+    {
+      "component": "npu_runtime",
+      "runtime": "FastFlowLM v0.9.46, XDNA2 /dev/accel/accel0, SVA active",
+      "model": "lfm2.5-tk:1.2b (verifier), qwen3.5:0.8b (drafter)",
+      "endpoint": "http://127.0.0.1:8001",
+      "measured_decode_tok_s": {"verifier_1_2b": 43, "draft_0_8b": [40, 43]},
+      "cold_start_s": 74,
+      "power_w": 2,
+      "logprobs": {"native": false, "patched": true, "upstream_status": "unmerged; grammars PR #487"},
+      "evidence": ["standalone-eval/results/serving.md", "docs/npu_0.8b_bench_real.json", "patches/README.md"]
+    },
+    {
+      "component": "escalation_judge",
+      "runtime": "llama-server ROCmFPX Vulkan0, native logprobs",
+      "model": "Qwen3.5-2B-Q4_K_M ctx8192",
+      "endpoint": "http://127.0.0.1:8013",
+      "evidence": ["verifier/src/escalator.py"]
+    },
+    {
+      "component": "cpu_reference",
+      "runtime": "PyTorch in-process bf16",
+      "model": "LFM2.5-1.2B-Thinking",
+      "measured_decode_tok_s": [18, 24],
+      "evidence": ["standalone-eval/results/serving.md"]
+    }
+  ],
+  "experiments": [
+    {"id": "2.1", "name": "shadow_verification", "hypothesis": "NPU triage flags real failures without false alarms", "dataset": "Set D 30 agentic tasks", "metrics": {"recall_catchable": "4/4", "false_alarms": "0/22", "shadow_pass": "22/30"}, "sample_size": 30, "reproduced": false, "conclusion": "detection signal real but small n; LFM votes SUSPECT never ABORT", "evidence_files": ["verifier/results/shadow/shadow_summary.json", "verifier/results/shadow/"]},
+    {"id": "2.2", "name": "active_abort_and_recover", "hypothesis": "recovery converts detected failures into passes", "dataset": "8 failing tasks x 5 seeds x 3 arms", "metrics": {"status": "INVALID_FOR_OUTCOME_CLAIMS", "completed": "59/120", "baseline_done": "40/40", "parser_guard_done": "24/40", "active_esc_done": "0/40", "failure": "server crash -> unhandled HTTP 400"}, "reproduced": false, "conclusion": "open decision question; infrastructure repair required", "evidence_files": ["verifier/results/raw/narrow/", "/tmp/opencode/narrow_full.log"]},
+    {"id": "2.3", "name": "parser_guard", "hypothesis": "deterministic schema validation recovers malformed tool calls", "metrics": {"status": "partial_unanalyzed", "runs_done": "24/40", "confound": "'fixed 50% of stalls' was max_tokens=420 truncation fixed by harness, not the guard"}, "reproduced": false, "evidence_files": ["verifier/results/raw/narrow/", "verifier/results/final-report.md#143"]},
+    {"id": "2.4", "name": "escalation_judge_calibration", "hypothesis": "logprob continue-mass separates broken from clean", "metrics": {"r_broken": 0.0, "r_clean": 0.806, "n": 2}, "reproduced": false, "conclusion": "directionally useful, statistically meaningless", "evidence_files": ["verifier/results/final-report.md#Phase4"]},
+    {"id": "2.5", "name": "pairwise_judging_quality", "hypothesis": "small model grades trajectory pairs", "dataset": "30 curated SE pairs", "metrics": {"hard_rules": 0.90, "lfm25_holistic": 0.967, "qwen25_holistic": 1.0}, "sample_size": 30, "reproduced": false, "evidence_files": ["standalone-eval/results/benchmark.md"]},
+    {"id": "2.6", "name": "raw_logprob_discrimination_lfm", "hypothesis": "zero-shot letter logprobs separate correct from incorrect", "metrics": {"correct_math_score": 0.022, "incorrect_math_score": 0.025, "verdict": "FAILS"}, "sample_size": 6, "evidence_files": ["standalone-eval/results/logprob-results.md"]},
+    {"id": "2.7", "name": "context_compressor", "hypothesis": "NPU extraction saves context at acceptable latency", "metrics": {"size_reduction_pct": [80, 98], "latency_original_s": 1.0, "latency_remeasured_s": [3, 4], "breakeven_chars": 32000, "net_at_32k_ms": 3745}, "reproduced": true, "conclusion": "only worthwhile for very large outputs", "evidence_files": ["verifier/results/compressor_breakeven.json", "verifier/results/final-report.md#Phase6"]},
+    {"id": "2.8", "name": "router_fast_lane_ab", "hypothesis": "router sends short queries to NPU cheaper", "metrics": {"routing_accuracy": 0.25, "answer_accuracy_npu": 0.778, "answer_accuracy_gpu": 1.0, "latency_parity_ms": [1946, 2210]}, "sample_size": 28, "reproduced": true, "conclusion": "fast lane blocked on classifier quality", "evidence_files": ["verifier/results/router_ab.json"]},
+    {"id": "2.9", "name": "speculative_decoding", "hypothesis": "NPU draft + GPU verify beats GPU-only", "metrics": {"npuhalo_ms": [2640, 1313], "specdec_chunked_vs_gpu_ms": [1425, 674], "acceptance_chunked": 0.66}, "reproduced": true, "conclusion": "negative twice independently; structural (MoE target faster than drafter)", "evidence_files": ["docs/final_verdict.md", "strix-halo-speculative-decoding-tests/REPORT.md"]},
+    {"id": "2.10", "name": "ttft_handoff", "hypothesis": "NPU burst improves perceived first token", "metrics": {"original_claim_ms": [347, 1587], "remeasured_long_prompt_ms": [1430, 730], "judge_tie": "7.3 vs 7.3", "boundary_mid_sentence_rate": 0.92}, "reproduced": true, "conclusion": "original claim does not reproduce; archived", "evidence_files": ["verifier/results/handoff_coherence.json"]},
+    {"id": "2.11", "name": "verifier_concurrency_capacity", "metrics": {"median_ms_by_streams": {"1": 1147, "2": 1922, "4": 3607, "6": 5237}, "saturation_streams": [3.6, 3.8]}, "evidence_files": ["verifier/results/sweep/sweep_summary.json"]},
+    {"id": "2.12", "name": "bus_contention", "metrics": {"proxy_delta_pct_at_8GBps": -11.0, "proxy_delta_pct_at_16GBps": -17.2, "real_npu_delta_pct": -16.5}, "reproduced": true, "evidence_files": ["docs/final_verdict.md#6"]},
+    {"id": "2.13", "name": "prefix_kv_cache", "metrics": {"identical_repeat_ms": [9268, 88], "shared_prefix_draft_mtp_miss_s": 16.3, "no_spec_shared_prefix_ms": [175, 369]}, "evidence_files": ["docs/final_verdict.md#7.1"]},
+    {"id": "2.14", "name": "mtp_depth_sweep", "metrics": {"optimal_k": 4, "tok_s_k4": [33.8, 38.2]}, "sample_size": 16, "evidence_files": ["docs/mtp_sweep_results.json"]}
+  ],
+  "discrepancies": [
+    {"quantity": "ornith_decode_throughput", "values": ["72.04 tok/s", "~50 tok/s implied"], "resolution": "unreconciled band 50-72; needs one controlled re-measurement"},
+    {"quantity": "compressor_latency", "values": ["~1.0s original", "~3-4s re-measured"], "resolution": "both real; re-measured includes reasoning tokens; plan with 3-4s"},
+    {"quantity": "handoff_ttft", "values": ["347ms win", "loses ~2x"], "resolution": "re-measurement supersedes on current stack"},
+    {"quantity": "router_latency_gap", "values": ["1384 vs 14635 ms", "parity ~1.9 vs 2.2 s"], "resolution": "different configs; A/B supersedes"},
+    {"quantity": "shadow_vs_baseline_pass_rate", "values": ["73.3%", "80.0%"], "resolution": "max_tokens harness confound, not model variance"}
+  ],
+  "open_questions": [
+    "active recovery value (the decision question)",
+    "escalator generalization beyond n=2 calibration trajectories",
+    "parser-guard value independent of max_tokens harness fix",
+    "compressor output fidelity vs ground truth",
+    "real-traffic validation of all agentic results",
+    "one controlled modern Ornith throughput number",
+    "ROCmFPX llama-server seq_rm abort root cause"
+  ],
+  "roi_ranking_pre_decision": [
+    {"rank": 1, "action": "repair active-mode validity and run decisive paired test", "status": "chosen as next action"},
+    {"rank": 2, "action": "compressor latency kill via non-thinking extraction", "status": "deferred"},
+    {"rank": 3, "action": "router classifier improvement", "status": "deferred"},
+    {"rank": 4, "action": "upstream patch PRs", "status": "deferred"}
+  ]
+}
