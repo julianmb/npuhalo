@@ -170,9 +170,24 @@ Rebuilt via: `cmake --build build-strix-rocmfp4 --config Release -j 16`.
 
 **33.8 tok/s via embedded MTP (iGPU only) is the practical ceiling on Strix Halo.**
 
-The NPU's real, proven value:
-1. **1.8× faster first-token on long prompts** (870 ms vs 1587 ms) via the hybrid burst pipeline.
-2. **2 W always-on intent routing** (`npu_router.py`).
+The NPU's real, proven value (as of the original experiments):
+1. **1.8× faster first-token on long prompts** (870 ms vs 1587 ms) via the hybrid burst pipeline — **superseded 2026-08**: re-measurement found the handoff now loses to direct GPU generation on current firmware (see README caveat #10).
+2. **2 W always-on intent routing** (`npu_router.py`) — **superseded 2026-08**: routing decision accuracy measured at 25% in A/B testing (README caveat #8).
 3. It does **not** improve sustained decode speed.
 
 The only path beyond 34 tok/s is a future parallel, target-aligned drafter (PARD-2 class) — not deployable today. See `docs/final_verdict.md`.
+
+---
+
+## 7. Known Upstream Issue: `llama-server` abort under rapid prefills
+
+The ROCmFPX `llama-server` build can abort (`ggml_abort` → `common_context_seq_rm`
+inside `server_context_impl::update_slots`) when hit with rapid sequential
+requests whose prompt lengths vary widely — for example a benchmark alternating
+1K and 32K-character prefills, or an eval harness restarting mid-run. The crash
+reproduces with `--no-context-shift` enabled.
+
+* **Symptom:** server process dies; clients see connection reset / HTTP 400.
+* **Workaround:** run the server under a restart supervisor and make clients
+  retry with backoff (see `verifier/scripts/eval_compressor_breakeven.py`).
+* **Status:** upstream bug; not investigated further here.
