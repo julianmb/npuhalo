@@ -1,0 +1,57 @@
+{
+  "task_id": "D01",
+  "seed": 1,
+  "config": "parser_active",
+  "passed": true,
+  "steps": 4,
+  "wall_time_s": 8.4,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 56,
+      "latency_ms": 1539,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncat calc.py && echo \"---TESTS---\" && cat tests/test_calc.py\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 267,
+      "latency_ms": 3925,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>calc.py\n</parameter>\n<parameter=content>\nfrom decimal import Decimal, ROUND_HALF_UP\n\n\ndef invoice_total(subtotal, discount_percent):\n    discount = subtota"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 100,
+      "latency_ms": 1658,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\npython -c \"from calc import invoice_total; print(invoice_total(100,10)); print(invoice_total(100,150)); print(invoice_total(9.999,0)); print(invoice_to"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 70,
+      "latency_ms": 1233,
+      "text_head": "Both fixes work correctly. Let me run the test suite.\n\n<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

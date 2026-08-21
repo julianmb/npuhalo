@@ -1,0 +1,36 @@
+{
+  "runs": 160,
+  "steps": 1418,
+  "ref_parsed": 1004,
+  "false_rejects": 0,
+  "ref_none": 414,
+  "none_prose_no_marker": 410,
+  "none_truncated_midcall": 2,
+  "none_meta_mention": 2,
+  "none_true_malformed": 0,
+  "unrecoverable_detections": [
+    {
+      "task": "D18",
+      "seed": 1,
+      "config": "baseline",
+      "kind": "truncated_midcall",
+      "char_index": 189,
+      "note": "generation already ended; no tokens saveable"
+    },
+    {
+      "task": "D09",
+      "seed": 3,
+      "config": "active_esc",
+      "kind": "truncated_midcall",
+      "char_index": 143,
+      "note": "generation already ended; no tokens saveable"
+    }
+  ],
+  "rederived_failure_mass": {
+    "successful_parses": 1004,
+    "missing_call_prose": 410,
+    "truncated_midcall": 2,
+    "meta_mention_false_positive_traps": 2,
+    "true_malformed_calls": 0
+  }
+}

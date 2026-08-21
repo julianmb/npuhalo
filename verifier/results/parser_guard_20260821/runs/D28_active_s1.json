@@ -1,0 +1,178 @@
+{
+  "task_id": "D28",
+  "seed": 1,
+  "config": "parser_active",
+  "passed": false,
+  "steps": 15,
+  "wall_time_s": 83.5,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 66,
+      "latency_ms": 1459,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>ls -la && echo \"---version.json---\" && cat version.json && echo \"---test---\" && cat tests/test_version.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 269,
+      "latency_ms": 4016,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>\nbump.sh\n</parameter>\n<parameter=content>\n#!/usr/bin/env bash\nset -euo pipefail\n\n# Read current version from version.json and bump the patch component.\npyt"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 73,
+      "latency_ms": 1340,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\nchmod +x bump.sh && ./bump.sh && echo \"---version.json---\" && cat version.json && echo \"---tag.txt---\" && cat tag.txt\n</parameter>\n</function>\n</tool_c"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 132,
+      "latency_ms": 2082,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 255,
+      "latency_ms": 3663,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 614,
+      "latency_ms": 8732,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncd tests && python3 test_version.py; echo \"exit: $?\"\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 139,
+      "latency_ms": 2239,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncd .. && python3 tests/test_version.py; echo \"exit: $?\"\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 284,
+      "latency_ms": 4292,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncd /tmp && rm -rf testrun && mkdir testrun && cp -r ../tests testrun/ 2>/dev/null; cp version.json testrun/ 2>/dev/null; echo \"checking original versio"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 138,
+      "latency_ms": 2199,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\npwd && ls -la && echo \"---\" && python3 tests/test_version.py; echo \"exit: $?\"\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 675,
+      "latency_ms": 9820,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncd /tmp/setd_D28_pg_active_1_ozikz7gi && cat version.json && echo \"---\" && python3 -c \"import json; v=json.load(open('version.json')); print('patch=',v"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 336,
+      "latency_ms": 4994,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=content>\n{\"major\":1,\"minor\":2,\"patch\":3}\n</parameter>\n<parameter=path>\nversion.json\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14584,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14382,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 452,
+      "latency_ms": 6411,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncd /tmp/setd_D28_pg_active_1_ozikz7gi && ./bump.sh && cat version.json && echo \"---\" && cat tag.txt && echo \"\" && echo \"test:\" && python3 tests/test_ve"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 179,
+      "latency_ms": 2816,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

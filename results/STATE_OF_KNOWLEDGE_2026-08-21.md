@@ -7,15 +7,25 @@
 
 ---
 
-## The Decision Question (unresolved)
+## The Decision Question (RESOLVED 2026-08-21)
 
 > **Can the existing shadow-mode verifier signal — already showing 4/4 catchable failures detected and 0/22 false alarms — be converted into a safe, measurable end-to-end agent improvement when it is allowed to abort and recover?**
 
-The only experiment that could answer this (the narrow active-mode sweep) is
-**INVALID FOR OUTCOME CLAIMS**: it died at 59/120 runs after the Ornith server
-crashed and the harness failed on an unhandled HTTP 400. It is not a negative
-result; it is missing infrastructure reliability. Baseline arm: 40/40 runs
-complete. Parser-guard arm: 24/40. Active-verifier arm: **0/40 — never started.**
+**Answer: NO — the verifier line is CLOSED.** Final measured state across 80
+paired evaluations:
+
+- Uncalibrated active mode (seeds 1–2): net **−4/32 tasks**, 2 harmful aborts,
+  0 attributable recoveries, +11.6 s mean latency.
+- Calibrated active mode (frozen `B_consecutive`, seeds 3–5): net **+1/48
+  tasks**, 2 harmful aborts on volatile tasks (D25/D28 family), 1 attributable
+  recovery (D28 s4), +9.0 s mean latency.
+- Triage votes are **information-free**: 100% SUSPECT rate on 433 checkpoints
+  across both runs; the vote carries no signal to threshold.
+
+**Final state:** shadow-only logging with frozen policy `B_consecutive`
+(sha256 `16a215f2…`), retained purely as a data collector. No further verifier
+experiments. Reports: `active_recovery_20260821_1040/` and
+`active_recovery_calibrated_20260821_1637/`.
 
 ---
 

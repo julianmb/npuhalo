@@ -1,0 +1,79 @@
+{
+  "task_id": "D02",
+  "seed": 2,
+  "config": "parser_active",
+  "passed": true,
+  "steps": 6,
+  "wall_time_s": 55.6,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 57,
+      "latency_ms": 1056,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>cat dedup.py; echo \"----TEST----\"; cat test_dedup.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14247,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14256,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14333,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 751,
+      "latency_ms": 10547,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>dedup.py</parameter>\n<parameter=content>\ndef dedup(items):\n    out = []\n    seen = []\n    for it in items:\n        if it not in seen:\n            seen.appe"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 47,
+      "latency_ms": 1101,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

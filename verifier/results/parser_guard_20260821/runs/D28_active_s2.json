@@ -1,0 +1,178 @@
+{
+  "task_id": "D28",
+  "seed": 2,
+  "config": "parser_active",
+  "passed": false,
+  "steps": 15,
+  "wall_time_s": 132.8,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 66,
+      "latency_ms": 1230,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>ls -la && echo \"---version.json---\" && cat version.json && echo \"---test---\" && cat tests/test_version.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 306,
+      "latency_ms": 4483,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>\nbump.sh\n</parameter>\n<parameter=content>\n#!/usr/bin/env bash\nset -euo pipefail\n\n# Read current version from version.json and bump the patch component.\npat"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 72,
+      "latency_ms": 1328,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\nchmod +x bump.sh && ./bump.sh && echo \"---version.json---\" && cat version.json && echo \"\" && echo \"---tag.txt---\" && cat tag.txt\n</parameter>\n</functio"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 97,
+      "latency_ms": 1609,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 141,
+      "latency_ms": 2108,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\npython3 tests/test_version.py; echo \"exit: $?\"\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14413,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 497,
+      "latency_ms": 6885,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncat version.json; echo \"\"; ls -la; echo \"---\"; cat tests/test_version.py\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 482,
+      "latency_ms": 7001,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\necho '{\"major\":1,\"minor\":2,\"patch\":3}' > version.json && ./bump.sh && echo \"---version.json---\" && cat version.json && echo \"\" && echo \"---tag.txt---\" "
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14445,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 781,
+      "latency_ms": 10898,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14440,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 984,
+      "latency_ms": 13820,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\nls -la tests/; echo \"---all files---\"; find . -type f; echo \"---hidden---\"; ls -la\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 803,
+      "latency_ms": 11592,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\necho '{\"major\":1,\"minor\":2,\"patch\":3}' > version.json && bash bump.sh; echo \"exit: $?\"; echo \"---version---\"; cat version.json; echo \"\"; echo \"---tag--"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 927,
+      "latency_ms": 13209,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncd /tmp && bash /tmp/setd_D28_pg_active_2_ugnva56x/bump.sh; echo \"exit: $?\"; echo \"---version---\"; cat /tmp/setd_D28_pg_active_2_ugnva56x/version.json;"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14665,
+      "text_head": ""
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}
