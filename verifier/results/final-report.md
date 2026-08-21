@@ -95,10 +95,11 @@ Prototyped on real tool outputs (>500 characters) captured during agent executio
 | :--- | :--- |
 | **Context Size Reduction** | **80.0% to 98.0%** (e.g. 8,001 chars $\to$ 123 chars) |
 | **Extracted Structured Fields** | `COMMAND`, `EXIT_CODE`, `ERROR_LINES`, `KEY_PATHS` |
-| **Mean NPU Compression Latency** | **~1,000 ms (~1.0 s)** |
+| **Mean NPU Compression Latency** | **~1,000 ms** in the original prototype; **~3–4 s** re-measured 2026-08 with reasoning-token emission ([`compressor_breakeven.json`](compressor_breakeven.json)) |
 | **Generator KV Cache Saved** | **~1,200 to 1,800 tokens per long tool invocation** |
 
-* **Finding:** When large tool outputs (compiler dumps, tracebacks, directory listings) occur, routing them through the NPU compressor before context appending saves hundreds of GPU prompt prefill tokens at zero memory bus contention.
+* **Finding (original):** When large tool outputs occur, routing them through the NPU compressor before context appending saves GPU prompt prefill tokens at zero memory bus contention.
+* **Finding (2026-08 breakeven measurement):** End-to-end, compression is net-negative below ~16K chars and only turns positive around **~32K chars** (+3.7 s), because compression latency exceeds prefill savings for smaller outputs. Deployment guidance: compress only *very* large outputs.
 
 ---
 

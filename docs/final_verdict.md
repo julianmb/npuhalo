@@ -36,8 +36,8 @@ The synthesis recommends **hard-allocating 64–96 GB VRAM in BIOS**. This contr
 ## 4. Final measured state
 
 - **Sustained decode:** `Vulkan0` + `--spec-type draft-mtp --spec-draft-n-max 4` = **33.8 tok/s** (2.4× over bare).
-- **TTFT:** NPU `qwen3.5-0.8b-FLM` burst → **347 ms** (1.8× faster first-token on long prompts).
-- **Background:** `scripts/npu_router.py` intent classifier at ~2 W.
+- **TTFT:** NPU `qwen3.5-0.8b-FLM` burst → **347 ms** was measured on the original stack. A 2026-08 re-measurement ([`../verifier/scripts/eval_handoff_coherence.py`](../verifier/scripts/eval_handoff_coherence.py)) found the handoff now *loses* to direct GPU generation (~1,430 ms vs ~730 ms on long prompts) — current llama-server TTFT improved and the NPU prefills long contexts slowly. Do not deploy the burst path on current firmware.
+- **Background:** `scripts/npu_router.py` intent classifier at ~2 W — but a 2026-08 A/B measured only **25% routing decision accuracy**; treat as a research component, not a feature.
 - **Ceiling:** 33.8 tok/s is the practical ceiling on this hardware until a *parallel, target-aligned* drafter (PARD-2 class) ships with usable tooling — no further config or bug-fix moves it.
 
 ---
@@ -80,7 +80,7 @@ Port the embedded MTP head itself to the NPU via XRT/IRON with *pre-drafting ove
 
 Run-to-run variance also tripled under contention (σ ≈ 2.5 tok/s vs ±0.5 baseline) — added bus pressure makes decode jittery, further hurting the pre-draft assumption chain.
 
-**This closes the last NPU-for-decode architecture.** Confirmed law: on this bandwidth-bound APU, the NPU cannot join the decode loop; its roles are TTFT burst (347 ms) and 2 W ambient routing.
+**This closes the last NPU-for-decode architecture.** Confirmed law: on this bandwidth-bound APU, the NPU cannot join the decode loop. The once-promising TTFT burst role was also re-measured in 2026-08 and lost to direct GPU generation (see §4); remaining measured roles are verification triage and compression of very large tool outputs.
 
 ### 6.1 Real-NPU verification (clean re-measurement)
 

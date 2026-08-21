@@ -12,7 +12,6 @@ Usage: python3 scripts/sanitize_telemetry.py [--out DIR]
 import argparse
 import hashlib
 import json
-import os
 import re
 import sys
 import tarfile
