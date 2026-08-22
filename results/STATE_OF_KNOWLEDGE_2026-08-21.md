@@ -27,6 +27,20 @@ paired evaluations:
 experiments. Reports: `active_recovery_20260821_1040/` and
 `active_recovery_calibrated_20260821_1637/`.
 
+## Structural-constraint line (CLOSED 2026-08-22)
+
+> **Can tool-call structure be forced at the sampler without degrading reasoning? NO.**
+
+GBNF forcing is feasible on this stack (TTFT overhead 0%, decode −8.6%) and
+eliminates missing-call prose completely (**67 → 0 steps**), but task success
+collapsed **10/16 → 4/16** in matched A/B. The missing-call prose is
+**load-bearing reasoning**, not formatting waste: forcing emission before
+reasoning completes converts thoughtful passes into shallow fast failures.
+The deterministic parser guard remains the correct formatting boundary
+(0 false rejects on 1,004 replayed calls; invisible on healthy traffic).
+No further structural-constraint experiments.
+Reports: `results/grammar_ab_20260821/`.
+
 ---
 
 ## 1. Hardware and Runtime Truth

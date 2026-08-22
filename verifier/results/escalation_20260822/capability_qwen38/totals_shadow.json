@@ -1,0 +1,10 @@
+{
+  "runs": 8,
+  "completed": 8,
+  "live_detections": 1,
+  "posthoc_detections": 1,
+  "agreement_mismatches": 1,
+  "reprompts": 1,
+  "false_aborts_on_valid": 0,
+  "tokens_out_sum": 57286
+}

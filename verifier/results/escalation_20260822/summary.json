@@ -1,0 +1,93 @@
+{
+  "experiment": "escalation_tier_qwen38_27b",
+  "date": "2026-08-22",
+  "decision_question": "does a stronger dense tier convert Ornith's persistent failures?",
+  "verdict": "STOP \u2014 escalation not justified; D04/D06 are harness/task-authoring bugs (instruction-grader contradictions)",
+  "tier": {
+    "model": "Qwen3.8-27B-UD-Q4_K_M (16.4GB)",
+    "endpoint": ":8014 ctx16384 Vulkan0",
+    "co_resident_with_ornith_8012": true,
+    "uma_free_gb": 61,
+    "perf": {
+      "ttft_ms_2k": 121,
+      "ttft_ms_8k": 274,
+      "decode_tok_s": [
+        7.9,
+        12.1
+      ],
+      "attempt_cost_min": [
+        8,
+        16
+      ]
+    }
+  },
+  "capability_matrix": [
+    {
+      "task": "D03",
+      "seed": 1,
+      "ornith": "P",
+      "qwen38": "P",
+      "conversion": false
+    },
+    {
+      "task": "D03",
+      "seed": 2,
+      "ornith": "P",
+      "qwen38": "F",
+      "conversion": false
+    },
+    {
+      "task": "D04",
+      "seed": 1,
+      "ornith": "F",
+      "qwen38": "F",
+      "conversion": false
+    },
+    {
+      "task": "D04",
+      "seed": 2,
+      "ornith": "F",
+      "qwen38": "F",
+      "conversion": false
+    },
+    {
+      "task": "D06",
+      "seed": 1,
+      "ornith": "F",
+      "qwen38": "F",
+      "conversion": false
+    },
+    {
+      "task": "D06",
+      "seed": 2,
+      "ornith": "F",
+      "qwen38": "F",
+      "conversion": false
+    },
+    {
+      "task": "D21",
+      "seed": 1,
+      "ornith": "P",
+      "qwen38": "F",
+      "conversion": false
+    },
+    {
+      "task": "D21",
+      "seed": 2,
+      "ornith": "F",
+      "qwen38": "F",
+      "conversion": false
+    }
+  ],
+  "gate": {
+    "required": ">=2 conversions of tasks Ornith never passes",
+    "measured": 0,
+    "fired": true
+  },
+  "harness_diagnosis": {
+    "D04": "instruction says ignore missing-item restock; grader asserts items['zz']==3 (added) \u2014 contradiction",
+    "D06": "instruction says preserve empty lines; grader output omits the empty line \u2014 contradiction",
+    "consequence": "tasks unsolvable-as-specified; both models fail identically; Set D absolute pass rates deflated symmetrically"
+  },
+  "phase3_wired": false
+}
