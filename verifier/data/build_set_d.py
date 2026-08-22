@@ -76,15 +76,18 @@ TASKS = [
       "assert abs(t.f_to_k(32)-273.15)<1e-6; assert abs(t.f_to_k(212)-373.15)<1e-6; "
       "assert abs(t.k_to_c(t.c_to_k(25))-25)<1e-6; assert abs(t.f_to_c(t.c_to_f(-40))-(-40))<1e-6; print('HIDDEN PASS')\""),
     T("D04", "debug",
-      "inventory.py: restock() has TWO bugs — it allows negative restock AND it restocks a "
-      "missing item instead of ignoring it. Fix both. Hidden grader checks both guards.",
+      "inventory.py: restock() has TWO bugs — it applies negative quantities (corrupting "
+      "counts; negatives must be rejected as a no-op) AND it silently ignores restocking an "
+      "item that is not yet tracked (new items must be created with the given quantity, "
+      "same accumulation rule as add()). Fix both. Hidden grader checks both guards.",
       [
           ["inventory.py",
            "class Inventory:\n"
            "    def __init__(self): self.items={}\n"
            "    def add(self,n,q): self.items[n]=self.items.get(n,0)+q\n"
            "    def restock(self,n,q):\n"
-           "        self.items[n]=self.items.get(n,0)+q  # BUG: no negative guard, creates missing\n"
+           "        if n not in self.items: return  # BUG: silently ignores new items\n"
+           "        self.items[n]=self.items.get(n,0)+q  # BUG: applies negative quantities\n"
            "    def total(self): return sum(self.items.values())\n"],
           ["test_inventory.py",
            "from inventory import Inventory\n"
@@ -115,17 +118,21 @@ TASKS = [
       "assert not b.transfer('a','b',150); assert b.bal['a']==100 and b.bal['b']==0; "
       "assert not b.transfer('x','b',1); assert b.transfer('a','a',10); assert b.bal['a']==100; print('HIDDEN PASS')\""),
     T("D06", "debug",
-      "parser.py: parse_records() has TWO bugs — it strips inline content AND drops empty lines "
-      "that should be preserved. Fix both. Hidden grader checks inline comments and blank-line handling.",
+      "parser.py: parse_records() has TWO bugs — it excludes any line containing a '#' "
+      "character instead of only whole-line comments (a comment line is one whose first "
+      "non-blank character is '#'; content after an inline '#' must be preserved verbatim) "
+      "AND it strips leading/trailing whitespace from kept lines (whitespace must be "
+      "preserved verbatim). Blank lines remain excluded. Fix both. Hidden grader checks "
+      "inline comments and whitespace handling.",
       [
           ["parser.py",
            "def parse_records(text):\n"
            "    lines=text.splitlines()\n"
            "    out=[]\n"
            "    for l in lines:\n"
-           "        if '#' in l: continue  # BUG: drops inline-comment lines entirely\n"
-           "        out.append(l.strip())\n"
-           "    return [x for x in out if x]  # BUG: drops empty lines\n"],
+           "        if '#' in l: continue  # BUG: treats any '#' as a whole-line comment\n"
+           "        out.append(l.strip())  # BUG: destroys surrounding whitespace\n"
+           "    return [x for x in out if x]  # blank lines stay excluded (intended)\n"],
           ["test_parser.py",
            "from parser import parse_records\nassert parse_records('# h\\nalpha\\n')==['alpha']\nprint('VISIBLE PASS')\n"],
       ],

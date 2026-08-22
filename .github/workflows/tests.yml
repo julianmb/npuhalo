@@ -17,6 +17,8 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Lint
         run: ruff check .
+      - name: Set D task-validation gate
+        run: python3 verifier/scripts/validate_set_d.py
       - name: Run unit tests
         run: python3 -m unittest discover -s tests -v
       - name: Syntax check

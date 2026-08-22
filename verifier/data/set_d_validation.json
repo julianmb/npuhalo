@@ -1,0 +1,168 @@
+{
+  "dataset": "<home>/source/npuhalo/verifier/data/set_d_agentic.jsonl",
+  "dataset_sha256": "ee46b12d803bc2eccfbe8a65d8bd46c7d616ee3c94a3a4643e627a7c79a8bd7c",
+  "tasks": 30,
+  "passed": 30,
+  "failed": 0,
+  "flagged_noop_references": [],
+  "results": [
+    {
+      "task": "D01",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D02",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D03",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D04",
+      "status": "PASS",
+      "detail": "",
+      "note": "negative restock rejected as no-op; missing-item restock creates with quantity"
+    },
+    {
+      "task": "D05",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D06",
+      "status": "PASS",
+      "detail": "",
+      "note": "whole-line comments excluded; blank lines excluded; all other lines verbatim"
+    },
+    {
+      "task": "D07",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D08",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D09",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D10",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D11",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D12",
+      "status": "PASS",
+      "detail": "",
+      "note": "run_data.py also needs optionxform=str: configparser lowercases option keys, so cfg['paths']['DATA_DIR'] raises KeyError even with correct config.ini"
+    },
+    {
+      "task": "D13",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D14",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D15",
+      "status": "PASS",
+      "detail": "",
+      "note": "never crashes; prints GCC OK/NOGCC and MAKE OK/NOMAKE"
+    },
+    {
+      "task": "D16",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D17",
+      "status": "PASS",
+      "detail": "",
+      "note": "gate found a second fixture bug: shipped casefile.py used os.environ without importing os"
+    },
+    {
+      "task": "D18",
+      "status": "PASS",
+      "detail": "",
+      "note": "network blocked: vendor stub replaces pip install"
+    },
+    {
+      "task": "D19",
+      "status": "PASS",
+      "detail": "",
+      "note": "util.sh contents unchanged; only the executable bit is missing"
+    },
+    {
+      "task": "D20",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D21",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D22",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D23",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D24",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D25",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D26",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D27",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D28",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D29",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "task": "D30",
+      "status": "PASS",
+      "detail": "",
+      "note": "existing envaware.py already handles PORT unset/set correctly; hidden grader passes unchanged. FLAGGED: nothing to fix \u2014 intent unclear."
+    }
+  ]
+}

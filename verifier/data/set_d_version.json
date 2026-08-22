@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "supersedes": "v1 (archived at verifier/data/archive/set_d_agentic_v1.jsonl)",
+  "date": "2026-08-22",
+  "dataset_sha256": "ee46b12d803bc2eccfbe8a65d8bd46c7d616ee3c94a3a4643e627a7c79a8bd7c",
+  "validation_gate": "python3 verifier/scripts/validate_set_d.py (30/30 reference solutions pass hidden graders)",
+  "changes": [
+    "D04: fixture bugs now match grader semantics (silent-ignore of new items + missing negative guard); instruction rewritten to canonical interpretation",
+    "D06: comment-line vs inline-'#' semantics made consistent with grader; whitespace preservation added to spec",
+    "D17: fixed missing 'import os' in casefile.py fixture"
+  ]
+}
