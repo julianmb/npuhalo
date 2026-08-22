@@ -43,39 +43,76 @@ class ParseError(Exception):
 
 
 class IncrementalToolCallParser:
-    """Feed text incrementally; classify after each feed."""
+    """Feed text incrementally; classify after each feed.
+
+    Error semantics (v2, resync-on-error): a structural violation marks a
+    PROVISIONAL UNRECOVERABLE state and is recorded in ``errors``. Scanning
+    then resynchronizes on the next "<tool_call>" opener; if a later complete
+    valid call parses (matching the reference extractor's tolerance), the final
+    state upgrades to VALID_SO_FAR carrying ``errors`` as protocol warnings.
+    Only a stream with at least one violation and NO completed call is finally
+    UNRECOVERABLE. This guarantees reference equivalence: anything the
+    reference parser accepts never ends UNRECOVERABLE.
+    """
 
     def __init__(self):
         self.buf = ""
         self.pos = 0
         self.state = State.RECOVERABLE
         self.error = None
+        self.errors: list = []
         self.finished = False  # True once a complete call has been consumed
+        self._resync_after = -1
 
     # ---- public API -------------------------------------------------------
     def feed(self, text: str) -> State:
         if self.finished:
             return self.state
         self.buf += text
-        try:
-            self._scan()
-        except ParseError as e:
-            self.state = State.UNRECOVERABLE
-            self.error = {"position": e.position, "reason": e.reason}
-            self.finished = True
+        # Scan; on structural error, drop the corrupted prefix and re-scan the
+        # remaining buffer (a later complete call upgrades the final verdict).
+        for _ in range(64):  # bounded: one iteration per corruption episode
+            try:
+                self._scan()
+                return self.state
+            except ParseError as e:
+                new_reason = not any(err["reason"] == e.reason for err in self.errors)
+                if new_reason:
+                    self.errors.append({"position": e.position, "reason": e.reason})
+                if self.error is None:
+                    self.error = {"position": e.position, "reason": e.reason}
+                    self.state = State.UNRECOVERABLE  # provisional
+                # Resync: skip everything up to the next <tool_call> opener.
+                nxt = self.buf.find("<tool_call>", e.position + 1)
+                self.buf = self.buf[nxt:] if nxt != -1 else ""
+                self.pos = 0
+                if not self.buf:
+                    return self.state
         return self.state
 
     def result(self) -> dict:
-        return {
+        call = getattr(self, "_final_call", None)
+        out = {
             "state": self.state.value,
             "error": self.error,
-            "call": self._parsed_call(),
+            "errors": self.errors,
+            "call": call,
             "consumed_len": self.pos,
         }
+        if self.errors and call is not None:
+            out["schema_warnings"] = call.get("schema_warnings", []) + [
+                f"protocol_violation_recovered:{e['reason']}" for e in self.errors]
+        return out
 
     # ---- internals --------------------------------------------------------
     def _fail(self, reason: str):
         raise ParseError(self.pos, reason)
+
+    def _set_recoverable(self):
+        # A recorded structural error keeps the stream provisional-UNRECOVERABLE
+        # until an actual call completes (upgrade in _scan_params).
+        if not self.errors:
+            self.state = State.RECOVERABLE
 
     @staticmethod
     def _strip_prologue(buf: str):
@@ -98,7 +135,7 @@ class IncrementalToolCallParser:
             if re.search(r"<function=", buf) or re.search(r"</tool_call>", buf):
                 self._fail("function/closing tag before <tool_call>")
             self.pos = max(0, len(buf) - (len("<tool_call>") - 1 if partial else 0))
-            self.state = State.RECOVERABLE
+            self._set_recoverable()
             return
 
         body = buf[start:]
@@ -120,7 +157,7 @@ class IncrementalToolCallParser:
                 if nm.group(1) not in known_prefixes:
                     self._fail(f"unknown function name prefix '{nm.group(1)}'")
             self.pos = len(buf)
-            self.state = State.RECOVERABLE
+            self._set_recoverable()
             return
         # closing tag without function open?
         if re.match(r"\s*</(function|tool_call)>", body):
@@ -184,17 +221,17 @@ class IncrementalToolCallParser:
             if stripped == "" or any(tok.startswith(stripped) for tok in LEGAL_CONTINUATIONS):
                 # pure whitespace or a prefix of a legal next token: keep waiting
                 self.pos = offset + len(body)
-                self.state = State.RECOVERABLE
+                self._set_recoverable()
                 return
             if stripped.startswith("<parameter="):
                 # key still streaming (no '>' yet): always recoverable
                 self.pos = offset + len(body)
-                self.state = State.RECOVERABLE
+                self._set_recoverable()
                 return
             # whitespace between tags is tolerated
             if re.match(r"\s+$", tail) or tail == "":
                 self.pos = offset + len(body)
-                self.state = State.RECOVERABLE
+                self._set_recoverable()
                 return
             self._fail(f"unexpected content in function body: {tail[:40]!r}")
         # ran out of input mid-structure
@@ -206,7 +243,8 @@ class IncrementalToolCallParser:
 
 
 def classify_stream(chunks) -> dict:
-    """Convenience: feed an iterable of chunks, return final classification."""
+    """Convenience: feed ALL chunks (no early stop, so post-error recovery can
+    be observed), return final classification."""
     p = IncrementalToolCallParser()
     first_unrecoverable = None
     for i, ch in enumerate(chunks):

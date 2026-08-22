@@ -32,17 +32,19 @@ sys.path.insert(0, HERE)
 
 import run_narrow_eval as base  # noqa: E402
 from toolcall_parser import IncrementalToolCallParser  # noqa: E402
+from grammar_compiler import compile_tool_call_grammar  # noqa: E402
 
-GEN_CHAT = "http://127.0.0.1:8012/v1/chat/completions"
+GEN_CHAT = os.environ.get("PG_GEN_CHAT", "http://127.0.0.1:8012/v1/chat/completions")
 CHUNK_CHARS = 4
 
 
 class ParserAgentLoop(base.RobustAgentLoop):
-    """RobustAgentLoop with streaming _generate + parser guard."""
+    """RobustAgentLoop with streaming _generate + parser guard + optional grammar."""
 
-    def __init__(self, *a, mode_parser="shadow", **kw):
+    def __init__(self, *a, mode_parser="shadow", grammar=None, **kw):
         super().__init__(*a, **kw)
         self.mode_parser = mode_parser
+        self.grammar = grammar
         self.parser_events = []
 
     def _stream_generate(self, messages, temperature, abort_on_unrecoverable):
@@ -53,6 +55,8 @@ class ParserAgentLoop(base.RobustAgentLoop):
         payload = {"messages": messages, "max_tokens": 1024, "temperature": temperature,
                    "top_p": 0.95, "stream": True,
                    "stream_options": {"include_usage": True}}
+        if self.grammar:
+            payload["grammar"] = self.grammar
         req = urllib.request.Request(GEN_CHAT, data=json.dumps(payload).encode(),
                                      headers={"Content-Type": "application/json"})
         parser = IncrementalToolCallParser()
@@ -77,7 +81,9 @@ class ParserAgentLoop(base.RobustAgentLoop):
                         tokens_in = usage.get("prompt_tokens", tokens_in)
                         tokens_out = usage.get("completion_tokens", tokens_out)
                     delta = (chunk.get("choices") or [{}])[0].get("delta", {})
-                    piece = delta.get("content") or ""
+                    # Under GBNF grammar the chat template routes output through
+                    # reasoning_content (no closing think tag); accept both fields.
+                    piece = delta.get("content") or delta.get("reasoning_content") or ""
                     if not piece:
                         continue
                     if ttft is None:
@@ -121,8 +127,12 @@ class ParserAgentLoop(base.RobustAgentLoop):
                 "aborted_early": gen.get("aborted_early", False),
                 "tokens_out": gen["tokens_out"], "latency_ms": round(gen["latency_ms"]),
             })
+            full_text = gen["text"]
             self.parser_events.append({"phase": self.mode_parser, **attempts[-1],
-                                       "text_head": gen["text"][:200]})
+                                       "text_head": full_text[:200],
+                                       "full_text": full_text,
+                                       "text_len": len(full_text),
+                                       "has_parsed_call": base.parse_tool_call(full_text) is not None})
             if ev is None or attempt == 1:
                 break
             # structured re-prompt: malformed fragment + error position as feedback
@@ -156,6 +166,8 @@ def main():
                     default=["D01", "D02", "D03", "D04", "D18", "D21", "D25", "D28"])
     ap.add_argument("--seeds", nargs="+", type=int, default=[1, 2])
     ap.add_argument("--resume", action="store_true")
+    ap.add_argument("--grammar", action="store_true",
+                    help="force tool-call structure via GBNF (Mode B)")
     args = ap.parse_args()
 
     exp_dir = Path(args.exp_dir)
@@ -174,7 +186,8 @@ def main():
             out = exp_dir / "runs" / f"{task['id']}_{args.mode}_s{seed}.json"
             if args.resume and out.exists():
                 continue
-            runner = ParserAgentLoop(config="baseline", mode_parser=args.mode,
+            grammar = compile_tool_call_grammar() if args.grammar else None
+            runner = ParserAgentLoop(config="baseline", mode_parser=args.mode, grammar=grammar,
                                      max_steps=15, max_rollbacks=0, base_temperature=0.3)
             workspace = base.setup_workspace(task, f"pg_{args.mode}_{seed}")
             messages = [{"role": "system", "content": base.TOOL_DESCRIPTIONS},
@@ -207,18 +220,23 @@ def main():
                 messages.append({"role": "user", "content": base.shape_followup_message(tool)})
             wall = round(time.time() - t0, 1)
 
+            # Post-hoc verification must parse the SAME full text the live
+            # parser saw — parsing text_head[:200] caused the D06 s1 false
+            # mismatch (violation at char 4173, head only 200 chars).
+            for e in runner.parser_events:
+                ph = posthoc_agree(e.get("full_text", ""))
+                e["posthoc_unrecoverable"] = ph["unrecoverable"]
+                e["agreement"] = (e["posthoc_unrecoverable"] == bool(e.get("detected")))
             live_det = [e for e in runner.parser_events if e.get("detected")]
-            posthoc = [posthoc_agree(e["text_head"]) for e in runner.parser_events if e.get("detected")]
-            mismatch = sum(1 for e, ph in zip(live_det, posthoc)
-                           if ph["unrecoverable"] != True)
+            mismatch = sum(1 for e in runner.parser_events if not e.get("agreement", True))
             totals["runs"] += 1
             totals["completed"] += 1
             totals["live_detections"] += len(live_det)
-            totals["posthoc_detections"] += len(posthoc)
+            totals["posthoc_detections"] += sum(1 for e in runner.parser_events if e.get("posthoc_unrecoverable"))
             totals["agreement_mismatches"] += mismatch
             totals["reprompts"] += sum(1 for e in runner.parser_events if e.get("attempt") == 2)
 
-            rec = {"task_id": task["id"], "seed": seed, "config": f"parser_{args.mode}",
+            rec = {"task_id": task["id"], "seed": seed, "config": f"parser_{args.mode}{"+g" if args.grammar else ""}",
                    "passed": passed, "steps": steps, "wall_time_s": wall,
                    "parser_events": runner.parser_events,
                    "live_detections": len(live_det),

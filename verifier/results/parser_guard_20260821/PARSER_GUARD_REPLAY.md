@@ -50,3 +50,34 @@ See `parser_guard_20260821/` (16 shadow + 16 active runs, seeds 1–2, 8 tasks):
   invisible to healthy trajectories; pass-rate delta vs recorded baselines
   (−3/16) is sampling noise with no causal path from the parser (it never
   intervened).
+
+---
+
+## Addendum (2026-08-22): D06 s1 anomaly resolved — Task 0 closure
+
+**Anomaly:** one live-vs-post-hoc disagreement during the escalation-session
+capability runs (D06 s1, active_esc arm).
+
+**Root cause — two stacked issues, neither a live-parser bug:**
+1. **Comparison bug (harness):** `posthoc_agree()` parsed only the 200-char
+   `text_head`, while the live parser saw all 4,383 chars. The violation
+   (nested `<function>` inside an unterminated first call, char ≈4173) was
+   invisible in the head → guaranteed false mismatch. Fixed: post-hoc now
+   parses the full stored text; `full_text` is persisted per event.
+2. **Parser semantics gap (real, fixed):** the live parser finalized
+   UNRECOVERABLE at the corrupted first call even though the generation later
+   contained a complete valid `<function=test>` call that the reference
+   extractor accepted (`has_parsed_call: true`). Aborting on that signal would
+   have discarded a usable call — a latent false-reject class.
+
+**Fix — resync-on-error semantics (parser v2):** a structural violation marks a
+*provisional* UNRECOVERABLE and is recorded in `errors`; the scanner jumps to
+the next `<tool_call>` opener; if a later complete valid call parses, the final
+verdict upgrades to VALID_SO_FAR carrying `protocol_violation_recovered`
+warnings. Only violation-without-recovery is finally UNRECOVERABLE. This makes
+the parser reference-equivalent by construction: anything the reference
+extractor accepts never ends UNRECOVERABLE.
+
+**Validation:** new permanent regression file `tests/test_toolcall_parser.py`
+(13 cases incl. the synthetic D06 pattern in both char-stream and single-chunk
+forms); full suite **38/38 green**, prefix-safety property re-verified.
