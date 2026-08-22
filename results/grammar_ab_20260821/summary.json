@@ -1,0 +1,140 @@
+{
+  "experiment": "grammar_ab",
+  "date": "2026-08-21",
+  "decision_question": "Can tool-call structure be forced at the sampler without degrading reasoning?",
+  "phase1_feasibility": {
+    "gbnf_enforced": true,
+    "ttft_overhead_pct": 0.0,
+    "decode_overhead_pct": -8.6,
+    "compiler": "verifier/src/grammar_compiler.py"
+  },
+  "mode_a_no_grammar": {
+    "runs": 16,
+    "passed": 10,
+    "missing_call_prose_steps": 67,
+    "total_generations": 177,
+    "mean_wall_s": 100.1
+  },
+  "mode_b_grammar": {
+    "runs": 16,
+    "passed": 4,
+    "missing_call_prose_steps": 0,
+    "total_generations": 208,
+    "mean_wall_s": 44.7
+  },
+  "verdict": "STOP per pre-registered rule: prose eliminated (67->0) but success fell 62.5%->25% (-6 tasks > 2 gate); forced emission strips reasoning space",
+  "pairs": [
+    {
+      "key": "D01_s1",
+      "a_passed": true,
+      "b_passed": true,
+      "a_wall_s": 15.9,
+      "b_wall_s": 24.1
+    },
+    {
+      "key": "D01_s2",
+      "a_passed": true,
+      "b_passed": true,
+      "a_wall_s": 20.7,
+      "b_wall_s": 10.9
+    },
+    {
+      "key": "D02_s1",
+      "a_passed": true,
+      "b_passed": false,
+      "a_wall_s": 62.1,
+      "b_wall_s": 39.0
+    },
+    {
+      "key": "D02_s2",
+      "a_passed": true,
+      "b_passed": false,
+      "a_wall_s": 57.1,
+      "b_wall_s": 167.3
+    },
+    {
+      "key": "D03_s1",
+      "a_passed": true,
+      "b_passed": false,
+      "a_wall_s": 99.2,
+      "b_wall_s": 42.8
+    },
+    {
+      "key": "D03_s2",
+      "a_passed": true,
+      "b_passed": false,
+      "a_wall_s": 52.5,
+      "b_wall_s": 59.9
+    },
+    {
+      "key": "D04_s1",
+      "a_passed": false,
+      "b_passed": false,
+      "a_wall_s": 137.0,
+      "b_wall_s": 29.2
+    },
+    {
+      "key": "D04_s2",
+      "a_passed": false,
+      "b_passed": false,
+      "a_wall_s": 94.5,
+      "b_wall_s": 32.4
+    },
+    {
+      "key": "D18_s1",
+      "a_passed": false,
+      "b_passed": false,
+      "a_wall_s": 173.9,
+      "b_wall_s": 32.8
+    },
+    {
+      "key": "D18_s2",
+      "a_passed": true,
+      "b_passed": false,
+      "a_wall_s": 137.5,
+      "b_wall_s": 67.3
+    },
+    {
+      "key": "D21_s1",
+      "a_passed": false,
+      "b_passed": false,
+      "a_wall_s": 185.7,
+      "b_wall_s": 36.6
+    },
+    {
+      "key": "D21_s2",
+      "a_passed": false,
+      "b_passed": false,
+      "a_wall_s": 157.8,
+      "b_wall_s": 29.0
+    },
+    {
+      "key": "D25_s1",
+      "a_passed": true,
+      "b_passed": true,
+      "a_wall_s": 92.6,
+      "b_wall_s": 15.5
+    },
+    {
+      "key": "D25_s2",
+      "a_passed": false,
+      "b_passed": false,
+      "a_wall_s": 161.1,
+      "b_wall_s": 43.8
+    },
+    {
+      "key": "D28_s1",
+      "a_passed": true,
+      "b_passed": false,
+      "a_wall_s": 55.6,
+      "b_wall_s": 38.9
+    },
+    {
+      "key": "D28_s2",
+      "a_passed": true,
+      "b_passed": true,
+      "a_wall_s": 98.1,
+      "b_wall_s": 46.1
+    }
+  ]
+}
