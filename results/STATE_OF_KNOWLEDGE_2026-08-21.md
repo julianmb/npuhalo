@@ -113,3 +113,35 @@ CPU capabilities beyond the PyTorch reference were **not** benchmarked.
 4. Upstream patch PRs — deferred.
 
 *Items 2–4 are explicitly deferred until the active-verification decision question is answered.*
+
+---
+
+## Benchmark correction & final annotations (2026-08-22)
+
+**Dataset v2.** Set D was re-authored after the escalation-tier stop rule
+exposed instruction↔grader contradictions in D04 and D06 (plus a missing
+`import os` fixture bug in D17). A CI task-validation gate
+(`validate_set_d.py`, 30/30 reference solutions pass hidden graders) now runs
+on every push; dataset sha256 `ee46b12d…`, v1 archived at
+`verifier/data/archive/`.
+
+**Caveat on all verifier-era measurements:** every pass rate recorded against
+Set D v1 (including all verifier shadow/active numbers in this document) is
+deflated by the two unsolvable tasks; arm-vs-arm comparisons remain internally
+valid, absolute rates do not. Verdict directions are unchanged.
+
+**Corrected baseline (v2, Ornith, 72 runs):** overall **58/72 = 80.6%**
+(D04: 0%→100%, D06: 0%→100% — pure task-bug conversions; D03: 20%→60%;
+D28: 70%→100%).
+
+**Escalation tier: ARCHIVED PERMANENTLY.** Re-test on corrected data against
+the only remaining capability-limited tasks: D18 converted **0/4** by
+Qwen3.8-27B (each attempt 8–14 min), D21 **1/4** (s3). Gate required ≥2 task
+conversions; measured 1. Roadmap redirects to compressor shipping,
+distillation, and multi-tenant work.
+
+**Parser guard validation record:** the D06 s1 live-vs-post-hoc mismatch was
+root-caused to a comparison-harness bug (200-char head parsed post-hoc) plus a
+latent over-strict abort class; parser v2 adds resync-on-error semantics
+(reference-equivalent by construction), locked behind
+`tests/test_toolcall_parser.py` (38/38 suite green).

@@ -156,8 +156,10 @@ def classify_and_wrap_post(event_log: EventLog, task: str, mode: str):
     return resilient_post
 
 
-def load_manifest_tasks():
+def load_manifest_tasks(full: bool = False):
     all_tasks = [json.loads(line) for line in open(DATA)]
+    if full:
+        return sorted(all_tasks, key=lambda t: t["id"])
     by_id = {t["id"]: t for t in all_tasks}
     controls = [t["id"] for t in all_tasks if t["id"] not in CATCHABLE][:8]
     ordered = [tid for pair in zip(CATCHABLE, controls) for tid in pair]
@@ -234,6 +236,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--tasks", nargs="+", default=None,
                     help="restrict to these task IDs (smoke tests); default = full manifest")
+    ap.add_argument("--full-manifest", action="store_true",
+                    help="use every Set D task instead of the 16-task paired subset")
     ap.add_argument("--policy", default=None,
                     help="path to frozen triage policy JSON; wraps the judge with the escalation gate")
     args = ap.parse_args()
@@ -247,7 +251,7 @@ def main():
     if args.dry_run:
         sys.exit(run_dry_run(exp_dir, event_log))
 
-    tasks = load_manifest_tasks()
+    tasks = load_manifest_tasks(full=args.full_manifest)
     if args.tasks:
         wanted = set(args.tasks)
         tasks = [t for t in tasks if t["id"] in wanted]

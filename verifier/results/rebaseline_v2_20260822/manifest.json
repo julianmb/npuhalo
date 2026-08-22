@@ -1,0 +1,74 @@
+{
+  "created": "2026-08-23T01:01:02.385064",
+  "dataset_path": "<home>/source/npuhalo/verifier/data/set_d_agentic.jsonl",
+  "dataset_sha256": "ee46b12d803bc2eccfbe8a65d8bd46c7d616ee3c94a3a4643e627a7c79a8bd7c",
+  "task_ids": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22",
+    "D23",
+    "D24",
+    "D25",
+    "D26",
+    "D27",
+    "D28",
+    "D29",
+    "D30"
+  ],
+  "catchable_ids": [
+    "D02",
+    "D03",
+    "D04",
+    "D06",
+    "D18",
+    "D21",
+    "D25",
+    "D28"
+  ],
+  "config": {
+    "max_tokens": 1024,
+    "base_temperature": 0.3,
+    "top_p": 0.95,
+    "max_steps": 15,
+    "max_rollbacks": 2,
+    "verifier": {
+      "endpoint": "http://127.0.0.1:8001/v1",
+      "k_samples": 3,
+      "temperature": 0.7
+    },
+    "escalator": {
+      "endpoint": "http://127.0.0.1:8013/v1",
+      "threshold": 0.5
+    },
+    "note": "sampling is server-side stochastic at fixed temperature; no server seed API is used (changing it would alter sampling defaults)"
+  },
+  "endpoints": {
+    "generator": "http://127.0.0.1:8012/v1",
+    "npu_verifier": "http://127.0.0.1:8001/v1",
+    "judge": "http://127.0.0.1:8013/v1"
+  },
+  "models": {
+    "generator": "Ornith-1.5-35B-A3B-ROCmFP4.gguf (ctx 16384, --no-context-shift)",
+    "verifier": "lfm2.5-tk:1.2b (FLM v0.9.46, warm)",
+    "judge": "Qwen3.5-2B-Q4_K_M"
+  }
+}
