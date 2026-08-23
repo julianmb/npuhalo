@@ -1,0 +1,78 @@
+{
+  "task_id": "D25",
+  "seed": 1,
+  "config": "parser_shadow+g",
+  "passed": true,
+  "steps": 5,
+  "wall_time_s": 15.5,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 80,
+      "latency_ms": 2082,
+      "text_head": "Let me analyze the task.\n\nI need to:\n1. Write `bench.py` (no numpy) generating `data/timing.txt` with 3 ASCENDING lines `epoch[i]=<tool_call>\n<function=shell>\n<parameter=command>ls -la && cat tests/te",
+      "text_len": 248,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 318,
+      "latency_ms": 4726,
+      "text_head": "Let me look at the test file more carefully. The test checks:\n- lines = open('data/timing.txt').read().strip().splitlines()\n- assert len(lines)==3\n- print('VISIBLE PASS')\n\nBut the task says \"Hidden te",
+      "text_len": 993,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 216,
+      "latency_ms": 3579,
+      "text_head": "Now let me write bench.sh.\n```\nWrite bench.sh.\n```\n\nbench.sh should run bench.py.\n```\n```\nLet me think about the format. The lines are `epoch[i]=ms`. The test checks ascending. So the ms values should",
+      "text_len": 650,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 177,
+      "latency_ms": 2839,
+      "text_head": "Let me think about the format. The lines are `epoch[i]=ms`. The test checks ascending. So the ms values should be ascending. Let me parse the ms value from each line and check ascending.\n\nThe format i",
+      "text_len": 553,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 123,
+      "latency_ms": 2163,
+      "text_head": "The file is generated correctly. Now let me run the test.\n```\n```\nThe file is generated correctly. Now let me run the test.\n```\n```\nLet me run the test.\n```\n```\nThe file is generated correctly. Now le",
+      "text_len": 452,
+      "has_parsed_call": true
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

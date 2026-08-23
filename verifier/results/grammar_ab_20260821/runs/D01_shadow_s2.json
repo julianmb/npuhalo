@@ -1,0 +1,65 @@
+{
+  "task_id": "D01",
+  "seed": 2,
+  "config": "parser_shadow",
+  "passed": true,
+  "steps": 4,
+  "wall_time_s": 20.7,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 60,
+      "latency_ms": 1064,
+      "text_head": "Let me start by examining the current state of the files to understand what I'm working with.\n<tool_call>\n<function=shell>\n<parameter=command>cat calc.py; echo \"---TESTS---\"; cat tests/test_calc.py</p",
+      "text_len": 234,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14385,
+      "text_head": "Let me analyze the current code and the requirements.\n\nCurrent code:\n```python\ndef invoice_total(subtotal, discount_percent):\n    discount = subtotal * discount_percent / 100\n    total = subtotal - di",
+      "text_len": 3324,
+      "has_parsed_call": false
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 210,
+      "latency_ms": 4278,
+      "text_head": "Let me analyze the task. I need to fix calc.py with two bugs:\n1. Wrong rounding mode (banker's vs half-up) - use ROUND_HALF_UP\n2. Negative totals on extreme discounts - floor at zero\n\nLet me write the",
+      "text_len": 782,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 39,
+      "latency_ms": 931,
+      "text_head": "Now let me run the test tool to verify.\nNow let me run the test tool to verify my fix.\n<tool_call>\n<function=test>\n</function>\n</tool_call>",
+      "text_len": 139,
+      "has_parsed_call": true
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

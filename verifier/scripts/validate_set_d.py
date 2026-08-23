@@ -97,7 +97,7 @@ def main():
               + (f" | {row['note']}" if row.get("note") else ""), flush=True)
 
     summary = {
-        "dataset": str(DATA),
+        "dataset": os.path.relpath(DATA, REPO),
         "dataset_sha256": dataset_sha,
         "tasks": len(tasks),
         "passed": len(results) - failures,

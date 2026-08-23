@@ -1,0 +1,78 @@
+{
+  "task_id": "D01",
+  "seed": 2,
+  "config": "parser_shadow+g",
+  "passed": true,
+  "steps": 5,
+  "wall_time_s": 10.9,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 119,
+      "latency_ms": 2009,
+      "text_head": "Let me start by examining the current state of the files.\n me start by reading the calc.py and tests/test_calc.py files.\n \"test\" runs the objective grader (including hidden cases) and reports PASS/FAI",
+      "text_len": 488,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 125,
+      "latency_ms": 2122,
+      "text_head": "Let me read the test file too.\n \"test\" runs the objective grader (including hidden cases) and reports PASS/FAIL.\n \"test\" runs the objective grader (including hidden cases) and reports PASS/FAIL.\n \"tes",
+      "text_len": 498,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 221,
+      "latency_ms": 3480,
+      "text_head": "Now I understand the task. I need to fix `invoice_total()` in calc.py to:\n\n1. Fix BUG 1: Wrong rounding mode \u2014 use half-up rounding to 2 decimal places instead of banker's rounding (`round()`).\n2. Fix",
+      "text_len": 820,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 125,
+      "latency_ms": 2126,
+      "text_head": "The write tool output seems truncated but it says \"OK wrote 298 chars\". Let me verify the file was written correctly, then run the test.\n\nActually, let me just run the test tool to check my work.\n \"te",
+      "text_len": 496,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 59,
+      "latency_ms": 1173,
+      "text_head": "The file is written correctly. Now let me run the test tool.\n \"test\" runs the objective grader (including hidden cases) and reports PASS/FAIL.\n \"test\" runs the objective grader (incl\n<tool_call>\n<func",
+      "text_len": 235,
+      "has_parsed_call": true
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

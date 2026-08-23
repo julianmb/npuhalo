@@ -1,5 +1,5 @@
 {
-  "dataset": "<home>/source/npuhalo/verifier/data/set_d_agentic.jsonl",
+  "dataset": "verifier/data/set_d_agentic.jsonl",
   "dataset_sha256": "ee46b12d803bc2eccfbe8a65d8bd46c7d616ee3c94a3a4643e627a7c79a8bd7c",
   "tasks": 30,
   "passed": 30,

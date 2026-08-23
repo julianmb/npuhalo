@@ -249,7 +249,7 @@ class RobustAgentLoop:
         return result.to_json()
 
 
-def run_sweep(configs: List[str], seeds: List[int]) -> Dict[str, Any]:
+def run_sweep(configs: List[str], seeds: List[int], resume: bool = True) -> Dict[str, Any]:
     tasks = load_target_tasks()
     print(f"[*] Loaded {len(tasks)} target tasks: {[t['id'] for t in tasks]}")
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -266,6 +266,15 @@ def run_sweep(configs: List[str], seeds: List[int]) -> Dict[str, Any]:
         t0_cfg = time.time()
         for task in tasks:
             for seed in seeds:
+                out_path = os.path.join(OUT_DIR, f"{task['id']}_{cfg}_s{seed}.json")
+                if resume and os.path.exists(out_path):
+                    try:
+                        rec = json.load(open(out_path))
+                        cfg_results.append(rec)
+                        print(f"[{cfg}] {task['id']} (s{seed}): RESUMED passed={rec['passed']} steps={rec['num_steps']}")
+                        continue
+                    except Exception:
+                        pass  # corrupt file: re-run
                 runner = RobustAgentLoop(
                     config=cfg,
                     verifier=verifier if cfg == "active_esc" else None,
@@ -282,7 +291,7 @@ def run_sweep(configs: List[str], seeds: List[int]) -> Dict[str, Any]:
                 print(f"[{cfg}] {task['id']} (s{seed}): passed={rec['passed']} steps={rec['num_steps']} "
                       f"rollbacks={rec['rollbacks']} escalations={rec.get('escalations', 0)} wall={rec['wall_time']:.1f}s")
                 # Save raw
-                with open(os.path.join(OUT_DIR, f"{task['id']}_{cfg}_s{seed}.json"), "w") as f:
+                with open(out_path, "w") as f:
                     json.dump(rec, f, indent=2)
 
         # Aggregate for config
@@ -318,7 +327,9 @@ def run_sweep(configs: List[str], seeds: List[int]) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    configs_to_run = sys.argv[1:] if len(sys.argv) > 1 else ["baseline", "parser_guard", "active_esc"]
+    args = [a for a in sys.argv[1:] if a != "--force"]
+    force = "--force" in sys.argv
+    configs_to_run = args if args else ["baseline", "parser_guard", "active_esc"]
     seeds_to_run = [1, 2, 3, 4, 5]
-    res = run_sweep(configs_to_run, seeds_to_run)
+    res = run_sweep(configs_to_run, seeds_to_run, resume=not force)
     print("\n" + json.dumps(res, indent=2))

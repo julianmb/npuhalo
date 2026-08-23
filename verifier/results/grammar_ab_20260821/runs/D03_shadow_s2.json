@@ -1,0 +1,91 @@
+{
+  "task_id": "D03",
+  "seed": 2,
+  "config": "parser_shadow",
+  "passed": true,
+  "steps": 6,
+  "wall_time_s": 52.5,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 38,
+      "latency_ms": 1339,
+      "text_head": "Let me start by examining the current state of the files.\n<tool_call>\n<function=read>\n<parameter=path>temperature.py</parameter>\n</function>\n</tool_call>",
+      "text_len": 153,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 701,
+      "latency_ms": 9918,
+      "text_head": "Let me analyze the bugs.\n\n`f_to_k(f)`: Fahrenheit to Kelvin. The correct formula:\n- f_to_c(f) = (f-32)*5/9\n- c_to_k(c) = c + 273.15\n- So f_to_k(f) = (f-32)*5/9 + 273.15\n\nCurrently it's `f+273.15` whic",
+      "text_len": 2090,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 15360,
+      "text_head": "The test file checks c_to_f(100) == 212. `100*9/5+32 = 900/5+32 = 180+32 = 212`. That's exact. So the visible test passes.\n\nThe hidden grader checks the full chain with tight tolerance. The subtle pre",
+      "text_len": 3190,
+      "has_parsed_call": false
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 540,
+      "latency_ms": 8742,
+      "text_head": "Let me fix both bugs properly. I'll write the corrected temperature.py.\n\nFor f_to_k: `(f-32)*5/9 + 273.15`\nFor c_to_f: use `c*9/5+32` but the \"subtle precision bug\" \u2014 I'll keep it correct. Actually le",
+      "text_len": 1667,
+      "has_parsed_call": true
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 15472,
+      "text_head": "Wait, I need to reconsider the \"subtle precision bug\" in c_to_f. Let me think about what the actual bug might be.\n\nThe current code was `c*9/5+32`. I changed it to `c*9.0/5.0+32.0`. But that's not rea",
+      "text_len": 3206,
+      "has_parsed_call": false
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 38,
+      "latency_ms": 1695,
+      "text_head": "Let me run the test tool to check my work.\nLet me run the test to verify my fixes.\n<tool_call>\n<function=test>\n</function>\n</tool_call>",
+      "text_len": 135,
+      "has_parsed_call": true
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}
