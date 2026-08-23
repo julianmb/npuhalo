@@ -1,276 +1,125 @@
 # npuhalo
 
-**Unlocking the power of the Halo NPU.**
+**What is the XDNA2 NPU actually good for when a big LLM owns the iGPU?**
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Hardware: AMD Strix Halo](https://img.shields.io/badge/Hardware-AMD_Ryzen_AI_Max%2B_395-red)](https://www.amd.com)
-[![Engine: ROCmFPX](https://img.shields.io/badge/Engine-ROCmFPX_(Vulkan_coopmat)-blue)](https://github.com/ggml-org/llama.cpp)
-[![NPU: FastFlowLM](https://img.shields.io/badge/NPU_Engine-FastFlowLM_(XDNA2)-purple)](https://github.com/ROCm/FastFlowLM)
-[![Python: 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB.svg)](pyproject.toml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Hardware](https://img.shields.io/badge/Hardware-AMD_Ryzen_AI_Max%2B_395_(Strix_Halo)-red)](#hardware)
 [![Tests](https://github.com/julianmb/npuhalo/actions/workflows/tests.yml/badge.svg)](https://github.com/julianmb/npuhalo/actions)
 
-Your Ryzen AI Max+ 395 has a **48-tile XDNA 2 NPU** that sits idle while the iGPU runs your LLM. We benchmarked every plausible way to put it to work alongside a 35B-A3B MoE generator (`Ornith 1.5`, ROCmFP4, Vulkan). Some ideas worked. The most hyped one didn't. 
+`npuhalo` is a complete experimental record of eight measured verdicts on
+heterogeneous LLM inference on AMD Strix Halo (Ryzen AI Max+ 395, 128 GB
+unified memory): one shipped mechanism, one shadow-only mechanism, and six
+archived ideas — every one closed with exact numbers, committed artifacts, and
+pre-registered decision gates. Negative results are first-class content here:
+the most useful findings are the ones that kill plausible ideas before you
+spend weeks on them.
 
-All numbers below were measured on real hardware (128 GB LPDDR5X, Linux 7.0 / Ubuntu 24.04). Tracked summaries and sanitized autopsy artifacts are available in [`verifier/results/`](verifier/results/) and [`docs/`](docs/); bulky raw run telemetry is intentionally excluded from Git.
-
-> **Project status: alpha research software.** The routing and compression utilities are usable prototypes; live rollback remains experimental. Network services default to localhost, and generated-code evaluators are not security sandboxes.
-
-[🚀 Quickstart](#-quickstart) • [📺 Live Demo](#-interactive-terminal-demo) • [📐 Architecture](#-3-tier-architecture) • [📊 Results](#-measured-results) • [📄 Decision Report](verifier/results/final-report.md) • [🗺️ Roadmap](docs/ROADMAP.md)
-
----
-
-## ⚡ TL;DR
-
-| Approach | Status | Measured Result | Production Verdict |
-| :--- | :---: | :--- | :--- |
-| **Tool-Output Context Compression** | 🟡 **Prototype** | 80–98% smaller context; net-positive only above **~32K chars** | Compression itself costs ~3–4s (thinking-model extraction); below breakeven it adds latency |
-| **Deterministic Parser Guard** | 🟢 **Ship** | <0.1ms, zero model compute | Deterministic schema validation + format hints; harness truncation was fixed separately |
-| **NPU Query Router (Fast Lane)** | 🔴 **Blocked** | Routing accuracy **25%**; NPU-direct answers 78% vs GPU 100% | Latency parity in A/B (~1.9s vs ~2.2s); needs a better classifier before the fast lane is real |
-| **Live Stream Verification** | 🔵 **Research** | 4/4 catchable failures flagged, 0/22 clean false alarms, −8.2% throughput | Detection is measured; end-to-end rollback conversion remains unmeasured |
-| **Speculative Decoding (NPU $\to$ GPU)** | 🔴 **Archived** | 2,640 ms vs 1,313 ms GPU-only (**2× slower**) | Active-parameter-light MoE targets decode faster than NPU drafters |
+**Stack under test:** Ornith-1.5-35B-A3B (ROCmFP4) on the Radeon 8060S iGPU via
+llama.cpp · FastFlowLM small models on the XDNA2 NPU (`/dev/accel/accel0`) ·
+CPU agent orchestration and tools · Ubuntu 24.04.
 
 ---
 
-## 📺 Interactive Terminal Demo
+## The verdict table
 
-Once the generator and verifier services are running, launch the terminal demo to stream tokens with color-coded verification badges:
+| # | Mechanism | Verdict | Headline numbers | Deep dive |
+|---|---|---|---|---|
+| 1 | **Deterministic tool-call parser guard** | ✅ **ARMED / SHIP NOW** | **0 false rejects / 1,004 replayed calls**; resync-on-error semantics; 38/38 tests | [FINDINGS §1](docs/FINDINGS.md#1-parser-guard--shipped) |
+| 2 | **NPU live verifier** | 🔵 **SHADOW ONLY** | Detection recall 4/4, 0/22 false alarms — but SUSPECT rate **100%** (433 checkpoints); calibrated active mode net **+1/48 tasks** | [FINDINGS §5](docs/FINDINGS.md#5-npu-live-verifier--shadow-only) |
+| 3 | **Generation-time grammar constraint** | ❌ **NET-HARMFUL** | Missing-call prose 67→0 but success **10/16 → 4/16** — prose is load-bearing reasoning | [FINDINGS §6](docs/FINDINGS.md#6-generation-time-grammar-constraint--net-harmful) |
+| 4 | **27B escalation tier** | ⛔ **ARCHIVED** | Converted **1 of 4** persistent-failure attempts at 8–16 min/attempt; root cause was benchmark bugs, not model capability | [FINDINGS §7](docs/FINDINGS.md#7-27b-escalation-tier--archived) |
+| 5 | **NPU tool-output compressor** | ⛔ **ARCHIVED** | Fidelity fallbacks **36/36 real samples** (15 catastrophic omissions); ≥32K bucket structurally empty (shell stdout capped at last 8K chars) | [FINDINGS §8](docs/FINDINGS.md#8-npu-tool-output-compressor--archived) |
+| 6 | **Speculative decoding (NPU→GPU)** | ❌ **DEAD ×2** | Two independent implementations: chunked 1,425 ms vs GPU-only 674 ms at 66% acceptance | [FINDINGS §2](docs/FINDINGS.md#2-speculative-decoding--dead-twice-over) |
+| 7 | **TTFT handoff (NPU burst → GPU)** | ❌ **DEAD** | Original 1.8× win failed to reproduce: ~1,430 ms vs ~730 ms first token on long prompts | [FINDINGS §3](docs/FINDINGS.md#3-ttft-handoff--dead-on-current-firmware) |
+| 8 | **0.8B query router** | ❌ **DEAD** | Routing decision accuracy **25%**; answer quality 78% vs 100% at latency parity | [FINDINGS §4](docs/FINDINGS.md#4-query-router--dead) |
 
-```bash
-npuhalo-demo
-# From a source checkout: make demo
-# Custom prompt: npuhalo-demo --prompt "Write a complete Quicksort in Python with unit tests."
-```
+Cross-cutting physics: concurrent NPU work costs the GPU **−16.5% decode**
+(directly measured) — any in-loop NPU coupling pays a bandwidth tax that
+dwarfs its benefit on this shared-memory chip.
 
-````text
-⚡ NPUHalo: Live Streaming Verification on AMD Strix Halo
-Generator: http://127.0.0.1:8012/v1 (Radeon 8060S iGPU, ROCmFP4 MoE)
-Verifier : http://127.0.0.1:8001/v1 (XDNA 2 NPU, FastFlowLM LFM2.5-tk)
-
-Here is a clean implementation of Quicksort in Python:
-```python
-def quicksort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[len(arr) // 2]
-[✓ NPU Checkpoint #1: CONTINUE | 885ms | code_fence_close]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quicksort(left) + middle + quicksort(right)
-```
-[✓ NPU Checkpoint #2: CONTINUE | 910ms | blank_line_step]
-
-📊 Run Summary:
- • Total Tokens Generated : 248 tokens
- • Generation Wall Time   : 3.36 s
- • Effective Throughput   : 73.8 tok/s
- • NPU Audits Completed   : 2 checkpoints
- • Mean NPU Checkpoint Lat: 897 ms (off-GPU, ~2 W power)
- • Final Stream Status    : PASSED
-````
+**Corrected benchmark:** Set D v2 (CI-gated, 30/30 reference-validated).
+Ornith baseline **58/72 = 80.6%**. The v1 dataset contained two unsolvable
+tasks (instruction↔grader contradictions) — v1 absolute rates are deflated;
+see [FINDINGS §9](docs/FINDINGS.md#9-set-d-v2-the-benchmark-was-broken-first).
 
 ---
 
-## 📐 3-Tier Architecture
-
-The evaluation produced the following 3-tier research design for separating deterministic formatting checks from model-based anomaly detection:
+## Architecture
 
 ```text
-                               Agent Generation Step
-                                         │
-                                         ▼
-            ┌────────────────────────────────────────┐
-            │ Layer 1: Deterministic Parser Guard    │ ──(Malformed/Empty)──► Reject + Format Hint
-            │          (Free, <0.1 ms latency)       │
-            └────────────────────────────────────────┘
-                                         │ (Valid tool call)
-                                         ▼
-            ┌────────────────────────────────────────┐
-            │ Layer 2: NPU LFM2.5-tk Triage (:8001)  │ ──(CONTINUE)─────────► Stream Proceed (0 GPU tokens)
-            │          (~0.9s latency, ~2 W power)   │
-            └────────────────────────────────────────┘
-                                         │ (SUSPECT)
-                                         ▼
-            ┌────────────────────────────────────────┐
-            │ Layer 3: iGPU Qwen3.5-2B Judge (:8013) │ ──(ABORT)────────────► Candidate Rollback Decision
-            │          (CONTINUE vs ABORT logprobs)  │                        (active conversion not yet measured)
-            └────────────────────────────────────────┘
+                 ┌──────────────────────────────────────────────┐
+                 │        AMD Strix Halo · 128 GB UMA           │
+                 │                                              │
+   agent loop    │  ┌───────────────┐      ┌─────────────────┐  │
+   (CPU) ────────┼─►│ Radeon 8060S  │      │   XDNA2 NPU     │  │
+   tools, parser │  │ iGPU · 40 CU  │      │   48 tiles      │  │
+   guard, sidecar│  │ Ornith-1.5    │      │   FastFlowLM    │  │
+                 │  │ 35B-A3B FP4   │      │   LFM2.5-1.2B   │  │
+                 │  │ ~72 tok/s     │      │   ~43 tok/s ~2W │  │
+                 │  └───────┬───────┘      └────────┬────────┘  │
+                 │          │   :8012               │   :8001   │
+                 │          ▼                       ▼           │
+                 │   generation + MTP      triage / compression │
+                 │   (never overlapped by  (sidecar, shadow     │
+                 │    NPU requests)         verifier logging)   │
+                 └──────────────────────────────────────────────┘
 ```
 
-1. **Layer 1 (Parser Guard):** Instant deterministic schema validation for malformed tool calls. Four observed silent stalls were caused by a separate token-budget truncation bug and are not credited to this guard.
-2. **Layer 2 (NPU Triage):** Asynchronous continuous verification on the 48-tile XDNA 2 NPU. Outpaces generator checkpoint boundaries (~0.9s vs ~3.4s window).
-3. **Layer 3 (iGPU Escalation Judge):** The NPU 1.2B model acts as a conservative triage filter (votes `SUSPECT`, never raw `ABORT`). The iGPU judge separated one broken calibration trajectory ($r=0.000$) from one clean trajectory ($r=0.806$); a complete active rollback sweep is still required.
+The measured lesson of the project lives in that diagram: the NPU helps most
+when it stays **out of the generation loop** — deterministic guards on the CPU
+enforce format for free, the NPU serves as a low-power logger/compressor for
+workloads that genuinely produce large artifacts, and nothing couples the two
+silicons during decode.
 
----
+## What survived into shippable code
 
-## 📊 Measured Results
+- `verifier/src/toolcall_parser.py` — incremental Qwen `<tool_call>` parser,
+  resync-on-error semantics, reference-equivalent by construction ([tests](tests/test_toolcall_parser.py))
+- `verifier/src/gated_escalator.py` + frozen policy — shadow verifier data collector
+- `verifier/src/compressor_sidecar.py` — provenance-complete opt-in compressor (fidelity-gated)
+- `verifier/scripts/validate_set_d.py` — CI task-validation gate (30/30)
+- Resilient eval harnesses — locked manifests, resume, INFRA_FAILURE accounting
 
-* **Generator:** `Ornith 1.5 35B-A3B`, `Q4_0_ROCMFP4_STRIX_LEAN` quantization on Radeon 8060S iGPU — **72.04 tok/s decode**, **151.4 ms TTFT**. The unrelated 14.1 tok/s Qwen benchmark is not used as a same-model speedup baseline.
-* **Verifier:** `LFM2.5-1.2B-Thinking` on XDNA 2 NPU via FastFlowLM — **~43 tok/s**, **~0.9s median checkpoint latency** (4× faster than generation checkpoint window).
-
-| Evaluation Phase | Metric | Measured Result | Notes |
-| :--- | :--- | :--- | :--- |
-| **Set D Baseline (30 Agentic Tasks)** | Pass Rate | **80.0%** (24/30 single-seed; 78.6% across N=234 runs) | High capability bounds failure headroom |
-| **Shadow Mode Autopsy** | Real Recall on Catchable Bugs | **4 / 4 (100.0%)** | Caught 100% of test errors, tracebacks & permission faults |
-| **Shadow Mode Autopsy** | False Alarms on Clean Runs | **0 / 22 (0.0%)** | No clean trajectory was escalated in the observed sample |
-| **Escalator Calibration** | Logprob Separation | **$r = 0.000$ (broken)** vs **$r = 0.806$ (clean)** | Clean threshold separation on iGPU `:8013` |
-| **NPU Capacity & Concurrency** | Saturation Boundary | **3.6–3.8 concurrent streams** | Median latency: 1.15s @ 1 stream $\to$ 3.61s @ 4 streams |
-| **NPU Context Compressor** | Context Size Reduction | **80.0% to 98.0%** | Prototype measured on tool outputs longer than 500 characters |
-
-### Economic Breakeven (Live Verification)
-
-$$\text{Modeled Net Savings} = (0.133 \text{ failure rate} \times 0.65 \text{ assumed token avoidance}) - 0.082 \text{ throughput cost} = \mathbf{+0.5\%}$$
-
-The +0.5% value is a **scenario estimate**, not an active-mode measurement: the 65% avoided-waste term remains an assumption until abort-and-resample conversion is measured. Any operational value would come from preventing downstream side effects in long-running workflows.
-
----
-
-## ❌ What Doesn't Work (and Why)
-
-**NPU $\to$ GPU Speculative Decoding:** A 35B-A3B MoE activates ~3B params per token and decodes at 56–80 tok/s on the iGPU. The NPU draft model runs at 30–34 tok/s. Speculative decoding only wins when the target model is memory-bandwidth bound; an active-parameter-light MoE is compute-bound. Acceptance rates averaged **32%** on code and collapsed to **6–7%** on open-ended text.
-
-* **Measured:** **2× slower** than GPU-only execution ($2,640\text{ ms}$ vs $1,313\text{ ms}$).
-* **Full analysis:** [`docs/REPORT.md`](docs/REPORT.md) and [`docs/final_verdict.md`](docs/final_verdict.md); benchmark suite in [`scripts/npu_benchmark.py`](scripts/npu_benchmark.py).
-
----
-
-## 🛠️ Quickstart
-
-### 1. Requirements & NPU Setup
-* **Hardware:** AMD Strix Halo (Ryzen AI Max+ 395, 128 GB UMA LPDDR5X-8000).
-* **OS / Kernel:** Linux 6.11+ (tested on Linux 7.0 / Ubuntu 24.04) with `amdxdna` kernel driver.
-* **Python:** CPython 3.12 or newer (the version used by CI and the measured workstation).
-* **Boot Flag:** Boot with SVA enabled: `iommu=pt iommu.passthrough=0` (disabling IOMMU disables the NPU).
-* **User Group:** `sudo usermod -aG render "$USER"` (log out and back in).
-
-Verify hardware status with the repository triage tool:
-```bash
-make status
-# or: python3 scripts/npu_status.py
-```
-
-### 2. Install
-
-```bash
-git clone https://github.com/julianmb/npuhalo.git
-cd npuhalo
-python3 -m pip install -e .
-
-# Verify the packaged console entry point
-npuhalo-demo --help
-```
-
-CI also builds a wheel, installs it without the source checkout, and smoke-tests the `npuhalo-demo` entry point. The wheel includes the calibrated verifier prompt used by the demo.
-
-### 3. Launch Services
-
-```bash
-# 1. Primary Generator (Radeon 8060S iGPU, Vulkan cooperative matrices, Port 8012)
-llama-server \
-  -m /path/to/Ornith-1.5-35B-A3B-ROCmFP4.gguf \
-  --device Vulkan0 --port 8012 --host 127.0.0.1 \
-  -c 16384 -ngl 99 -fa 1 --threads 16 --no-context-shift -np 1
-
-# 2. NPU Verifier & Compressor (FastFlowLM on XDNA 2 NPU, Port 8001)
-flm serve lfm2.5-tk:1.2b --host 127.0.0.1 --port 8001
-
-# 3. Escalation Judge (iGPU llama-server with logprobs, Port 8013)
-llama-server \
-  -m /path/to/Qwen3.5-2B-Q4_K_M.gguf \
-  --device Vulkan0 --port 8013 --host 127.0.0.1 \
-  -c 8192 -ngl 99 -fa 1 --threads 8
-```
-
-### 4. Run Evaluations & Benchmarks
-
-```bash
-# Run unit & regression test suite (25 tests)
-make test
-
-# Run 30-task agentic shadow autopsy (NPU verification logging)
-make shadow
-
-# Run NPU capacity & concurrency sweep
-make sweep
-
-# Run NPU tool-output context compression benchmark
-make compress
-```
-
----
-
-## 🧩 FastFlowLM Logprobs Integration
-
-Stock FastFlowLM returns `"logprobs": null` over HTTP, which blocks distribution-based verifier scoring on the NPU. Our measured setup used an **out-of-tree FastFlowLM modification** that adds:
-* Full-vocabulary log-softmax from raw NPU logits (248K vocab)
-* OpenAI-compatible `logprobs` and `top_logprobs` on `/v1/chat/completions` and `/v1/completions`
-* GBNF grammar-constrained decoding ported from `llama.cpp`
-
-The modification is published as a unified diff: [`patches/0003-flm-logprobs-and-grammars.patch`](patches/0003-flm-logprobs-and-grammars.patch) (see [`patches/README.md`](patches/README.md) for scope and apply instructions). The tracked Python-side validation tooling is [`npu_logit_adapter.py`](standalone-eval/scripts/npu_logit_adapter.py) and [`test_logprobs.py`](standalone-eval/scripts/test_logprobs.py). With the patched server, the verifier tier can run on the NPU while leaving the iGPU available for the primary generator.
-
----
-
-## 🔍 Honest Caveats
-
-1. **Recall sample size is small:** 4/4 catchable failures were flagged in shadow mode, but only 4 of 8 total failures produced observable evidence. The other 4 were harness truncation stalls fixed by increasing the token budget and reading `reasoning_content`; they are not credited to the parser guard or verifier.
-2. **Abort precision requires prompt tuning:** Raw FastFlowLM text endpoints return `SUSPECT`, not `ABORT`. The 100% planted-error detection figure holds only when paired with calibrated prompts and the iGPU escalation judge.
-3. **Overhead is −8.2% steady-state, not −3.5%:** An earlier internal preliminary report claimed 3.5%; live measurements on short tasks show **−8.2%** steady overhead and up to **−26%** on cold first tasks. We publish the reproduced number.
-4. **NPU cold start is ~74s:** FastFlowLM pays a one-time graph compile/weight load on first invocation. Pre-warm the endpoint in production.
-5. **Set D tasks topped out at ~80% baseline pass rate:** Ornith-1.5 is a strong generator; verification headroom is naturally bounded on simple tasks. Value claims should be understood as **insurance economics**, not magical pass-rate uplift.
-6. **Active rollback is incomplete:** Shadow detection is measured, but whether abort-and-resample converts failures into successful runs is still an open experiment.
-7. **Evaluation executors are not security sandboxes:** Agent and code-evaluation scripts may execute generated Python or shell commands with the current user's privileges. Run only trusted tasks inside a disposable container or VM; do not point them at sensitive workspaces.
-8. **Router accuracy is poor (measured):** In an A/B evaluation ([`eval_router_ab.py`](verifier/scripts/eval_router_ab.py)), the LFM2.5 classifier routed correctly in only **25%** of cases (it sends nearly everything to the GPU, and occasionally sends reasoning queries to the NPU). NPU-direct answers scored **78%** vs **100%** on GPU for trivial factual questions, at near-identical latency (~1.9s vs ~2.2s). The earlier "1,384 ms vs 14,635 ms" figure measured latency only, on a different configuration.
-9. **Compressor breakeven is ~32K chars (measured):** Live-loop measurement ([`eval_compressor_breakeven.py`](verifier/scripts/eval_compressor_breakeven.py)) shows NPU compression costs **~3–4s** (the thinking model emits reasoning tokens before the structured summary), while prefill savings grow with output size. Net saving is negative below ~16K chars and only turns positive around **32K chars** (+3.7s there). The earlier ">500 chars" guidance was wrong for this stack.
-10. **TTFT handoff loses on current firmware (measured):** A/B evaluation ([`eval_handoff_coherence.py`](verifier/scripts/eval_handoff_coherence.py)) found the NPU-burst handoff is *slower* than direct GPU generation even on long prompts (**~1,430 ms vs ~730 ms** first token) — the NPU must prefill the same long context and is slower at it than the iGPU. Output quality was a statistical tie (2B judge; 92% of bursts end mid-sentence but the continuation recovers). The earlier "347 ms vs 1,587 ms" claim does not reproduce on today's stack; the archived prototype stays archived.
-
-### Positioning
-
-The measured evidence supports one framing: the NPU is a **low-power sidecar for small-model auxiliary work** (verification triage, and compression of *very* large tool outputs) that leaves the unified memory bus untouched — not a second inference engine. Every attempt to make it accelerate or front-run big-model generation — speculative drafting, TTFT bursts, query routing — was measured and lost, to memory-bus contention, prefill slowness, or classifier inaccuracy.
-
----
-
-## 📂 Repository Layout
+## Repository map
 
 ```text
-npuhalo/
-├── verifier/                    # 3-tier live streaming verification & agentic eval suite
-│   ├── src/                     # Core runtime (agent_loop, stream_tap, verifier_client, escalator)
-│   ├── scripts/                 # Benchmark runners (shadow autopsy, active escalation, sweep, compressor)
-│   ├── data/                    # Evaluation sets (Set A math, Set B code, Set C errors, Set D agentic)
-│   ├── prompts/                 # Calibrated verifier & judge prompts
-│   └── results/                 # Sanitized autopsies, aggregate results, and final decision report
-├── standalone-eval/             # Standalone pairwise LFM2.5 vs Qwen evaluation
-├── examples/                    # Interactive visual demo (examples/demo_stream.py)
-├── scripts/                     # Hardware diagnostics, NPU router, MTP/speculative-decoding benchmarks
-├── tests/                       # Automated regression and unit tests (25 tests)
-├── docs/                        # Reviewed reports, baselines, archived experiments, and public roadmap
-│   └── research/                # Curated research index and evidence boundaries
-├── patches/                     # Out-of-tree FastFlowLM / llama.cpp modifications (logprobs, GBNF)
-├── Makefile                     # 1-command targets (make test, make demo, make shadow, make sweep)
-├── pyproject.toml               # Python 3.12+ package, dependencies, prompt data, and CLI entry point
-├── CONTRIBUTING.md              # Development workflow and benchmark contribution requirements
-├── SECURITY.md                  # Threat model, safe-use guidance, and vulnerability reporting
-└── LICENSE                      # Apache-2.0 License
+verifier/                  live verification & agentic evaluation suite
+  src/                     runtime modules (agent loop, parsers, policies, sidecar)
+  scripts/                 experiment harnesses (all results reproducible from them)
+  data/                    Set D v2 benchmark + reference solutions + validation gate
+  prompts/                 verifier/judge prompts
+  results/                 every experiment's raw records + summaries (committed)
+docs/
+  FINDINGS.md              ← full research report (start here)
+  METHODOLOGY.md           ← how to run experiments this way
+  REPORT.md, final_verdict.md, …   historical deep dives
+patches/                   FastFlowLM logprobs/GBNF + llama.cpp echo-logprobs diffs
+standalone-eval/           pairwise judge-quality characterization
+examples/demo_stream.py    live streaming demo of the parser-guarded loop
 ```
 
----
+## Quick links
 
-## 💻 Hardware Reference
+- 📄 [Full findings report](docs/FINDINGS.md) — hypothesis → method → exact numbers → autopsy → verdict, per line
+- 🧪 [Methodology](docs/METHODOLOGY.md) — pre-registered gates, locked manifests, paired seeds
+- 📊 Corrected baseline: [`rebaseline_v2_20260822/summary.json`](verifier/results/rebaseline_v2_20260822/summary.json)
+- 🔒 Security policy: [SECURITY.md](SECURITY.md) · Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-* **Processor:** AMD Ryzen AI Max+ 395 (16 Zen 5 cores, 32 threads)
-* **iGPU:** AMD Radeon 8060S (40 CUs, RDNA 3.5, `gfx1151`)
-* **NPU:** AMD XDNA 2 (`RyzenAI-npu5`, 48 AIE2p tiles @ 50 TOPS, `/dev/accel/accel0`)
-* **Memory:** 128 GB LPDDR5X-8000 Unified Memory (~273 GB/s peak bandwidth)
-* **OS & Kernel:** Linux 7.0 / Ubuntu 24.04 (`amdxdna` kernel module, SVA active)
+## Hardware & software
 
----
+AMD Ryzen AI Max+ 395 (16 Zen 5 cores) · Radeon 8060S iGPU (RDNA3.5, gfx1151,
+Vulkan KHR_coopmat) · XDNA2 NPU (48 AIE2p tiles, `/dev/accel/accel0`) · 128 GB
+LPDDR5X-8000 (~273 GB/s) · Ubuntu 24.04, Linux 6.11+ with `amdxdna` +
+`iommu=pt iommu.passthrough=0`. Generator: llama.cpp (ROCmFPX fork),
+`Qwen3.5`-family GGUFs incl. Ornith-1.5-35B-A3B ROCmFP4. NPU runtime:
+FastFlowLM v0.9.46 (+ [patches](patches/)).
 
-## 📄 License
+## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+Apache License 2.0 — see [LICENSE](LICENSE).
 
----
+## Acknowledgments
 
-## 🤝 Acknowledgments
-
-Built on [FastFlowLM](https://github.com/ROCm/FastFlowLM), [llama.cpp](https://github.com/ggml-org/llama.cpp), and the speculative-decoding test harnesses for AMD Strix Halo.
+Built on [llama.cpp](https://github.com/ggml-org/llama.cpp),
+[FastFlowLM](https://github.com/ROCm/FastFlowLM), and the Strix Halo
+community's speculative-decoding work.
