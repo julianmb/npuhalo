@@ -145,3 +145,15 @@ root-caused to a comparison-harness bug (200-char head parsed post-hoc) plus a
 latent over-strict abort class; parser v2 adds resync-on-error semantics
 (reference-equivalent by construction), locked behind
 `tests/test_toolcall_parser.py` (38/38 suite green).
+
+---
+
+## Chapter closures (2026-08-22, final)
+
+| Line | Final state |
+|---|---|
+| **Parser guard** | **ARMED / SHIP NOW** — resync-on-error semantics (v2), reference-equivalent by construction, 38/38 tests green |
+| **Set D dataset** | **v2 is the sole benchmark authority** (sha256 `ee46b12d…`); v1 archived at `verifier/data/archive/` and **contaminated** by D04/D06 instruction↔grader contradictions plus the D17 fixture defect |
+| **Ornith v2 baseline** | **58/72 = 80.6%** on corrected Set D (`rebaseline_v2_20260822/`) |
+| **Escalation tier** | **ARCHIVED permanently.** Qwen3.8-27B converted D18 0/4 and D21 1/4 at 6–14 minutes/attempt — not viable economics |
+| **Verifier** | **SHADOW ONLY.** Its v1 quantitative recall/benefit estimates are contaminated by unsatisfiable D04/D06; do not treat them as clean absolute estimates. Do not reopen active-abort work. |
