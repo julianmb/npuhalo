@@ -41,18 +41,28 @@ The deterministic parser guard remains the correct formatting boundary
 No further structural-constraint experiments.
 Reports: `results/grammar_ab_20260821/`.
 
-## NPU->GPU Contention Characterization & Scoped Scheduling Rule (2026-08-26)
+## NPU→GPU Contention: Proportional, Phase-Asymmetric, Residency-Free (2026-08-26)
 
-The static −16.5% contention penalty was rigorously decomposed across 7 conditions (A–G) and 3 prompt scales (512, 2K, 8K) across 5 interleaved repetitions (`results/npu_contention_20260826_200850/`):
+The static −16.5% contention penalty was decomposed across 7 conditions (A–G), 3 prompt scales, and 5 interleaved reps (`results/npu_contention_20260826_200850/contention_report.md`).
 
-1. **Intensity-Proportional, Not Constant:** Contention scales linearly with active NPU token generation rate (0 TPS $\to$ 0.0%; 10 TPS burst $\to$ −4.4%; 12 TPS $\to$ −5.3%; 50 TPS $\to$ −12.5% to −16.5%).
-2. **100% Memory Streaming Cause, 0% Residency:** Auxiliary model residency in RAM (Condition E) causes **0.0% penalty** (−0.15% to +0.25%, indistinguishable from zero noise).
-3. **Phase Asymmetry:** Decode is **~3× more sensitive** than prefill (prefill degrades −2.5% vs decode −7.7% to −12.5%).
-4. **Tool-Window Zero-Cost Claim Confirmed:** Running NPU workloads during GPU-idle gaps (Condition G) causes **0.0% penalty** on subsequent GPU decode and zero first-50-token transient.
+**Canonical contention model (replaces single −16.5% figure):**
 
-**Updated Scheduling Function:**
-$$\text{Penalty}_{\text{GPU\_Decode}} = -0.165 \times \left(\frac{\text{TPS}_{\text{NPU}}}{\text{TPS}_{\text{NPU\_Peak}}}\right) \times \text{DutyCycle}_{\text{NPU}} \quad \text{[Concurrent Decode Mode]}$$
-$$\text{Penalty}_{\text{GPU\_Decode}} = 0.000 \quad \text{[Gated Tool-Window / Sequential Mode]}$$
+| Regime | Penalty | Condition |
+|---|---|---|
+| Tool window (GPU idle) | **0%** | NPU work runs during idle gaps; zero transient |
+| Concurrent burst (~50% duty) | **−3.7%** | 1s on / 1s off, LFM 1.2B |
+| Concurrent continuous, short window | **−4.5% to −11.8%** | Proportional to NPU model size & streaming intensity |
+| Concurrent continuous, long/thermal | **−16.5%** | Sustained multi-second overlap |
+| Concurrent prefill | **−2.5%** | Prefill is ~3× less sensitive than decode |
+| Model residency only (zero inference) | **0%** | Memory footprint alone causes no contention |
+
+Key findings:
+1. Contention is **proportional to active NPU streaming intensity**, not a binary on/off tax.
+2. **Memory residency is free**: loaded-but-idle models cost 0%.
+3. **Decode is ~3× more sensitive than prefill** (memory-bandwidth-bound vs compute-bound).
+4. **Tool-window zero-transient confirmed**: first-50-token latencies identical to baseline after NPU workloads complete in idle windows.
+
+Full report: `results/npu_contention_20260826_200850/contention_report.md`.
 
 ---
 

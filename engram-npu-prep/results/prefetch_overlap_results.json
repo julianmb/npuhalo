@@ -1,0 +1,85 @@
+{
+  "benchmark": "prefetch_and_pipeline_overlap",
+  "timestamp": "2026-08-25 23:46:33",
+  "thread_dispatch_overhead_ms": 1.071,
+  "scenarios": [
+    {
+      "gpu_layer_compute_ms": 0.45,
+      "lookup_latency_ms": 0.05,
+      "engram_layer_idx": 1,
+      "available_buffer_window_ms": 0.45,
+      "hidden_latency_ms": 0.05,
+      "exposed_latency_ms": 0.0,
+      "hidden_pct": 100.0,
+      "total_step_time_ms": 13.5,
+      "time_saved_ms": 0.05,
+      "platform": "Strix Halo iGPU (74 tok/s, 30L)",
+      "description": "Host RAM CPU Gather (1.4 \u00b5s)"
+    },
+    {
+      "gpu_layer_compute_ms": 0.45,
+      "lookup_latency_ms": 0.35,
+      "engram_layer_idx": 1,
+      "available_buffer_window_ms": 0.45,
+      "hidden_latency_ms": 0.35,
+      "exposed_latency_ms": 0.0,
+      "hidden_pct": 100.0,
+      "total_step_time_ms": 13.5,
+      "time_saved_ms": 0.35,
+      "platform": "Strix Halo iGPU (74 tok/s, 30L)",
+      "description": "NPU AXI DMA Gather (350 \u00b5s)"
+    },
+    {
+      "gpu_layer_compute_ms": 0.45,
+      "lookup_latency_ms": 0.35,
+      "engram_layer_idx": 15,
+      "available_buffer_window_ms": 6.75,
+      "hidden_latency_ms": 0.35,
+      "exposed_latency_ms": 0.0,
+      "hidden_pct": 100.0,
+      "total_step_time_ms": 13.5,
+      "time_saved_ms": 0.35,
+      "platform": "Strix Halo iGPU (74 tok/s, 30L)",
+      "description": "NPU AXI Gather at Layer 15 (6.75 ms buffer)"
+    },
+    {
+      "gpu_layer_compute_ms": 0.136,
+      "lookup_latency_ms": 0.08,
+      "engram_layer_idx": 1,
+      "available_buffer_window_ms": 0.136,
+      "hidden_latency_ms": 0.08,
+      "exposed_latency_ms": 0.0,
+      "hidden_pct": 100.0,
+      "total_step_time_ms": 8.296,
+      "time_saved_ms": 0.08,
+      "platform": "4x RTX 3090 Cluster (120 tok/s, 61L)",
+      "description": "PCIe Gen4 H2D Gather Transfer (80 \u00b5s)"
+    },
+    {
+      "gpu_layer_compute_ms": 0.136,
+      "lookup_latency_ms": 0.3,
+      "engram_layer_idx": 1,
+      "available_buffer_window_ms": 0.136,
+      "hidden_latency_ms": 0.136,
+      "exposed_latency_ms": 0.164,
+      "hidden_pct": 45.3,
+      "total_step_time_ms": 8.46,
+      "time_saved_ms": 0.136,
+      "platform": "4x RTX 3090 Cluster (120 tok/s, 61L)",
+      "description": "High contention PCIe lookup (300 \u00b5s)"
+    },
+    {
+      "gpu_layer_compute_ms": 0.136,
+      "lookup_latency_ms": 0.3,
+      "engram_layer_idx": 3,
+      "available_buffer_window_ms": 0.408,
+      "hidden_latency_ms": 0.3,
+      "exposed_latency_ms": 0.0,
+      "hidden_pct": 100.0,
+      "total_step_time_ms": 8.296,
+      "time_saved_ms": 0.3,
+      "platform": "4x RTX 3090 Cluster (120 tok/s, 61L)",
+      "description": "Engram at Layer 3 with PCIe (408 \u00b5s buffer)"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{"ts": 1787740936.8311183, "event": "job_submitted", "job_id": "verify_step_0", "job_type": "verify", "priority": "HIGH"}
+{"ts": 1787740936.8313005, "event": "phase_change", "old_phase": "idle", "new_phase": "decode"}
+{"ts": 1787740938.7072768, "event": "job_executed", "job_id": "verify_step_0", "job_type": "verify", "priority": "HIGH", "placement_phase": "execute_throttled", "gpu_phase": "decode", "status": "error", "elapsed_ms": 0.4, "deadline_ms": 500.0, "timestamp": 1787740938.7072735, "error": "[Errno 104] Connection reset by peer"}
+{"ts": 1787740938.7073574, "event": "phase_change", "old_phase": "decode", "new_phase": "idle"}
+{"ts": 1787740939.2075217, "event": "job_submitted", "job_id": "verify_step_1", "job_type": "verify", "priority": "HIGH"}
+{"ts": 1787740939.2077146, "event": "phase_change", "old_phase": "idle", "new_phase": "decode"}
+{"ts": 1787740941.07698, "event": "job_executed", "job_id": "verify_step_1", "job_type": "verify", "priority": "HIGH", "placement_phase": "execute_throttled", "gpu_phase": "decode", "status": "error", "elapsed_ms": 0.4, "deadline_ms": 500.0, "timestamp": 1787740941.076977, "error": "[Errno 104] Connection reset by peer"}
+{"ts": 1787740941.07706, "event": "phase_change", "old_phase": "decode", "new_phase": "idle"}
+{"ts": 1787740941.577189, "event": "job_submitted", "job_id": "verify_step_2", "job_type": "verify", "priority": "HIGH"}
+{"ts": 1787740941.5773418, "event": "phase_change", "old_phase": "idle", "new_phase": "decode"}
+{"ts": 1787740943.4659257, "event": "job_executed", "job_id": "verify_step_2", "job_type": "verify", "priority": "HIGH", "placement_phase": "execute_throttled", "gpu_phase": "decode", "status": "error", "elapsed_ms": 0.3, "deadline_ms": 500.0, "timestamp": 1787740943.4659226, "error": "[Errno 104] Connection reset by peer"}
+{"ts": 1787740943.4660058, "event": "phase_change", "old_phase": "decode", "new_phase": "idle"}
+{"ts": 1787740943.9661572, "event": "job_submitted", "job_id": "verify_step_3", "job_type": "verify", "priority": "HIGH"}
+{"ts": 1787740943.9663486, "event": "phase_change", "old_phase": "idle", "new_phase": "decode"}
+{"ts": 1787740945.8619323, "event": "job_executed", "job_id": "verify_step_3", "job_type": "verify", "priority": "HIGH", "placement_phase": "execute_throttled", "gpu_phase": "decode", "status": "error", "elapsed_ms": 0.3, "deadline_ms": 500.0, "timestamp": 1787740945.8619292, "error": "[Errno 104] Connection reset by peer"}
+{"ts": 1787740945.8620248, "event": "phase_change", "old_phase": "decode", "new_phase": "idle"}

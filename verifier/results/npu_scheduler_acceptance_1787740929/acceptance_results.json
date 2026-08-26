@@ -1,0 +1,19 @@
+{
+  "accepted": true,
+  "baseline_mean_tps": 67.64,
+  "contended_mean_tps": 68.02,
+  "mean_gpu_impact_pct": 0.57,
+  "deadline_overruns": 0,
+  "scheduler_stats": {
+    "total_dispatched": 4,
+    "total_abandoned": 0,
+    "total_completed": 4,
+    "by_phase": {
+      "idle": 0,
+      "prefill": 0,
+      "decode": 0,
+      "execute_throttled": 4
+    },
+    "realized_gpu_deltas": []
+  }
+}

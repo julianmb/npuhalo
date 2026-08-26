@@ -1,0 +1,136 @@
+{
+  "benchmark": "synthetic_npu_lookup_and_contention",
+  "timestamp": "2026-08-25 23:45:54",
+  "hardware": {
+    "platform": "AMD Strix Halo (Ryzen AI Max+ 395)",
+    "unified_memory_gb": 128,
+    "memory_bus": "LPDDR5X-8000 (~273 GB/s peak)",
+    "npu": "AMD XDNA 2 (/dev/accel/accel0, 48 tiles, 4MB SRAM)",
+    "gpu": "Radeon 8060S iGPU (Vulkan0, 40 CUs)"
+  },
+  "table_configuration": {
+    "table_size_gb": 24.0,
+    "dtype": "fp16",
+    "bytes_per_row": 1024,
+    "total_rows": 23437500,
+    "row_dim": 512
+  },
+  "gather_benchmarks": {
+    "1": {
+      "batch_size": 1,
+      "mean_time_ms": 0.0014,
+      "median_time_ms": 0.0014,
+      "latency_us_per_row": 1.434,
+      "throughput_rows_sec": 697394.0,
+      "bandwidth_gbps": 0.714
+    },
+    "4": {
+      "batch_size": 4,
+      "mean_time_ms": 0.0019,
+      "median_time_ms": 0.0019,
+      "latency_us_per_row": 0.474,
+      "throughput_rows_sec": 2108015.0,
+      "bandwidth_gbps": 2.159
+    },
+    "8": {
+      "batch_size": 8,
+      "mean_time_ms": 0.0064,
+      "median_time_ms": 0.0065,
+      "latency_us_per_row": 0.794,
+      "throughput_rows_sec": 1259343.0,
+      "bandwidth_gbps": 1.29
+    },
+    "16": {
+      "batch_size": 16,
+      "mean_time_ms": 0.0061,
+      "median_time_ms": 0.006,
+      "latency_us_per_row": 0.38,
+      "throughput_rows_sec": 2631526.0,
+      "bandwidth_gbps": 2.695
+    },
+    "32": {
+      "batch_size": 32,
+      "mean_time_ms": 0.0059,
+      "median_time_ms": 0.0058,
+      "latency_us_per_row": 0.185,
+      "throughput_rows_sec": 5404823.0,
+      "bandwidth_gbps": 5.535
+    },
+    "64": {
+      "batch_size": 64,
+      "mean_time_ms": 0.0061,
+      "median_time_ms": 0.006,
+      "latency_us_per_row": 0.096,
+      "throughput_rows_sec": 10418411.0,
+      "bandwidth_gbps": 10.668
+    },
+    "128": {
+      "batch_size": 128,
+      "mean_time_ms": 0.0068,
+      "median_time_ms": 0.007,
+      "latency_us_per_row": 0.053,
+      "throughput_rows_sec": 18779422.0,
+      "bandwidth_gbps": 19.23
+    },
+    "256": {
+      "batch_size": 256,
+      "mean_time_ms": 0.0097,
+      "median_time_ms": 0.0096,
+      "latency_us_per_row": 0.038,
+      "throughput_rows_sec": 26394189.0,
+      "bandwidth_gbps": 27.028
+    },
+    "512": {
+      "batch_size": 512,
+      "mean_time_ms": 0.0143,
+      "median_time_ms": 0.0137,
+      "latency_us_per_row": 0.028,
+      "throughput_rows_sec": 35836278.0,
+      "bandwidth_gbps": 36.696
+    },
+    "1024": {
+      "batch_size": 1024,
+      "mean_time_ms": 0.0226,
+      "median_time_ms": 0.0225,
+      "latency_us_per_row": 0.022,
+      "throughput_rows_sec": 45233220.0,
+      "bandwidth_gbps": 46.319
+    },
+    "4096": {
+      "batch_size": 4096,
+      "mean_time_ms": 0.2099,
+      "median_time_ms": 0.1845,
+      "latency_us_per_row": 0.051,
+      "throughput_rows_sec": 19512815.0,
+      "bandwidth_gbps": 19.981
+    }
+  },
+  "single_row_lookup_us": 1.434,
+  "max_throughput_rows_sec": 45233220.0,
+  "max_bandwidth_gbps": 46.319,
+  "gpu_contention": {
+    "baseline_runs_tps": [
+      73.74046776968271,
+      74.30182501386564,
+      74.42418260621848,
+      73.85286030959465,
+      73.38091588377168
+    ],
+    "baseline_median_tps": 73.85,
+    "contention_runs_tps": [
+      72.70351057350186,
+      73.6504013578407,
+      74.00100787229269,
+      74.28160750409336,
+      73.50922807697593
+    ],
+    "contention_median_tps": 73.65,
+    "degradation_pct": 0.27,
+    "gate_5pct_passed": true
+  },
+  "npu_architectural_findings": {
+    "npu_tile_sram_mb": 4.0,
+    "can_table_fit_npu_sram": false,
+    "npu_dma_over_host_ram": "The 24GB table cannot fit into the 4MB NPU tile SRAM. All NPU lookups must issue DMA requests across the shared unified memory bus, generating memory traffic equivalent to or worse than CPU gather while incurring AXI/IOMMU dispatch overhead."
+  }
+}
