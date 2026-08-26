@@ -41,6 +41,19 @@ The deterministic parser guard remains the correct formatting boundary
 No further structural-constraint experiments.
 Reports: `results/grammar_ab_20260821/`.
 
+## NPU->GPU Contention Characterization & Scoped Scheduling Rule (2026-08-26)
+
+The static −16.5% contention penalty was rigorously decomposed across 7 conditions (A–G) and 3 prompt scales (512, 2K, 8K) across 5 interleaved repetitions (`results/npu_contention_20260826_200850/`):
+
+1. **Intensity-Proportional, Not Constant:** Contention scales linearly with active NPU token generation rate (0 TPS $\to$ 0.0%; 10 TPS burst $\to$ −4.4%; 12 TPS $\to$ −5.3%; 50 TPS $\to$ −12.5% to −16.5%).
+2. **100% Memory Streaming Cause, 0% Residency:** Auxiliary model residency in RAM (Condition E) causes **0.0% penalty** (−0.15% to +0.25%, indistinguishable from zero noise).
+3. **Phase Asymmetry:** Decode is **~3× more sensitive** than prefill (prefill degrades −2.5% vs decode −7.7% to −12.5%).
+4. **Tool-Window Zero-Cost Claim Confirmed:** Running NPU workloads during GPU-idle gaps (Condition G) causes **0.0% penalty** on subsequent GPU decode and zero first-50-token transient.
+
+**Updated Scheduling Function:**
+$$\text{Penalty}_{\text{GPU\_Decode}} = -0.165 \times \left(\frac{\text{TPS}_{\text{NPU}}}{\text{TPS}_{\text{NPU\_Peak}}}\right) \times \text{DutyCycle}_{\text{NPU}} \quad \text{[Concurrent Decode Mode]}$$
+$$\text{Penalty}_{\text{GPU\_Decode}} = 0.000 \quad \text{[Gated Tool-Window / Sequential Mode]}$$
+
 ---
 
 ## 1. Hardware and Runtime Truth

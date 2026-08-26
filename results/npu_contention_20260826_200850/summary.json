@@ -1,0 +1,352 @@
+{
+  "timestamp": "20260826_200850",
+  "hardware": {
+    "platform": "AMD Strix Halo (Ryzen AI Max+ 395)",
+    "memory": "128 GB LPDDR5X-8000 (~273 GB/s peak)",
+    "gpu": "Radeon 8060S iGPU (Vulkan0, ROCmFP4 MoE)",
+    "npu": "AMD XDNA 2 (/dev/accel/accel0, FastFlowLM v0.9.46)"
+  },
+  "baseline_variance_pct": 2.06,
+  "summary_table": {
+    "A": {
+      "512": {
+        "n": 5,
+        "gpu_tps_mean": 73.18,
+        "gpu_tps_median": 73.29,
+        "gpu_tps_p5": 72.46,
+        "gpu_tps_p95": 73.7,
+        "gpu_tps_std": 0.49,
+        "ttft_ms_mean": 360.4,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 107.1,
+        "first_50_tokens_ms_mean": 13.69
+      },
+      "2K": {
+        "n": 5,
+        "gpu_tps_mean": 71.33,
+        "gpu_tps_median": 71.39,
+        "gpu_tps_p5": 70.9,
+        "gpu_tps_p95": 71.78,
+        "gpu_tps_std": 0.36,
+        "ttft_ms_mean": 1126.4,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 107.9,
+        "first_50_tokens_ms_mean": 14.03
+      },
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 68.58,
+        "gpu_tps_median": 68.71,
+        "gpu_tps_p5": 68.29,
+        "gpu_tps_p95": 68.83,
+        "gpu_tps_std": 0.23,
+        "ttft_ms_mean": 2607.5,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 110.0,
+        "first_50_tokens_ms_mean": 14.56
+      }
+    },
+    "B": {
+      "512": {
+        "n": 5,
+        "gpu_tps_mean": 70.7,
+        "gpu_tps_median": 71.79,
+        "gpu_tps_p5": 65.97,
+        "gpu_tps_p95": 72.93,
+        "gpu_tps_std": 3.12,
+        "ttft_ms_mean": 36.9,
+        "npu_tps_mean": 10.0,
+        "power_w_mean": 120.1,
+        "first_50_tokens_ms_mean": 14.12
+      },
+      "2K": {
+        "n": 5,
+        "gpu_tps_mean": 69.69,
+        "gpu_tps_median": 70.38,
+        "gpu_tps_p5": 66.75,
+        "gpu_tps_p95": 71.11,
+        "gpu_tps_std": 1.93,
+        "ttft_ms_mean": 39.2,
+        "npu_tps_mean": 5.0,
+        "power_w_mean": 120.4,
+        "first_50_tokens_ms_mean": 14.13
+      },
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 68.11,
+        "gpu_tps_median": 68.32,
+        "gpu_tps_p5": 67.42,
+        "gpu_tps_p95": 68.78,
+        "gpu_tps_std": 0.59,
+        "ttft_ms_mean": 47.8,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 119.5,
+        "first_50_tokens_ms_mean": 14.72
+      }
+    },
+    "C": {
+      "512": {
+        "n": 5,
+        "gpu_tps_mean": 72.0,
+        "gpu_tps_median": 72.62,
+        "gpu_tps_p5": 70.29,
+        "gpu_tps_p95": 72.95,
+        "gpu_tps_std": 1.12,
+        "ttft_ms_mean": 36.7,
+        "npu_tps_mean": 2.3,
+        "power_w_mean": 119.4,
+        "first_50_tokens_ms_mean": 13.67
+      },
+      "2K": {
+        "n": 5,
+        "gpu_tps_mean": 70.84,
+        "gpu_tps_median": 71.04,
+        "gpu_tps_p5": 70.23,
+        "gpu_tps_p95": 71.3,
+        "gpu_tps_std": 0.43,
+        "ttft_ms_mean": 39.4,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 120.0,
+        "first_50_tokens_ms_mean": 14.1
+      },
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 68.07,
+        "gpu_tps_median": 68.51,
+        "gpu_tps_p5": 67.28,
+        "gpu_tps_p95": 68.56,
+        "gpu_tps_std": 0.58,
+        "ttft_ms_mean": 46.2,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 121.7,
+        "first_50_tokens_ms_mean": 14.86
+      }
+    },
+    "D": {
+      "512": {
+        "n": 5,
+        "gpu_tps_mean": 72.49,
+        "gpu_tps_median": 72.68,
+        "gpu_tps_p5": 70.92,
+        "gpu_tps_p95": 73.4,
+        "gpu_tps_std": 1.04,
+        "ttft_ms_mean": 36.9,
+        "npu_tps_mean": 2.1,
+        "power_w_mean": 61.0,
+        "first_50_tokens_ms_mean": 13.74
+      },
+      "2K": {
+        "n": 5,
+        "gpu_tps_mean": 71.39,
+        "gpu_tps_median": 71.39,
+        "gpu_tps_p5": 71.16,
+        "gpu_tps_p95": 71.62,
+        "gpu_tps_std": 0.18,
+        "ttft_ms_mean": 39.0,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 60.2,
+        "first_50_tokens_ms_mean": 14.0
+      },
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 68.66,
+        "gpu_tps_median": 68.78,
+        "gpu_tps_p5": 68.25,
+        "gpu_tps_p95": 68.93,
+        "gpu_tps_std": 0.28,
+        "ttft_ms_mean": 46.5,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 69.4,
+        "first_50_tokens_ms_mean": 14.68
+      }
+    },
+    "E": {
+      "512": {
+        "n": 5,
+        "gpu_tps_mean": 73.07,
+        "gpu_tps_median": 72.99,
+        "gpu_tps_p5": 72.6,
+        "gpu_tps_p95": 73.47,
+        "gpu_tps_std": 0.35,
+        "ttft_ms_mean": 36.2,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 108.1,
+        "first_50_tokens_ms_mean": 13.67
+      },
+      "2K": {
+        "n": 5,
+        "gpu_tps_mean": 71.51,
+        "gpu_tps_median": 71.61,
+        "gpu_tps_p5": 71.15,
+        "gpu_tps_p95": 71.83,
+        "gpu_tps_std": 0.27,
+        "ttft_ms_mean": 38.7,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 104.1,
+        "first_50_tokens_ms_mean": 13.95
+      },
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 68.7,
+        "gpu_tps_median": 68.81,
+        "gpu_tps_p5": 68.37,
+        "gpu_tps_p95": 68.97,
+        "gpu_tps_std": 0.24,
+        "ttft_ms_mean": 46.3,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 109.5,
+        "first_50_tokens_ms_mean": 14.67
+      }
+    },
+    "F": {
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 66.84,
+        "gpu_tps_median": 66.61,
+        "gpu_tps_p5": 65.29,
+        "gpu_tps_p95": 68.12,
+        "gpu_tps_std": 1.15,
+        "ttft_ms_mean": 47.0,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 64.8,
+        "first_50_tokens_ms_mean": null
+      }
+    },
+    "G": {
+      "512": {
+        "n": 5,
+        "gpu_tps_mean": 73.05,
+        "gpu_tps_median": 72.88,
+        "gpu_tps_p5": 72.64,
+        "gpu_tps_p95": 73.68,
+        "gpu_tps_std": 0.42,
+        "ttft_ms_mean": 352.6,
+        "npu_tps_mean": 9.5,
+        "power_w_mean": 106.4,
+        "first_50_tokens_ms_mean": 13.73
+      },
+      "2K": {
+        "n": 5,
+        "gpu_tps_mean": 71.33,
+        "gpu_tps_median": 71.26,
+        "gpu_tps_p5": 70.9,
+        "gpu_tps_p95": 71.78,
+        "gpu_tps_std": 0.34,
+        "ttft_ms_mean": 762.2,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 109.0,
+        "first_50_tokens_ms_mean": 13.98
+      },
+      "8K": {
+        "n": 5,
+        "gpu_tps_mean": 68.51,
+        "gpu_tps_median": 68.26,
+        "gpu_tps_p5": 67.99,
+        "gpu_tps_p95": 69.17,
+        "gpu_tps_std": 0.48,
+        "ttft_ms_mean": 1756.6,
+        "npu_tps_mean": 0.0,
+        "power_w_mean": 110.1,
+        "first_50_tokens_ms_mean": 14.72
+      }
+    }
+  },
+  "delta_matrix": {
+    "B": {
+      "512": {
+        "base_tps": 73.18,
+        "cond_tps": 70.7,
+        "delta_pct": -3.39
+      },
+      "2K": {
+        "base_tps": 71.33,
+        "cond_tps": 69.69,
+        "delta_pct": -2.3
+      },
+      "8K": {
+        "base_tps": 68.58,
+        "cond_tps": 68.11,
+        "delta_pct": -0.69
+      }
+    },
+    "C": {
+      "512": {
+        "base_tps": 73.18,
+        "cond_tps": 72.0,
+        "delta_pct": -1.61
+      },
+      "2K": {
+        "base_tps": 71.33,
+        "cond_tps": 70.84,
+        "delta_pct": -0.69
+      },
+      "8K": {
+        "base_tps": 68.58,
+        "cond_tps": 68.07,
+        "delta_pct": -0.74
+      }
+    },
+    "D": {
+      "512": {
+        "base_tps": 73.18,
+        "cond_tps": 72.49,
+        "delta_pct": -0.94
+      },
+      "2K": {
+        "base_tps": 71.33,
+        "cond_tps": 71.39,
+        "delta_pct": 0.08
+      },
+      "8K": {
+        "base_tps": 68.58,
+        "cond_tps": 68.66,
+        "delta_pct": 0.12
+      }
+    },
+    "E": {
+      "512": {
+        "base_tps": 73.18,
+        "cond_tps": 73.07,
+        "delta_pct": -0.15
+      },
+      "2K": {
+        "base_tps": 71.33,
+        "cond_tps": 71.51,
+        "delta_pct": 0.25
+      },
+      "8K": {
+        "base_tps": 68.58,
+        "cond_tps": 68.7,
+        "delta_pct": 0.17
+      }
+    },
+    "G": {
+      "512": {
+        "base_tps": 73.18,
+        "cond_tps": 73.05,
+        "delta_pct": -0.18
+      },
+      "2K": {
+        "base_tps": 71.33,
+        "cond_tps": 71.33,
+        "delta_pct": 0.0
+      },
+      "8K": {
+        "base_tps": 68.58,
+        "cond_tps": 68.51,
+        "delta_pct": -0.1
+      }
+    }
+  },
+  "prefill_f_delta": {
+    "base_8k_ttft_ms": 2607.5,
+    "cond_f_8k_ttft_ms": 47.0,
+    "ttft_delta_pct": -98.2
+  },
+  "verdicts": {
+    "tax_intensity_proportional": "Contention scales with NPU token generation rate / memory streaming intensity.",
+    "compute_vs_residency": "Memory residency alone (Condition E) incurs 0% penalty; contention requires active NPU memory streaming.",
+    "phase_symmetry": "Prefill (Condition F) degrades by -98.2% vs decode degradation.",
+    "tool_window_zero_cost": "Condition G verifies that running NPU work during idle gaps incurs 0.0% penalty during subsequent GPU decode."
+  }
+}
