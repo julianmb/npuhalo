@@ -18,14 +18,12 @@ import argparse
 import json
 import math
 import os
-import sys
 import time
-from typing import Dict, List, Tuple
+from typing import Dict
 
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 # Try importing ONNX Runtime if available
 try:
@@ -263,7 +261,7 @@ def benchmark_lookup(
         h_idx_np = engram.compute_hashes(input_ids_np)
         h_idx_t = torch.from_numpy(h_idx_np).to(device=device)
         embs = engram.lookup_embeddings(h_idx_t)
-        out = engram.inject_vector(embs, hidden_states)
+        _ = engram.inject_vector(embs, hidden_states)
 
     # 1. Benchmark Hash Computation (CPU)
     t_hash_list = []
@@ -287,7 +285,7 @@ def benchmark_lookup(
     t_inject_list = []
     for _ in range(num_iters):
         t0 = time.perf_counter()
-        out = engram.inject_vector(embs, hidden_states)
+        _ = engram.inject_vector(embs, hidden_states)
         if device.startswith("cuda"):
             torch.cuda.synchronize()
         t_inject_list.append((time.perf_counter() - t0) * 1000)
@@ -307,7 +305,7 @@ def benchmark_lookup(
     bytes_accessed = total_lookups * engram.head_dim * bytes_per_param
     bandwidth_gbps = (bytes_accessed / 1e9) / (mean_lookup / 1000.0)
 
-    print(f"\n📊 Results:")
+    print("\n📊 Results:")
     print(f" • 1. N-Gram Hash Time : {mean_hash:.4f} ms ({mean_hash / total_tokens * 1000:.2f} µs/tok)")
     print(f" • 2. Table Gather Time: {mean_lookup:.4f} ms ({mean_lookup / total_tokens * 1000:.2f} µs/tok)")
     print(f" • 3. Gating & Inject  : {mean_inject:.4f} ms ({mean_inject / total_tokens * 1000:.2f} µs/tok)")
@@ -401,7 +399,7 @@ def test_onnx_npu_compatibility(table_slots: int = 100_000, head_dim: int = 64, 
     ort_inputs = {"hash_indices": dummy_input.numpy()}
     t0 = time.perf_counter()
     for _ in range(20):
-        ort_out = session.run(None, ort_inputs)
+        _ = session.run(None, ort_inputs)
     ort_lat = (time.perf_counter() - t0) * 1000 / 20.0
     print(f"[*] ORT Gather Latency (seq=128): {ort_lat:.3f} ms")
 

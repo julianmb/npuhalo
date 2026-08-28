@@ -11,9 +11,8 @@ Simulates and benchmarks the pipeline overlap:
 import argparse
 import json
 import os
-import sys
 import time
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import torch

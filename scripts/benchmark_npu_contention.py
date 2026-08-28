@@ -24,7 +24,7 @@ import time
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 import numpy as np
 
@@ -325,11 +325,11 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"{'='*75}")
-    print(f"⚡ NPU->GPU Contention Characterization Suite on AMD Strix Halo")
+    print("⚡ NPU->GPU Contention Characterization Suite on AMD Strix Halo")
     print(f" • Output Directory: {out_dir}")
     print(f" • Repetitions per Condition: {args.reps}")
-    print(f" • GPU Model: Ornith 1.5 35B-A3B ROCmFP4 (:8012)")
-    print(f" • NPU Models: LFM2.5-1.2B & Qwen3.5-0.8B (:8001)")
+    print(" • GPU Model: Ornith 1.5 35B-A3B ROCmFP4 (:8012)")
+    print(" • NPU Models: LFM2.5-1.2B & Qwen3.5-0.8B (:8001)")
     print(f"{'='*75}")
 
     # Verify endpoint health
@@ -367,7 +367,7 @@ def main():
                 cond_order.reverse()
 
             for cond in cond_order:
-                t_start = time.time()
+                _ = time.time()
                 rec = execute_condition_run(cond, pk, rep)
                 all_records.append(rec)
                 

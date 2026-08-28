@@ -14,7 +14,6 @@ import argparse
 import json
 import multiprocessing as mp
 import os
-import sys
 import time
 import urllib.request
 from typing import Dict, List, Tuple
@@ -47,7 +46,7 @@ def benchmark_gather(table: torch.Tensor, num_lookups: int, batch_sizes: List[in
         t_list = []
         for _ in range(num_iters):
             t0 = time.perf_counter()
-            gathered = table[idx_tensor]
+            _ = table[idx_tensor]
             t_list.append(time.perf_counter() - t0)
 
         mean_time_s = float(np.mean(t_list))
@@ -123,7 +122,7 @@ def continuous_lookup_worker(table_shape, stop_event, intensity_gbps):
     
     # Continuous lookup loop
     while not stop_event.is_set():
-        idx = rng.integers(0, total_slots, size=(chunk_size,))
+        _ = rng.integers(0, total_slots, size=(chunk_size,))
         # Random access reads
         _ = np.sum(buf)
         time.sleep(0.0001)
@@ -139,7 +138,7 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
 
     print(f"{'='*70}")
-    print(f"⚡ Synthetic N-Gram Lookup & Contention Benchmark on AMD Strix Halo")
+    print("⚡ Synthetic N-Gram Lookup & Contention Benchmark on AMD Strix Halo")
     print(f" • Table Size: {args.table_gb} GB (FP16, 2 bytes/param)")
     print(f" • Row Dimension: {args.embed_dim} elements ({args.embed_dim * 2} bytes/row)")
     print(f"{'='*70}")
@@ -158,12 +157,12 @@ def main():
     print(f"[+] Allocated {table.nbytes / 1e9:.2f} GB in {alloc_time:.2f} s")
 
     # 1. Single-row and Batched Gather Benchmark
-    print(f"\n[1/3] Benchmarking CPU Multi-Head Gather Latency & Throughput...")
+    print("\n[1/3] Benchmarking CPU Multi-Head Gather Latency & Throughput...")
     batch_sizes = [1, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 4096]
     gather_results = benchmark_gather(table, num_lookups=50000, batch_sizes=batch_sizes, embed_dim=args.embed_dim)
 
     # 2. Baseline GPU Decode Benchmark (Ornith on :8012)
-    print(f"\n[2/3] Measuring Standalone GPU Decode Baseline (Ornith on :8012)...")
+    print("\n[2/3] Measuring Standalone GPU Decode Baseline (Ornith on :8012)...")
     baseline_runs = []
     for r in range(5):
         tot_time, tps, ntok = run_gpu_decode_stream(max_tokens=96)
@@ -175,7 +174,7 @@ def main():
     print(f"[*] Standalone GPU Decode Baseline: Median={baseline_tps_median:.2f} tok/s | Mean={baseline_tps_mean:.2f} tok/s")
 
     # 3. Concurrent Memory Lookup & GPU Decode Contention Test
-    print(f"\n[3/3] Measuring Concurrent GPU Decode with Active Memory Lookup Traffic...")
+    print("\n[3/3] Measuring Concurrent GPU Decode with Active Memory Lookup Traffic...")
     stop_event = mp.Event()
     # Spawn memory traffic workers
     num_workers = 4
@@ -201,11 +200,11 @@ def main():
             w.join(timeout=2.0)
 
     contention_tps_median = float(np.median(contention_runs))
-    contention_tps_mean = float(np.mean(contention_runs))
+    _ = float(np.mean(contention_runs))
     degradation_pct = ((baseline_tps_median - contention_tps_median) / baseline_tps_median) * 100.0
 
     print(f"\n{'='*70}")
-    print(f"📊 CONCURRENCY & CONTENTION SUMMARY:")
+    print("📊 CONCURRENCY & CONTENTION SUMMARY:")
     print(f" • GPU Decode Baseline   : {baseline_tps_median:.2f} tok/s")
     print(f" • GPU Decode w/ Lookups : {contention_tps_median:.2f} tok/s")
     print(f" • Throughput Impact     : {degradation_pct:+.2f}% degradation")
