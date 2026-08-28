@@ -47,7 +47,7 @@ DATA = os.path.join(REPO, "verifier", "data", "set_d_agentic.jsonl")
 CATCHABLE = ["D02", "D03", "D04", "D06", "D18", "D21", "D25", "D28"]
 SERVER_CMD = [
     "<home>/source/ROCmFPX/build-strix-rocmfp4/bin/llama-server",
-    "-m", "<home>/source/strix-halo-rocmfpx-hub/models/ornith-1.5-35b/Ornith-1.5-35B-A3B-ROCmFP4.gguf",
+    "-m", "<home>/source/halofpx-research/models/ornith-1.5-35b/Ornith-1.5-35B-A3B-ROCmFP4.gguf",
     "--device", "Vulkan0", "--port", "8012", "--host", "127.0.0.1",
     "-c", "16384", "-ngl", "99", "-fa", "1", "--threads", "16",
     "--no-context-shift", "-np", "1",

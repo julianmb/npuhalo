@@ -14,4 +14,4 @@ experiments; findings feed the NPU sections of q38rocm/halofpx docs.
    ~1.8x TTFT on long prompts and low-power intent routing.
 3. NPU runtime comes via Lemonade's FastFlowLM backend (`flm:npu`), not XRT
    directly. XRT is built from q38rocm's `xdna-driver` submodule.
-4. Draft models used here (Qwen3.5-0.8B/2B) live in `~/source/strix-halo-rocmfpx-hub/o4a/models/draft/`.
+4. Draft models used here (Qwen3.5-0.8B/2B) live in `~/source/halofpx-research/o4a/models/draft/`.
