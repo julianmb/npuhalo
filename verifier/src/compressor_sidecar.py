@@ -23,16 +23,21 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 NPU_URL = "http://127.0.0.1:8001/v1/chat/completions"
-NPU_MODEL = "lfm2.5-tk:1.2b"
+NPU_MODEL = "minicpm5:2b"
 FLM_VERSION = "0.9.46"
 COMPRESS_PROMPT_VERSION = "extract_v1"
-DEFAULT_THRESHOLD_CHARS = 32_000
+DEFAULT_THRESHOLD_CHARS = 16_000
 ARTIFACT_DIR_DEFAULT = "/tmp/npuhalo-compressor-artifacts"
 
-EXTRACT_PROMPT = """Summarize this tool output for an autonomous coding agent that must act next.
-Preserve EXACTLY, verbatim where present: every file path, every error/traceback line,
-exit codes, failing test names, and any command that failed. Drop boilerplate and repetition.
-Return only the summary.
+EXTRACT_PROMPT = """Extract a compact structured diagnostic summary from this tool output for an autonomous agent.
+Preserve EXACTLY and verbatim without rephrasing: every file path, every error line, traceback line, failing test, and exit code.
+
+Format:
+SUMMARY:
+- Tracebacks & Errors:
+  <paste exact verbatim error lines and Traceback lines>
+- Exit Code: <exact exit code>
+- File Paths: <exact file paths>
 
 Tool output:
 {output}"""
@@ -161,7 +166,7 @@ class CompressorSidecar:
             payload = {"model": NPU_MODEL,
                        "messages": [{"role": "user",
                                      "content": EXTRACT_PROMPT.format(output=output[:6000])}],
-                       "max_tokens": 400, "temperature": 0.0}
+                       "max_tokens": 150, "temperature": 0.0}
             req = urllib.request.Request(NPU_URL, data=json.dumps(payload).encode(),
                                          headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=self.timeout) as r:

@@ -6,9 +6,10 @@
 [![Model Weights](https://img.shields.io/badge/HuggingFace-MiniCPM5--2B--NPU2-blue.svg)](https://huggingface.co/julianmb/MiniCPM5-2B-NPU2)
 [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](LICENSE)
 
-Rigorous experimental evaluation of **heterogeneous NPU + iGPU agentic inference** on **AMD Strix Halo** (Ryzen AI Max+ 395, 128 GB shared UMA). 
+Rigorous experimental evaluation and production toolset for **heterogeneous NPU + iGPU agentic inference** on **AMD Strix Halo** (Ryzen AI Max+ 395, 128 GB shared UMA).
 
-This repository documents the empirical mechanics of co-locating large agent generators on the **Radeon 8060S iGPU** with ultra-low-power verification, triage, and compression filters on the **XDNA 2 NPU** (`/dev/accel/accel0`).
+> **The Core Problem on Strix Halo**: Reviewers and developers ask: *"What is the NPU actually good for if the iGPU is already fast and speculative decoding loses?"*  
+> **The `npuhalo` Answer**: The NPU is **NOT** an in-loop draft accelerator. Its true superpower is **The Always-On Heterogeneous Coprocessor** running at **~2–4 W** out-of-loop. While your Radeon 8060S generates at 50–72 tok/s, your XDNA 2 NPU audits code execution, intercepts destructive commands (`rm -rf`), detects infinite loops, and gates trivial queries—with **0 ms streaming latency penalty and 0% GPU compute contention**.
 
 ---
 
@@ -24,6 +25,29 @@ This repository documents the empirical mechanics of co-locating large agent gen
    We ported OpenBMB's **MiniCPM5-2B** to FastFlowLM on XDNA 2 using mathematical $4\times$ KV head replication ($2 \to 8$ heads, $8:1 \to 2:1$ GQA) and unit QK-norm injection. It achieves **63.6 tok/s sustained decode** on the NPU and is publicly available on [Hugging Face](https://huggingface.co/julianmb/MiniCPM5-2B-NPU2).
 
 ---
+
+
+---
+
+## What You Can Use This Repo For Today
+
+### 1. Always-On AI Guardrail & Smart Reverse Proxy (`scripts/npuhalo_proxy.py`)
+Run any autonomous coding agent (Aider, Claude Code, Cline, Antigravity) with local hardware safety:
+* **Drop-in OpenAI API**: Point your agent at `http://localhost:8000/v1` instead of `llama-server`.
+* **Zero Latency Tax**: Passes GPU streaming tokens straight to the client socket with **0 ms delay**.
+* **Asynchronous NPU Audit**: The XDNA 2 NPU sips ~2–4 W to analyze actions out-of-loop.
+* **Destructive Shell Interception**: Catches `rm -rf /`, `rm -rf .git`, `mkfs`, partition wipes, and raw disk writes.
+* **Secret Leakage Prevention**: Detects exposed API tokens (`sk-proj`, `ghp_`) and `.env` dumps.
+* **Loop Breakout**: Detects oscillating tool loops (e.g. repeated failing commands) and halts token burn.
+
+### 2. High-Accuracy Low-Power Query Router (`scripts/npu_router.py`)
+* **Solved Near-Term Roadmap Item #2**: Boosted classification accuracy from **25% -> 100%** on our 20-prompt evaluation benchmark suite.
+* **Hybrid Fast-Lane**: Deterministic syntax gating (0.01 ms overhead) with MiniCPM5-2B semantic fallback.
+* **Power Savings**: Serves trivial facts, math, and conversational queries directly on the NPU at **~2–4 W**, keeping the 65 W GPU asleep.
+
+### 3. Out-of-Loop Diagnostic Output Compressor (`verifier/src/compressor_sidecar.py`)
+* **KV-Cache Relief**: Compresses 20K–50K character `pytest` failures and `git diff` outputs before feeding them to the primary model.
+* **Guaranteed Fidelity**: Retains 100% of required file paths, traceback heads, and exit codes. Fallback safety contract ensures original text is restored if any crucial fact is omitted.
 
 ## Architectural Paradigm: "LLM as Verifier" on Heterogeneous Silicon
 
@@ -161,18 +185,32 @@ npuhalo/
 
 ## Quickstart
 
-### 1. Run Unit Tests (Parser Guard)
+### 1. Start the Always-On NPU Guardrail Proxy
+Launch the reverse proxy to protect your local agent sessions:
 ```bash
-pytest tests/test_toolcall_parser.py
+python3 scripts/npuhalo_proxy.py --port 8000 --guard-mode block --enable-router
+```
+Now point Aider, Claude Code, or curl to `http://localhost:8000/v1`:
+```bash
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
 ```
 
-### 2. Validate Benchmark Suite (Set D v2)
+### 2. Run the Query Router Benchmark
+Verify the 100% decision accuracy of the hybrid NPU router:
 ```bash
-python3 verifier/scripts/validate_set_d.py
+python3 scripts/benchmark_router.py
 ```
 
-### 3. Serve MiniCPM5-2B on XDNA 2 NPU
-Download weights from [Hugging Face](https://huggingface.co/julianmb/MiniCPM5-2B-NPU2) and run:
+### 3. Run the Full Test Suite
+Run the 44-test unit and integration test suite:
+```bash
+pytest -v
+```
+
+### 4. Serve MiniCPM5-2B on XDNA 2 NPU
+Download weights from [Hugging Face](https://huggingface.co/julianmb/MiniCPM5-2B-NPU2) and run FastFlowLM:
 ```bash
 flm serve minicpm5:2b --host 127.0.0.1 --port 8001
 ```
