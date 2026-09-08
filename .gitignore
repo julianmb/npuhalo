@@ -1,35 +1,47 @@
-# Binaries and weights
-models/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Build & packaging
+dist/
+build/
+*.egg-info/
+.ruff_cache/
+
+# Model weights & binaries (hosted on Hugging Face)
 *.gguf
+*.q4nx
 *.safetensors
 *.bin
 *.pt
+*.xclbin
+models/
+minicpm5-npu/
 
-# Python
-**/__pycache__/
-*.pyc
-*.egg-info/
-.ruff_cache/
-.venv/
-venv/
-build/
-dist/
-
-# Local runtime artifacts
+# Local runtime artifacts & logs
 /tmp/
 *.log
+*.tmp
 *.sock
 *.pid
 docs/benchmark_results.json
 verifier/config.env
 verifier/results/raw/
 docs/research/raw/
+.omo/
+session*.md
 
-# Editors
+# Editors & tooling
 .vscode/
 .idea/
 .DS_Store
 hf/
 gh/
-session-*.md
-minicpm5-npu/

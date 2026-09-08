@@ -20,13 +20,13 @@ jobs:
       - name: Set D task-validation gate
         run: python3 verifier/scripts/validate_set_d.py
       - name: Run unit tests
-        run: python3 -m unittest discover -s tests -v
+        run: pytest -v
       - name: Syntax check
-        run: python3 -m compileall -q scripts verifier standalone-eval tests examples
+        run: python3 -m compileall -q scripts verifier tests examples
       - name: Build and smoke-test wheel
         run: |
           pip wheel . --no-deps --wheel-dir dist
           pip install --force-reinstall --no-deps dist/npuhalo-*.whl
           cd /tmp
-          python -c "import verifier.src.stream_tap, verifier.src.verifier_client"
+          python -c "import verifier.src.stream_tap, verifier.src.verifier_client, verifier.src.toolcall_parser, verifier.src.watchdog_analyzer"
           npuhalo-demo --help
