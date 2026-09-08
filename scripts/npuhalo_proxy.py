@@ -18,14 +18,14 @@ import uuid
 import asyncio
 import logging
 import argparse
-from typing import Optional, Dict, Any
+from typing import Optional
 
 import aiohttp
 from aiohttp import web
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "verifier", "src"))
-from watchdog_analyzer import WatchdogAnalyzer, AnomalyVerdict
+from watchdog_analyzer import WatchdogAnalyzer
 from npu_router import HybridNPURouter
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -292,14 +292,14 @@ def main():
     app.on_startup.append(on_startup)
     app.on_cleanup.append(on_cleanup)
 
-    print(f"\n========================================================")
-    print(f"  NPUHALO SMART GUARDRAIL PROXY FOR STRIX HALO")
+    print("\n========================================================")
+    print("  NPUHALO SMART GUARDRAIL PROXY FOR STRIX HALO")
     print(f"  Listening on : http://{args.host}:{args.port}/v1")
     print(f"  GPU Server   : {args.gpu_url}")
     print(f"  NPU Coproc   : {args.npu_url} (MiniCPM5-2B @ ~2-4W)")
     print(f"  Guard Mode   : {args.guard_mode.upper()}")
     print(f"  Router Gating: {'ENABLED' if args.enable_router else 'DISABLED'}")
-    print(f"========================================================\n")
+    print("========================================================\n")
 
     web.run_app(app, host=args.host, port=args.port)
 

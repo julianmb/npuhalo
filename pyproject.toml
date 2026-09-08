@@ -38,6 +38,8 @@ dev = [
 
 [project.scripts]
 npuhalo-demo = "examples.demo_stream:main"
+npuhalo-proxy = "scripts.npuhalo_proxy:main"
+npuhalo-top = "scripts.npuhalo_top:main"
 
 [project.urls]
 Repository = "https://github.com/julianmb/npuhalo"
@@ -45,7 +47,7 @@ Issues = "https://github.com/julianmb/npuhalo/issues"
 Documentation = "https://github.com/julianmb/npuhalo/tree/main/docs"
 
 [tool.setuptools]
-packages = ["examples", "verifier", "verifier.src"]
+packages = ["examples", "verifier", "verifier.src", "scripts"]
 include-package-data = false
 
 [tool.setuptools.package-data]

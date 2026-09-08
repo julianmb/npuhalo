@@ -5,17 +5,14 @@ test_watchdog_proxy.py — Unit and Integration tests for NPU Watchdog & Smart P
 
 import sys
 import os
-import pytest
 import asyncio
-import aiohttp
-from aiohttp import web
 from aiohttp.test_utils import TestServer, TestClient
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "verifier", "src"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
 
-from watchdog_analyzer import WatchdogAnalyzer, AnomalyVerdict
+from watchdog_analyzer import WatchdogAnalyzer
 from npuhalo_proxy import NPUHaloProxy, create_app
 
 class TestWatchdogAnalyzer:

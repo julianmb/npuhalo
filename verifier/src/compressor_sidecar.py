@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-compressor_sidecar.py — Opt-in, content-aware NPU tool-output compressor.
+compressor_sidecar.py — Content-aware NPU compressor for both tool outputs and input contexts.
+Reduces token bloat and KV-cache pressure on AMD Strix Halo / Strix Point APUs at ~2–4W.
 
 Safety contract (see verifier/results/compressor_production_20260822/PREREGISTRATION.md):
   1. The FULL raw output is always preserved as a source-of-truth artifact
@@ -28,6 +29,17 @@ FLM_VERSION = "0.9.46"
 COMPRESS_PROMPT_VERSION = "extract_v1"
 DEFAULT_THRESHOLD_CHARS = 16_000
 ARTIFACT_DIR_DEFAULT = "/tmp/npuhalo-compressor-artifacts"
+
+
+INPUT_CONTEXT_PROMPT = """Extract and preserve the key actionable facts, constraints, code snippets, file paths, and instructions from the text below.
+Omit boilerplate, duplicate logs, and conversational filler.
+
+Format:
+SUMMARY:
+<distilled essential facts and instructions>
+
+Input text:
+{text}"""
 
 EXTRACT_PROMPT = """Extract a compact structured diagnostic summary from this tool output for an autonomous agent.
 Preserve EXACTLY and verbatim without rephrasing: every file path, every error line, traceback line, failing test, and exit code.
@@ -121,6 +133,45 @@ class CompressorSidecar:
         self.artifact_dir.mkdir(parents=True, exist_ok=True)
         self.timeout = timeout_s
         self.log = []
+
+    def compress_context(self, context_text: str, max_tokens: int = 250) -> SidecarResult:
+        """Compress input context (documents, long prompts, logs) on NPU before GPU ingestion."""
+        res = SidecarResult(inserted_text=context_text, source="original", original_chars=len(context_text))
+        if len(context_text) < self.threshold:
+            res.fallback_reason = f"below threshold ({len(context_text)} < {self.threshold})"
+            return res
+
+        t_npu_start = time.time()
+        res.schedule["npu_start"] = t_npu_start
+        try:
+            payload = {
+                "model": NPU_MODEL,
+                "messages": [{"role": "user", "content": INPUT_CONTEXT_PROMPT.format(text=context_text[:8000])}],
+                "max_tokens": max_tokens,
+                "temperature": 0.0,
+            }
+            req = urllib.request.Request(
+                NPU_URL,
+                data=json.dumps(payload).encode(),
+                headers={"Content-Type": "application/json", "Connection": "close"}
+            )
+            with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                data = json.loads(r.read())
+            msg = (data.get("choices") or [{}])[0].get("message") or {}
+            compressed = (msg.get("content") or msg.get("reasoning_content") or "").strip()
+            res.schedule["npu_end"] = time.time()
+            res.compression_latency_ms = round((res.schedule["npu_end"] - t_npu_start) * 1000)
+
+            if compressed and len(compressed) < len(context_text):
+                res.inserted_text = compressed
+                res.source = "compressed"
+                res.compressed_chars = len(compressed)
+            else:
+                res.fallback_reason = "compression yielded larger or empty result"
+        except Exception as e:
+            res.schedule["npu_end"] = time.time()
+            res.fallback_reason = f"error: {str(e)[:80]}"
+        return res
 
     def process(self, tool_name: str, output: str, gpu_decoding: bool = False) -> SidecarResult:
         """Full pipeline for one tool output. Returns what to insert + provenance."""

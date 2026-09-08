@@ -6,7 +6,6 @@ Tests Near-Term Roadmap Item #2: Improving router accuracy from the 25% baseline
 
 import asyncio
 import json
-import time
 from npu_router import HybridNPURouter
 
 TEST_DATASET = [

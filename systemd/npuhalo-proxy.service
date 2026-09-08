@@ -1,0 +1,14 @@
+[Unit]
+Description=npuhalo NPU+iGPU Smart Coprocessor & Reverse Proxy
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/source/npuhalo
+ExecStart=/usr/bin/python3 scripts/npuhalo_proxy.py --port 8000 --enable-router --guard-mode audit
+Restart=on-failure
+RestartSec=3s
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target
