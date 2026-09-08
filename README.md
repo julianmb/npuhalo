@@ -101,6 +101,10 @@ python3 scripts/npuhalo_top.py
 
 *(Or use `--once` for a single-frame snapshot)*
 
+<p align="center">
+  <img src="docs/assets/npuhalo_top_demo.gif" alt="npuhalo-top Live Monitor" width="760">
+</p>
+
 ### 2. Start the Smart Reverse Proxy & Router
 
 Launch the OpenAI-compatible proxy on port 8000:
