@@ -9,7 +9,6 @@ to 16:8 (2:1, natively supported by libmha.so's _gen_mha_seq_d128_q2 kernel).
 import os
 import json
 import shutil
-import torch
 from safetensors.torch import load_file, save_file
 
 def adapt_model(src_dir: str, dst_dir: str, target_kv_heads: int = 8):

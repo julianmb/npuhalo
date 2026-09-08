@@ -8,8 +8,6 @@ Solves the Roadmap Near-Term Item #2:
  candidates: deterministic rules plus NPU fallback."
 """
 
-import os
-import sys
 import re
 import json
 import time

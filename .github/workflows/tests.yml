@@ -1,0 +1,32 @@
+name: tests
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Set D task-validation gate
+        run: python3 verifier/scripts/validate_set_d.py
+      - name: Run unit tests
+        run: pytest -v
+      - name: Syntax check
+        run: python3 -m compileall -q scripts verifier tests examples
+      - name: Build and smoke-test wheel
+        run: |
+          pip wheel . --no-deps --wheel-dir dist
+          pip install --force-reinstall --no-deps dist/npuhalo-*.whl
+          cd /tmp
+          python -c "import verifier.src.toolcall_parser, verifier.src.watchdog_analyzer"
+          npuhalo-demo --help

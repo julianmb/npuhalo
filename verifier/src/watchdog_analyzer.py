@@ -10,11 +10,9 @@ Detects:
   4. NPU Semantic Risk Classification (asynchronous verification of ambiguous tool calls)
 """
 
-import os
 import re
 import json
 import time
-import asyncio
 import aiohttp
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
