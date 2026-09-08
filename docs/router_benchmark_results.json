@@ -1,0 +1,53 @@
+{
+  "accuracy_pct": 100.0,
+  "baseline_pct": 25.0,
+  "avg_latency_ms": 0.005408098513726145,
+  "correct": 20,
+  "total": 20,
+  "by_category": {
+    "Greeting": {
+      "correct": 2,
+      "total": 2
+    },
+    "Fact": {
+      "correct": 4,
+      "total": 4
+    },
+    "Arithmetic": {
+      "correct": 3,
+      "total": 3
+    },
+    "Translation": {
+      "correct": 1,
+      "total": 1
+    },
+    "Coding": {
+      "correct": 4,
+      "total": 4
+    },
+    "Reasoning": {
+      "correct": 1,
+      "total": 1
+    },
+    "DevOps": {
+      "correct": 1,
+      "total": 1
+    },
+    "Database": {
+      "correct": 1,
+      "total": 1
+    },
+    "Scripting": {
+      "correct": 1,
+      "total": 1
+    },
+    "Architecture": {
+      "correct": 1,
+      "total": 1
+    },
+    "Math Proof": {
+      "correct": 1,
+      "total": 1
+    }
+  }
+}

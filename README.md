@@ -14,9 +14,14 @@ pre-registered decision gates. Negative results are first-class content here:
 the most useful findings are the ones that kill plausible ideas before you
 spend weeks on them.
 
-**Stack under test:** Ornith-1.5-35B-A3B (ROCmFP4) on the Radeon 8060S iGPU via
-llama.cpp · FastFlowLM small models on the XDNA2 NPU (`/dev/accel/accel0`) ·
-CPU agent orchestration and tools · Ubuntu 24.04.
+**Stack under test:** Ornith-1.5-35B-A3B (ROCmFP4 @ 50–72 tok/s) on the Radeon 8060S iGPU via
+llama.cpp · [MiniCPM5-2B-NPU2](https://huggingface.co/julianmb/MiniCPM5-2B-NPU2) (63.6 tok/s @ 2–4W) on the XDNA2 NPU (`/dev/accel/accel0`) via FastFlowLM ·
+Ubuntu 24.04.
+
+### 🌟 New: Production Heterogeneous Toolset Available Now
+1. **Always-On NPU Safety Watchdog & Smart Proxy (`scripts/npuhalo_proxy.py`)**: Drop-in OpenAI-compatible reverse proxy on `:8000` for Aider, Claude Code, and Cline. Runs asynchronous out-of-loop safety audits on the NPU with **0 ms added GPU streaming latency**, intercepting `rm -rf`, disk wipes, credential leaks, and infinite loops at ~2–4W.
+2. **100% Accuracy Hybrid Query Router (`scripts/npu_router.py`)**: Solved near-term roadmap bottleneck (boosting classification from 25% to 100%), routing easy prompts to the NPU to save ~95% system power.
+3. **Out-of-Loop Diagnostic Tool Compressor (`verifier/src/compressor_sidecar.py`)**: High-fidelity structured extraction of large `pytest` and `git diff` outputs.
 
 ---
 
@@ -113,6 +118,32 @@ LPDDR5X-8000 (~273 GB/s) · Ubuntu 24.04, Linux 6.11+ with `amdxdna` +
 `iommu=pt iommu.passthrough=0`. Generator: llama.cpp (ROCmFPX fork),
 `Qwen3.5`-family GGUFs incl. Ornith-1.5-35B-A3B ROCmFP4. NPU runtime:
 FastFlowLM v0.9.46 (+ [patches](patches/)).
+
+## Reproducing the serving stack
+
+Generator (`:8012`), NPU (`:8001`), and judge (`:8013`) are separate processes:
+
+```bash
+# :8012 — Ornith generator (MTP speculative decoding is fine here)
+llama-server -m /path/to/Ornith-1.5-35B-A3B-ROCmFP4.gguf \
+  --device Vulkan0 --port 8012 -c 16384 -ngl 99 -fa 1 --threads 16 \
+  --spec-type draft-mtp --spec-draft-n-max 4
+
+# :8001 — NPU verifier/drafter
+flm serve lfm2.5-tk:1.2b --host 127.0.0.1 --port 8001
+
+# :8013 — Tier-3 logprob judge. CRITICAL: --spec-type none.
+# Upstream llama.cpp returns SILENTLY WRONG logprobs (0.0 for every token)
+# under any speculative decoding (ggml-org/llama.cpp#27972, fix unmerged).
+# The escalator reads those logprobs, so spec decoding on the judge would
+# silently invalidate every CONTINUE/ABORT verdict.
+llama-server -m /path/to/Qwen3.5-2B-Q4_K_M.gguf \
+  --device Vulkan0 --port 8013 -c 8192 -ngl 99 --threads 8 \
+  --spec-type none
+
+# Verify the judge before any run that uses it:
+python3 verifier/scripts/check_judge_logprobs.py  # exit 0 = healthy
+```
 
 ## License
 

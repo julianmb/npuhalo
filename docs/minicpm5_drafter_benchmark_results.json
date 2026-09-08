@@ -1,0 +1,227 @@
+{
+  "summary": {
+    "avg_gpu_ms": 772.8601306334895,
+    "avg_npu_ms": 2843.2900202496967,
+    "avg_spec_ms": 2981.4765046212415,
+    "avg_acceptance_rate": 0.010416666666666666,
+    "delta_pct": 285.77180869420937
+  },
+  "runs": [
+    {
+      "category": "Factual",
+      "prompt": "What is the capital of France? Answer in one short sentence.",
+      "gpu": {
+        "content": "# romeauille\n\nI'd be happy to help you, but I'm not sure I know what you're asking",
+        "tokens": 25,
+        "elapsed_ms": 670.5676889978349,
+        "predicted_per_second": 39.043689888985774,
+        "prompt_ms": 52.871
+      },
+      "npu": {
+        "content": "The capital of France is Paris.",
+        "tokens": 7,
+        "elapsed_ms": 2823.4425270056818,
+        "tps": 63.4178602813941,
+        "ttft_ms": 421.371168
+      },
+      "speculative": {
+        "draft_text": "The capital of France is Paris.",
+        "total_draft": 7,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2693.2677000004333,
+        "verify_ms": 153.10272699571215,
+        "total_ms": 2846.3737040001433
+      }
+    },
+    {
+      "category": "Factual",
+      "prompt": "Name the three primary colors in one short sentence.",
+      "gpu": {
+        "content": "The primary color, or primary, is a...",
+        "tokens": 11,
+        "elapsed_ms": 483.87270502280444,
+        "predicted_per_second": 35.53205702184511,
+        "prompt_ms": 199.678
+      },
+      "npu": {
+        "content": "The three primary colors are red, blue, and yellow.",
+        "tokens": 12,
+        "elapsed_ms": 2802.1176159963943,
+        "tps": 63.585254579463026,
+        "ttft_ms": 428.417056
+      },
+      "speculative": {
+        "draft_text": "The three primary colors are red, blue, and yellow.",
+        "total_draft": 12,
+        "accepted": 1,
+        "acceptance_rate": 0.08333333333333333,
+        "draft_ms": 2917.501196003286,
+        "verify_ms": 116.56968700117432,
+        "total_ms": 3034.075973002473
+      }
+    },
+    {
+      "category": "Factual",
+      "prompt": "Who wrote Romeo and Juliet? Answer in one short sentence.",
+      "gpu": {
+        "content": "The text \"litterlitter\" you.",
+        "tokens": 11,
+        "elapsed_ms": 601.8334350083023,
+        "predicted_per_second": 29.041401421867015,
+        "prompt_ms": 192.791
+      },
+      "npu": {
+        "content": "Romeo and Juliet was written by William Shakespeare.",
+        "tokens": 11,
+        "elapsed_ms": 2776.372514985269,
+        "tps": 63.44518912434103,
+        "ttft_ms": 424.010944
+      },
+      "speculative": {
+        "draft_text": "Romeo and Juliet was written by William Shakespeare.",
+        "total_draft": 11,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2779.847248981241,
+        "verify_ms": 374.0784520050511,
+        "total_ms": 3153.928857995197
+      }
+    },
+    {
+      "category": "Arithmetic",
+      "prompt": "What is 15 * 23? Give only the number.",
+      "gpu": {
+        "content": "# 3.2.l. 3.3.alle. 3.3. 3.\n\n.",
+        "tokens": 25,
+        "elapsed_ms": 936.1184270237572,
+        "predicted_per_second": 35.95737253485993,
+        "prompt_ms": 201.132
+      },
+      "npu": {
+        "content": "345",
+        "tokens": 1,
+        "elapsed_ms": 2591.9550399994478,
+        "tps": 63.375372330312445,
+        "ttft_ms": 425.54431999999997
+      },
+      "speculative": {
+        "draft_text": "345",
+        "total_draft": 3,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2605.1856559934095,
+        "verify_ms": 126.4597209810745,
+        "total_ms": 2731.6483210015576
+      }
+    },
+    {
+      "category": "Arithmetic",
+      "prompt": "Calculate 48 / 6. Give only the result.",
+      "gpu": {
+        "content": "I don't have a 3.l.2.l. lI. I. 3. sI.",
+        "tokens": 25,
+        "elapsed_ms": 868.5111319937278,
+        "predicted_per_second": 36.39661390168668,
+        "prompt_ms": 206.285
+      },
+      "npu": {
+        "content": "8",
+        "tokens": 1,
+        "elapsed_ms": 2590.711106022354,
+        "tps": 63.57683260219976,
+        "ttft_ms": 425.518784
+      },
+      "speculative": {
+        "draft_text": "8",
+        "total_draft": 1,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2567.4401200085413,
+        "verify_ms": 115.68544100737199,
+        "total_ms": 2683.128617994953
+      }
+    },
+    {
+      "category": "Reasoning/Code",
+      "prompt": "Write a one-line Python lambda function to check if a string is a palindrome.",
+      "gpu": {
+        "content": "I'll show you how to create a function thatlars alister.\n\n```python\ndef helper()l:",
+        "tokens": 25,
+        "elapsed_ms": 854.2744040023535,
+        "predicted_per_second": 38.3593084456009,
+        "prompt_ms": 211.989
+      },
+      "npu": {
+        "content": "```python\npalindrome = lambda s: s == s[::-1]\n```\n\nThis function uses Python's slice notation to reverse",
+        "tokens": 25,
+        "elapsed_ms": 2963.8793939957395,
+        "tps": 63.388709710136105,
+        "ttft_ms": 419.78393600000004
+      },
+      "speculative": {
+        "draft_text": "```python\npalindrome = lambda s: s == s[::-",
+        "total_draft": 13,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2790.9947260050103,
+        "verify_ms": 296.59765399992466,
+        "total_ms": 3087.5951449852437
+      }
+    },
+    {
+      "category": "Scientific",
+      "prompt": "Explain photosynthesis in one concise sentence.",
+      "gpu": {
+        "content": "# \u4e00, \u8bf4, \u8bf4\n\n# \u8bf4, \u8bf4, \u8bf4\n, \u8bf4, ",
+        "tokens": 25,
+        "elapsed_ms": 845.92021300341,
+        "predicted_per_second": 38.04149693290431,
+        "prompt_ms": 199.361
+      },
+      "npu": {
+        "content": "Photosynthesis is the process by which plants, algae, and some bacteria convert light energy from the sun into chemical energy in the form",
+        "tokens": 25,
+        "elapsed_ms": 3153.2305940054357,
+        "tps": 62.57070489653309,
+        "ttft_ms": 448.159328
+      },
+      "speculative": {
+        "draft_text": "Photosynthesis is the process by which plants, algae, and some",
+        "total_draft": 13,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2922.532569995383,
+        "verify_ms": 264.0912600036245,
+        "total_ms": 3186.627468006918
+      }
+    },
+    {
+      "category": "Creative",
+      "prompt": "Write a 5-7-5 syllable haiku about the ocean waves.",
+      "gpu": {
+        "content": "# Finding a \"ommerlich\"\n\nLet me help you craft something. \ud83c\udf0a\n\n---\n\n## ",
+        "tokens": 25,
+        "elapsed_ms": 921.7830400157254,
+        "predicted_per_second": 37.66957193240195,
+        "prompt_ms": 222.752
+      },
+      "npu": {
+        "content": "Crashing on the shore\nFoam and spray on sandy skin\nOcean's gentle kiss",
+        "tokens": 18,
+        "elapsed_ms": 3044.6113699872512,
+        "tps": 63.392111908208214,
+        "ttft_ms": 444.90624
+      },
+      "speculative": {
+        "draft_text": "Crashing on the shore\nFoam and spray on sandy skin",
+        "total_draft": 13,
+        "accepted": 0,
+        "acceptance_rate": 0.0,
+        "draft_ms": 2906.1320390028413,
+        "verify_ms": 222.29881599196233,
+        "total_ms": 3128.433949983446
+      }
+    }
+  ]
+}

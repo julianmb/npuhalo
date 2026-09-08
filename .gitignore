@@ -29,3 +29,5 @@ docs/research/raw/
 .vscode/
 .idea/
 .DS_Store
+hf/
+gh/
