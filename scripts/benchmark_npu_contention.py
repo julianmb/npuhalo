@@ -81,6 +81,10 @@ class NPUBackgroundWorker:
         self.npu_tokens = 0
         self.npu_duration = 0.0
         self.npu_tps = 0.0
+        self.consecutive_failures = 0
+        self.successful_turns = 0
+        self.last_error: Optional[str] = None
+        self._lock = threading.Lock()
 
     def _worker_loop(self):
         prompt = "Write a comprehensive analysis of distributed consensus algorithms including Paxos and Raft."
@@ -110,11 +114,23 @@ class NPUBackgroundWorker:
                         if self.burst_mode and (time.perf_counter() - t0) >= 1.0:
                             # 1s on, then pause 1s
                             break
-            except Exception:
-                pass
+                with self._lock:
+                    if tokens_in_turn > 0:
+                        self.successful_turns += 1
+                        self.consecutive_failures = 0
+                    else:
+                        self.consecutive_failures += 1
+            except Exception as e:
+                with self._lock:
+                    self.consecutive_failures += 1
+                    self.last_error = f"{type(e).__name__}: {e}"
+                # Back off so a wedged FLM connection limit has time to free
+                time.sleep(2.0)
+                continue
             dt = time.perf_counter() - t0
-            self.npu_tokens += tokens_in_turn
-            self.npu_duration += dt
+            with self._lock:
+                self.npu_tokens += tokens_in_turn
+                self.npu_duration += dt
             if self.burst_mode and not self.stop_event.is_set():
                 time.sleep(1.0)
 
@@ -140,8 +156,30 @@ class NPUBackgroundWorker:
         self.stop_event.set()
         if self.thread and self.thread.is_alive():
             self.thread.join(timeout=2.0)
-        self.npu_tps = (self.npu_tokens / self.npu_duration) if self.npu_duration > 0 else 0.0
+        with self._lock:
+            self.npu_tps = (self.npu_tokens / self.npu_duration) if self.npu_duration > 0 else 0.0
         return self.npu_tps
+
+    def wait_until_active(self, timeout: float = 15.0, min_tokens: int = 4) -> bool:
+        """Block until the worker has produced tokens; False on timeout."""
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            with self._lock:
+                if self.npu_tokens >= min_tokens:
+                    return True
+            time.sleep(0.25)
+        return False
+
+    def restart(self, burst: bool = False) -> None:
+        """Stop the current thread and start a fresh connection cycle."""
+        self.stop()
+        time.sleep(3.0)
+        self.consecutive_failures = 0
+        self.successful_turns = 0
+        if burst:
+            self.start_burst()
+        else:
+            self.start_continuous()
 
 
 def run_gpu_request(prompt: str, max_tokens: int = 256, retries: int = 3) -> Dict:
@@ -222,12 +260,28 @@ def run_gpu_request(prompt: str, max_tokens: int = 256, retries: int = 3) -> Dic
     raise last_err
 
 
+def ensure_npu_active(worker: NPUBackgroundWorker, burst: bool, label: str) -> bool:
+    """Validate the worker is actually generating; reconnect once if wedged."""
+    if worker.wait_until_active(timeout=15.0):
+        return True
+    print(f"  [!] {label}: NPU worker produced 0 tokens in 15s "
+          f"(failures={worker.consecutive_failures}) — reconnecting once...")
+    worker.restart(burst=burst)
+    if worker.wait_until_active(timeout=20.0):
+        print(f"  [+] {label}: reconnect succeeded, NPU active.")
+        return True
+    print(f"  [!!] {label}: NPU STILL inactive after reconnect — "
+          f"rep will be flagged npu_active_validated=false, do not trust its delta.")
+    return False
+
+
 def execute_condition_run(condition: str, prompt_key: str, rep: int) -> Dict:
     """Executes a single test condition with exact workload boundaries."""
     prompt = PROMPTS[prompt_key]
     telem_pre = read_telemetry()
     npu_tps = 0.0
     npu_model_used = "none"
+    npu_active_validated = True
 
     if condition == "A":
         # GPU decode alone
@@ -237,6 +291,7 @@ def execute_condition_run(condition: str, prompt_key: str, rep: int) -> Dict:
         npu_model_used = "lfm2.5-tk:1.2b"
         worker = NPUBackgroundWorker(npu_model_used)
         worker.start_continuous()
+        npu_active_validated = ensure_npu_active(worker, burst=False, label=f"B/{prompt_key}/rep{rep}")
         try:
             res = run_gpu_request(prompt, max_tokens=256)
         finally:
@@ -246,6 +301,7 @@ def execute_condition_run(condition: str, prompt_key: str, rep: int) -> Dict:
         npu_model_used = "qwen3.5:0.8b"
         worker = NPUBackgroundWorker(npu_model_used)
         worker.start_continuous()
+        npu_active_validated = ensure_npu_active(worker, burst=False, label=f"C/{prompt_key}/rep{rep}")
         try:
             res = run_gpu_request(prompt, max_tokens=256)
         finally:
@@ -255,6 +311,7 @@ def execute_condition_run(condition: str, prompt_key: str, rep: int) -> Dict:
         npu_model_used = "lfm2.5-tk:1.2b"
         worker = NPUBackgroundWorker(npu_model_used)
         worker.start_burst()
+        npu_active_validated = ensure_npu_active(worker, burst=True, label=f"D/{prompt_key}/rep{rep}")
         try:
             res = run_gpu_request(prompt, max_tokens=256)
         finally:
@@ -273,6 +330,7 @@ def execute_condition_run(condition: str, prompt_key: str, rep: int) -> Dict:
         npu_model_used = "lfm2.5-tk:1.2b"
         worker = NPUBackgroundWorker(npu_model_used)
         worker.start_continuous()
+        npu_active_validated = ensure_npu_active(worker, burst=False, label=f"F/8K/rep{rep}")
         try:
             # Short generation (16 tokens) on 8K prompt to isolate prefill time
             res = run_gpu_request(PROMPTS["8K"], max_tokens=16)
@@ -306,6 +364,7 @@ def execute_condition_run(condition: str, prompt_key: str, rep: int) -> Dict:
         "first_50_tokens_mean_ms": round(res["first_50_tokens_mean_ms"], 2) if res["first_50_tokens_mean_ms"] is not None else None,
         "npu_model": npu_model_used,
         "npu_tps": round(npu_tps, 2),
+        "npu_active_validated": npu_active_validated,
         "power_pre_w": telem_pre["power_w"],
         "power_post_w": telem_post["power_w"],
         "temp_pre_c": telem_pre["temp_c"],
@@ -374,7 +433,8 @@ def main():
                 csv_entry = {k: v for k, v in rec.items() if k != "inter_token_latencies_ms"}
                 csv_rows.append(csv_entry)
                 
-                print(f" [{cond}] {pk:>3} (rep {rep}): GPU={rec['gpu_decode_tps']:>5.2f} tok/s | TTFT={rec['gpu_ttft_ms']:>6.1f} ms | NPU={rec['npu_tps']:>5.1f} tok/s | Pwr={rec['power_post_w']}W | {rec['gpu_total_time_s']:.2f}s")
+                flag = "" if rec.get("npu_active_validated", True) else " [NPU-INACTIVE]"
+                print(f" [{cond}] {pk:>3} (rep {rep}): GPU={rec['gpu_decode_tps']:>5.2f} tok/s | TTFT={rec['gpu_ttft_ms']:>6.1f} ms | NPU={rec['npu_tps']:>5.1f} tok/s | Pwr={rec['power_post_w']}W | {rec['gpu_total_time_s']:.2f}s{flag}")
                 time.sleep(1.5)  # Thermal cool-down interval
 
         # Condition F: GPU 8K Prefill under continuous NPU load
@@ -405,8 +465,10 @@ def main():
             pwr_vals = [r["power_post_w"] for r in recs if r["power_post_w"] is not None]
             first50_vals = [r["first_50_tokens_mean_ms"] for r in recs if r["first_50_tokens_mean_ms"] is not None]
 
+            validated = sum(1 for r in recs if r.get("npu_active_validated", True))
             summary_table[cond][pk] = {
                 "n": len(recs),
+                "npu_validated_reps": validated,
                 "gpu_tps_mean": round(float(np.mean(tps_vals)), 2),
                 "gpu_tps_median": round(float(np.median(tps_vals)), 2),
                 "gpu_tps_p5": round(float(np.percentile(tps_vals, 5)), 2),

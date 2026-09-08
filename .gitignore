@@ -31,3 +31,5 @@ docs/research/raw/
 .DS_Store
 hf/
 gh/
+session-*.md
+minicpm5-npu/

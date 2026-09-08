@@ -5,13 +5,11 @@ AMD XDNA 2 NPU (MiniCPM5-2B @ 63 tok/s) as Drafter
 AMD Radeon 8060S iGPU (Ornith-1.5-35B-A3B ROCmFP4 @ 50-70 tok/s) as Target/Verifier
 """
 
-import os
-import sys
 import time
 import json
 import asyncio
 import aiohttp
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 NPU_URL = "http://127.0.0.1:8001"
 NPU_MODEL = "minicpm5:2b"
@@ -77,7 +75,7 @@ async def call_npu(session: aiohttp.ClientSession, prompt: str, max_tokens: int 
                 "tps": usage.get("decoding_speed_tps", 0.0),
                 "ttft_ms": usage.get("prefill_duration_ttft", 0.0) * 1000,
             }
-        except (aiohttp.ServerDisconnectedError, aiohttp.ClientConnectorError) as e:
+        except (aiohttp.ServerDisconnectedError, aiohttp.ClientConnectorError):
             if attempt < retries:
                 await asyncio.sleep(0.2 * (attempt + 1))
                 continue
