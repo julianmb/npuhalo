@@ -1,0 +1,46 @@
+{
+  "task_id": "D01",
+  "seed": 1,
+  "config": "parser_shadow",
+  "passed": true,
+  "steps": 3,
+  "wall_time_s": 10.8,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 54,
+      "latency_ms": 1447,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>cat calc.py; echo \"---TESTS---\"; cat tests/test_calc.py\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 581,
+      "latency_ms": 8501,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>calc.py\n</parameter>\n<parameter=content>\nfrom decimal import Decimal, ROUND_HALF_UP\n\n\ndef invoice_total(subtotal, discount_percent):\n    discount = subtota"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 26,
+      "latency_ms": 815,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

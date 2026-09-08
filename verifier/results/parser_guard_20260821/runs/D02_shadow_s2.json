@@ -1,0 +1,79 @@
+{
+  "task_id": "D02",
+  "seed": 2,
+  "config": "parser_shadow",
+  "passed": true,
+  "steps": 6,
+  "wall_time_s": 54.4,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 72,
+      "latency_ms": 1175,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>ls -la && echo \"---dedup.py---\" && cat dedup.py && echo \"---test_dedup.py---\" && cat test_dedup.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14868,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14854,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14926,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 346,
+      "latency_ms": 5315,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>dedup.py\n</parameter>\n<parameter=content>\ndef dedup(items):\n    \"\"\"Remove duplicates keeping the FIRST occurrence, in original order.\n\n    Handles unhashab"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 205,
+      "latency_ms": 3272,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

@@ -1,0 +1,68 @@
+{
+  "task_id": "D25",
+  "seed": 2,
+  "config": "parser_active",
+  "passed": true,
+  "steps": 5,
+  "wall_time_s": 11.2,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 55,
+      "latency_ms": 1305,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>ls -la && echo \"---\" && cat tests/test_bench.py\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 368,
+      "latency_ms": 5315,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>\nbench.py\n</parameter>\n<parameter=content>\n#!/usr/bin/env python3\n\"\"\"Generate data/timing.txt with 3 ascending epoch timing lines.\"\"\"\nimport os\n\n\ndef main("
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 87,
+      "latency_ms": 1542,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=content>\n#!/usr/bin/env bash\n# Run the benchmark generator.\nset -euo pipefail\ncd \"$(dirname \"$0\")\"\npython3 bench.py\n\n</parameter>\n<parameter=path>\nbench.sh\n</pa"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 107,
+      "latency_ms": 1738,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\nchmod +x bench.sh && bash bench.sh && echo \"---\" && cat data/timing.txt\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 72,
+      "latency_ms": 1282,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

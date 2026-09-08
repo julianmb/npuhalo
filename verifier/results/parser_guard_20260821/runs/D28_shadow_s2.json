@@ -1,0 +1,178 @@
+{
+  "task_id": "D28",
+  "seed": 2,
+  "config": "parser_shadow",
+  "passed": false,
+  "steps": 15,
+  "wall_time_s": 111.4,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 66,
+      "latency_ms": 1250,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>ls -la && echo \"---version.json---\" && cat version.json && echo \"---test---\" && cat tests/test_version.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 421,
+      "latency_ms": 6061,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>\nbump.sh\n</parameter>\n<parameter=content>\n#!/usr/bin/env bash\nset -euo pipefail\n\n# Read current version from version.json and bump the patch component.\nSCR"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 68,
+      "latency_ms": 1348,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\nchmod +x bump.sh && ./bump.sh && echo \"---version.json---\" && cat version.json && echo \"---tag.txt---\" && cat tag.txt\n</parameter>\n</function>\n</tool_c"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 59,
+      "latency_ms": 1091,
+      "text_head": "The script works correctly. Let me run the test suite to verify.\n\n<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 101,
+      "latency_ms": 1588,
+      "text_head": "Let me investigate the test failure more closely.\n\n<tool_call>\n<function=shell>\n<parameter=command>\npython3 tests/test_version.py; echo \"exit: $?\"\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 229,
+      "latency_ms": 3481,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncat version.json; echo; echo \"---\"; ls -la; echo \"---\"; cat tests/test_version.py\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14545,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14218,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14307,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14422,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 340,
+      "latency_ms": 4811,
+      "text_head": "The test failed because version.json currently has patch=5 (the script ran twice). I need to reset version.json to 1.2.3 and run bump.sh exactly once.\n\n<tool_call>\n<function=shell>\n<parameter=command>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 66,
+      "latency_ms": 1252,
+      "text_head": "Now version.json has patch=4 and tag.txt has v1.2.4. Let me run the test.\n\n<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 669,
+      "latency_ms": 9591,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\ncat version.json; echo \"===\"; xxd version.json; echo \"===\"; cat tag.txt; echo \"===\"; xxd tag.txt\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14755,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 580,
+      "latency_ms": 8161,
+      "text_head": "The test harness runs bump.sh itself. Since version.json currently shows patch=5, my manual runs are persisting. The test harness likely runs `./bump.sh` on the current version.json. I should leave ve"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

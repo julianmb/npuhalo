@@ -1,0 +1,390 @@
+{
+  "routing_decision_accuracy": 0.25,
+  "routing_correct": 7,
+  "routing_total": 28,
+  "answer_accuracy": {
+    "npu_direct": 0.778,
+    "gpu_full": 1.0,
+    "gradable_n": 18
+  },
+  "mean_latency_ms": {
+    "npu_direct": 1946,
+    "gpu_full": 2210
+  },
+  "caveats": [
+    "Small hand-labeled set (n=20 short, 8 long); objective grading only.",
+    "GPU path pays Ornith thinking-token latency even on trivial queries."
+  ],
+  "rows_routing": [
+    {
+      "query": "What is the capital of Australia?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is 17 * 23?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "How many continents are there?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is the chemical symbol for gold?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "Who wrote Romeo and Juliet?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is 15% of 200?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What year did World War II end?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "How many legs does a spider have?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is the largest planet in our solar system?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is the freezing point of water in Celsius?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "Say hello in French.",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is 12 squared?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "How many minutes are in 2 hours?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What color do you get when you mix blue and yellow?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is the square root of 81?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "Hi, how are you today?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "Thanks for your help!",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "What is the plural of mouse?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "Which planet is known as the Red Planet?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "How many sides does a hexagon have?",
+      "routed": "gpu",
+      "expected": "npu",
+      "correct": false
+    },
+    {
+      "query": "Write a Python function to reverse a linked list.",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    },
+    {
+      "query": "Explain the tradeoffs of event sourcing architecture.",
+      "routed": "npu",
+      "expected": "gpu",
+      "correct": false
+    },
+    {
+      "query": "Debug this traceback: RecursionError maximum recursion depth exceeded in a quicksort.",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    },
+    {
+      "query": "Translate this legal clause into plain English and explain the implications.",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    },
+    {
+      "query": "Design a rate limiter for a distributed API gateway.",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    },
+    {
+      "query": "Why does my Rust borrow checker reject this lifetime pattern?",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    },
+    {
+      "query": "Refactor this class hierarchy using the strategy pattern.",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    },
+    {
+      "query": "Compare CAP theorem consistency models for a multi-region database.",
+      "routed": "gpu",
+      "expected": "gpu",
+      "correct": true
+    }
+  ],
+  "rows_ab": [
+    {
+      "query": "What is the capital of Australia?",
+      "gold": "canberra",
+      "npu_answer": "The capital of Australia is **Canberra**.\n\nLocated in the central part of the country, it serves as both the national capital and a major city. It was chosen for its strategic position on two rivers (",
+      "gpu_answer": "The capital of Australia is **Canberra**.\n\nIt's a common misconception that Sydney or Melbourne is the capital, but Canberra was selected in 1908 as a compromise between these two rival cities when Au",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 4487,
+      "gpu_latency_ms": 2164
+    },
+    {
+      "query": "What is 17 * 23?",
+      "gold": "391",
+      "npu_answer": "To find the product of 17 and 23, we can use standard multiplication:\n\n$$17 \\times 23 = (10 + 7) \\times (20 + 3)$$\n$$= (10 \\times 20) + (10 \\times",
+      "gpu_answer": "17 * 23 = **391**",
+      "npu_correct": false,
+      "gpu_correct": true,
+      "npu_latency_ms": 2079,
+      "gpu_latency_ms": 2299
+    },
+    {
+      "query": "How many continents are there?",
+      "gold": "7",
+      "npu_answer": "There are **7** continents on Earth. They are:\n\n1.  **Africa**\n2.  **Antarctica** (often included in the \"Continents\" category, though sometimes debated; it is geologically distinct)\n3.  **Asia**\n4.  ",
+      "gpu_answer": "There are **7 continents** according to the most commonly used model, especially in English-speaking countries, China, India, and much of Asia and Africa. These are:\n\n1. Africa\n2. Antarctica\n3. Asia\n4",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2065,
+      "gpu_latency_ms": 7876
+    },
+    {
+      "query": "What is the chemical symbol for gold?",
+      "gold": "au",
+      "npu_answer": "The chemical symbol for gold is **Au**.\n\nIt comes from the Latin word *aurum*, meaning \"gold.\" This single letter represents a specific element in the periodic table, located at position 79.",
+      "gpu_answer": "The chemical symbol for gold is **Au**. This comes from the Latin word *aurum*, meaning \"shining dawn.\"",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 1748,
+      "gpu_latency_ms": 1082
+    },
+    {
+      "query": "Who wrote Romeo and Juliet?",
+      "gold": "shakespeare",
+      "npu_answer": "**Romeo and Juliet** was written by **William Shakespeare**.\n\nHe is considered one of the greatest playwrights in history. The play, which tells the story of two young lovers from different families w",
+      "gpu_answer": "*Romeo and Juliet* was written by **William Shakespeare**. It is believed to have been written sometime between 1591 and 1595, making it one of his earlier tragedies. The play tells the story of two y",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2058,
+      "gpu_latency_ms": 1486
+    },
+    {
+      "query": "What is 15% of 200?",
+      "gold": "30",
+      "npu_answer": "To find 15% of 200, follow these steps:\n\n1.  **Convert the percentage to a decimal**: Divide by 100.\n    $$15\\% = \\frac{15}{100} = 0.15$$\n\n2.",
+      "gpu_answer": "**15% of 200 = 30**\n\nTo calculate this:\n- Convert 15% to a decimal: 15 \u00f7 100 = 0.15\n- Multiply: 0.15 \u00d7 200 = **30**",
+      "npu_correct": false,
+      "gpu_correct": true,
+      "npu_latency_ms": 2063,
+      "gpu_latency_ms": 1338
+    },
+    {
+      "query": "What year did World War II end?",
+      "gold": "1945",
+      "npu_answer": "World War II ended in **1945**.\n\nSpecifically, the war officially concluded on **August 8, 1945**, when Japan surrendered to the United States. This marked a pivotal turning point for global history a",
+      "gpu_answer": "World War II ended in **1945**. \n\nThe war concluded in two main phases:\n- **In Europe:** The war ended on May 8, 1945, known as V-E Day (Victory in Europe Day), when Germany surrendered unconditionall",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2029,
+      "gpu_latency_ms": 2973
+    },
+    {
+      "query": "How many legs does a spider have?",
+      "gold": "8",
+      "npu_answer": "A spider has **eight legs**.\n\nThis is a unique adaptation that allows them to climb trees and web their prey. While many other arthropods have six legs, the presence of an additional pair on each foot",
+      "gpu_answer": "A spider has **8 legs**.\n\nSpiders are arachnids, a group of jointed-leg invertebrates that also includes scorpions, ticks, and mites. All arachnids have eight legs as adults, which distinguishes them ",
+      "npu_correct": false,
+      "gpu_correct": true,
+      "npu_latency_ms": 1882,
+      "gpu_latency_ms": 2550
+    },
+    {
+      "query": "What is the largest planet in our solar system?",
+      "gold": "jupiter",
+      "npu_answer": "The largest planet in our solar system is **Jupiter**.\n\nIt occupies approximately 95% of the total volume of the solar system and has a diameter about twice that of Earth. Its mass is roughly 318 time",
+      "gpu_answer": "The largest planet in our solar system is **Jupiter**. It's a gas giant with a diameter of about 139,820 kilometers (86,881 miles), making it more than 11 times wider than Earth. In fact, Jupiter is s",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2061,
+      "gpu_latency_ms": 2713
+    },
+    {
+      "query": "What is the freezing point of water in Celsius?",
+      "gold": "0",
+      "npu_answer": "The freezing point of water is **0\u00b0C** (32\u00b0F).\n\nAt this temperature, pure liquid water transitions to solid ice. This value is a fundamental constant in thermodynamics and chemistry and occurs at the ",
+      "gpu_answer": "The freezing point of water is **0\u00b0C** (degrees Celsius) at standard atmospheric pressure.",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 1733,
+      "gpu_latency_ms": 1259
+    },
+    {
+      "query": "Say hello in French.",
+      "gold": "bonjour",
+      "npu_answer": "Salut !\n\nC'est un plaisir de vous rencontrer. Comment puis-je vous aider aujourd'hui ?",
+      "gpu_answer": "Bonjour! \ud83d\udc4b\n\nIf you'd like some variations:\n- **Bonjour** \u2013 the standard \"hello\" (used during the day)\n- **Bonsoir** \u2013 \"good evening\" (used later in the day)\n- **Salut** \u2013 a casual \"hi\" for friends\n\nWo",
+      "npu_correct": false,
+      "gpu_correct": true,
+      "npu_latency_ms": 1087,
+      "gpu_latency_ms": 2818
+    },
+    {
+      "query": "What is 12 squared?",
+      "gold": "144",
+      "npu_answer": "$12^2 = 144$.\n\nTo calculate this, you can square the number $12$:\n$$12 \\times 12 = (10 + 2) \\times (10 + 2) = 100 + 40 + 40",
+      "gpu_answer": "12 squared is **144**.\n\nThis means 12 \u00d7 12 = 144.",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2069,
+      "gpu_latency_ms": 1061
+    },
+    {
+      "query": "How many minutes are in 2 hours?",
+      "gold": "120",
+      "npu_answer": "To convert 2 hours into minutes, we can use the standard conversion factor:\n\n$$1 \\text{ hour} = 60 \\text{ minutes}$$\n\nHere is the calculation:\n$$2 \\times 60 = 120$$\n\n**Answer:** There are **120",
+      "gpu_answer": "There are **120 minutes** in 2 hours.\n\nThis is calculated by multiplying the number of hours by 60 (since there are 60 minutes in one hour):\n\n2 hours \u00d7 60 minutes/hour = 120 minutes",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2093,
+      "gpu_latency_ms": 1334
+    },
+    {
+      "query": "What color do you get when you mix blue and yellow?",
+      "gold": "green",
+      "npu_answer": "When you mix blue and yellow, the resulting color is **green**.\n\nThis happens because of how light interacts with pigments:\n*   **Blue** absorbs red wavelengths.\n*   **Yellow** reflects green waveleng",
+      "gpu_answer": "When you mix blue and yellow paint, you get **green**.\n\nThis is a classic example of subtractive color mixing, which is how pigments and paints work. Blue and yellow are both primary colors, and combi",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2072,
+      "gpu_latency_ms": 3639
+    },
+    {
+      "query": "What is the square root of 81?",
+      "gold": "9",
+      "npu_answer": "The square root of 81 is **9**.\n\nHere is the breakdown:\n$$9 \\times 9 = 81$$",
+      "gpu_answer": "The square root of 81 is **9**, since 9 \u00d7 9 = 81.\n\nNote that technically there are two square roots of 81: +9 and \u22129, since (\u22129) \u00d7 (\u22129) also equals 81. However, when people refer to \"the square root,\"",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 1316,
+      "gpu_latency_ms": 1623
+    },
+    {
+      "query": "Hi, how are you today?",
+      "gold": "",
+      "npu_answer": "Hello! I'm doing well, thanks for asking. How can I assist you today?",
+      "gpu_answer": "Hi! I'm doing well, thanks for asking. \ud83d\ude0a How are you today? Is there anything I can help you with, or something you'd like to chat about?",
+      "npu_correct": null,
+      "gpu_correct": null,
+      "npu_latency_ms": 1020,
+      "gpu_latency_ms": 1096
+    },
+    {
+      "query": "Thanks for your help!",
+      "gold": "",
+      "npu_answer": "That's wonderful to hear! How can I assist you today? \ud83d\ude0a",
+      "gpu_answer": "You're very welcome! \ud83d\ude0a I'm glad I could help. If you have any more questions or need assistance with anything else, don't hesitate to ask. I'm here to help!",
+      "npu_correct": null,
+      "gpu_correct": null,
+      "npu_latency_ms": 977,
+      "gpu_latency_ms": 1495
+    },
+    {
+      "query": "What is the plural of mouse?",
+      "gold": "mice",
+      "npu_answer": "The plural of **mouse** is **mice**.\n\nIn English, the suffix **-e** becomes **-es**, and the vowel sound changes to /a\u026a/ (like \"eye\" or \"see\"). So:\n*   Singular: mouse\n*   Plural: mice",
+      "gpu_answer": "The plural of **mouse** is **mice**.\n\nFor example: \"There were several mice in the kitchen.\"\n\nOne note: when referring to the computer device, both \"mice\" and \"mouses\" are used, though \"mice\" remains ",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2029,
+      "gpu_latency_ms": 2230
+    },
+    {
+      "query": "Which planet is known as the Red Planet?",
+      "gold": "mars",
+      "npu_answer": "The planet known as the **Red Planet** is **Mars**.\n\nIt was first discovered by American astronomer John Herschel in 1876. Its reddish color comes from iron oxide (rust) on its surface, which reflects",
+      "gpu_answer": "**Mars** is known as the Red Planet. This nickname comes from its distinctive reddish appearance in the sky, which is caused by iron oxide (essentially rust) present in the planet's soil and dust.",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 2061,
+      "gpu_latency_ms": 1861
+    },
+    {
+      "query": "How many sides does a hexagon have?",
+      "gold": "6",
+      "npu_answer": "A hexagon has **6** sides.\n\nIn geometry, a polygon is defined by the number of straight lines (sides) it has. Since a hexagon consists of six equal-sided polygons arranged around its vertices, it is n",
+      "gpu_answer": "A hexagon has **6 sides**.\n\nThe name comes from the Greek \"hex\" (meaning six) and \"gon\" (meaning angle or side). A regular hexagon has six equal sides and six equal angles, each measuring 120 degrees.",
+      "npu_correct": true,
+      "gpu_correct": true,
+      "npu_latency_ms": 1999,
+      "gpu_latency_ms": 1308
+    }
+  ]
+}

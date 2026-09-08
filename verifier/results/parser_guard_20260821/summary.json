@@ -1,0 +1,165 @@
+{
+  "experiment": "parser_guard_live_ab",
+  "date": "2026-08-21",
+  "parser": "verifier/src/toolcall_parser.py (structural-only; schema mismatches = warnings)",
+  "replay": {
+    "corpus_runs": 160,
+    "corpus_steps": 1418,
+    "successful_parses": 1004,
+    "false_rejects": 0,
+    "rederived_failure_mass": {
+      "true_malformed": 0,
+      "missing_call_prose": 410,
+      "truncated_midcall": 2,
+      "meta_mention_traps": 2
+    },
+    "projected_token_savings": "\u22480 \u2014 no malformed calls exist to catch"
+  },
+  "live_shadow": {
+    "runs": 16,
+    "live_detections": 0,
+    "posthoc_detections": 0,
+    "agreement_pct": 100.0,
+    "false_aborts_on_valid": 0
+  },
+  "live_active": {
+    "paired_n": 16,
+    "baseline_success": "10/16",
+    "parser_active_success": "7/16",
+    "delta_tasks": -3,
+    "mean_latency_delta_s": -5.1,
+    "median_latency_delta_s": -3.9,
+    "detections_fired": 0,
+    "note": "pass-rate delta is sampling noise: parser fired zero times, no causal path to outcomes"
+  },
+  "pairs": [
+    {
+      "task": "D01",
+      "seed": 1,
+      "baseline_passed": true,
+      "active_passed": true,
+      "baseline_wall_s": 19.6,
+      "active_wall_s": 8.4
+    },
+    {
+      "task": "D01",
+      "seed": 2,
+      "baseline_passed": true,
+      "active_passed": true,
+      "baseline_wall_s": 5.2,
+      "active_wall_s": 8.6
+    },
+    {
+      "task": "D02",
+      "seed": 1,
+      "baseline_passed": true,
+      "active_passed": false,
+      "baseline_wall_s": 106.0,
+      "active_wall_s": 189.3
+    },
+    {
+      "task": "D02",
+      "seed": 2,
+      "baseline_passed": true,
+      "active_passed": true,
+      "baseline_wall_s": 22.9,
+      "active_wall_s": 55.6
+    },
+    {
+      "task": "D03",
+      "seed": 1,
+      "baseline_passed": true,
+      "active_passed": true,
+      "baseline_wall_s": 68.0,
+      "active_wall_s": 102.0
+    },
+    {
+      "task": "D03",
+      "seed": 2,
+      "baseline_passed": true,
+      "active_passed": true,
+      "baseline_wall_s": 136.4,
+      "active_wall_s": 82.6
+    },
+    {
+      "task": "D04",
+      "seed": 1,
+      "baseline_passed": false,
+      "active_passed": false,
+      "baseline_wall_s": 121.1,
+      "active_wall_s": 69.6
+    },
+    {
+      "task": "D04",
+      "seed": 2,
+      "baseline_passed": false,
+      "active_passed": false,
+      "baseline_wall_s": 161.9,
+      "active_wall_s": 74.1
+    },
+    {
+      "task": "D18",
+      "seed": 1,
+      "baseline_passed": false,
+      "active_passed": false,
+      "baseline_wall_s": 171.0,
+      "active_wall_s": 137.8
+    },
+    {
+      "task": "D18",
+      "seed": 2,
+      "baseline_passed": true,
+      "active_passed": true,
+      "baseline_wall_s": 117.2,
+      "active_wall_s": 80.7
+    },
+    {
+      "task": "D21",
+      "seed": 1,
+      "baseline_passed": true,
+      "active_passed": false,
+      "baseline_wall_s": 139.1,
+      "active_wall_s": 145.4
+    },
+    {
+      "task": "D21",
+      "seed": 2,
+      "baseline_passed": false,
+      "active_passed": false,
+      "baseline_wall_s": 139.3,
+      "active_wall_s": 101.7
+    },
+    {
+      "task": "D25",
+      "seed": 1,
+      "baseline_passed": false,
+      "active_passed": false,
+      "baseline_wall_s": 60.7,
+      "active_wall_s": 94.8
+    },
+    {
+      "task": "D25",
+      "seed": 2,
+      "baseline_passed": false,
+      "active_passed": true,
+      "baseline_wall_s": 129.4,
+      "active_wall_s": 11.2
+    },
+    {
+      "task": "D28",
+      "seed": 1,
+      "baseline_passed": true,
+      "active_passed": false,
+      "baseline_wall_s": 39.4,
+      "active_wall_s": 83.5
+    },
+    {
+      "task": "D28",
+      "seed": 2,
+      "baseline_passed": true,
+      "active_passed": false,
+      "baseline_wall_s": 21.9,
+      "active_wall_s": 132.8
+    }
+  ]
+}

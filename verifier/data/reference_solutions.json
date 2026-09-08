@@ -1,0 +1,268 @@
+{
+ "D01": {
+  "files": [
+   [
+    "calc.py",
+    "import decimal\n\ndef invoice_total(subtotal, discount_percent):\n    discount = subtotal * discount_percent / 100\n    total = subtotal - discount\n    if total < 0:\n        total = 0\n    return float(decimal.Decimal(str(total)).quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_HALF_UP))\n"
+   ]
+  ]
+ },
+ "D02": {
+  "files": [
+   [
+    "dedup.py",
+    "def dedup(items):\n    seen = []\n    out = []\n    for it in items:\n        if it not in seen:\n            seen.append(it)\n            out.append(it)\n    return out\n"
+   ]
+  ]
+ },
+ "D03": {
+  "files": [
+   [
+    "temperature.py",
+    "def c_to_f(c): return c*9/5+32\ndef f_to_c(f): return (f-32)*5/9\ndef c_to_k(c): return c+273.15\ndef k_to_c(k): return k-273.15\ndef f_to_k(f): return (f-32)*5/9+273.15\n"
+   ]
+  ]
+ },
+ "D04": {
+  "files": [
+   [
+    "inventory.py",
+    "class Inventory:\n    def __init__(self): self.items={}\n    def add(self,n,q): self.items[n]=self.items.get(n,0)+q\n    def restock(self,n,q):\n        if q < 0: return\n        self.items[n]=self.items.get(n,0)+q\n    def total(self): return sum(self.items.values())\n"
+   ]
+  ],
+  "note": "negative restock rejected as no-op; missing-item restock creates with quantity"
+ },
+ "D05": {
+  "files": [
+   [
+    "bank.py",
+    "class Bank:\n    def __init__(self): self.bal={}\n    def open(self,n,a=0): self.bal[n]=a\n    def transfer(self,s,d,amt):\n        if s not in self.bal or self.bal.get(s,0) < amt:\n            return False\n        if s == d:\n            return True\n        self.bal[s] -= amt\n        self.bal[d] = self.bal.get(d,0) + amt\n        return True\n"
+   ]
+  ]
+ },
+ "D06": {
+  "files": [
+   [
+    "parser.py",
+    "def parse_records(text):\n    out=[]\n    for l in text.splitlines():\n        if l.lstrip().startswith('#'): continue\n        if l == '': continue\n        out.append(l)\n    return out\n"
+   ]
+  ],
+  "note": "whole-line comments excluded; blank lines excluded; all other lines verbatim"
+ },
+ "D07": {
+  "files": [
+   [
+    "url_builder.py",
+    "def build_url(scheme,host,path):\n    if not path.startswith('/'): path='/'+path\n    return scheme+'://'+host+path\n"
+   ]
+  ]
+ },
+ "D08": {
+  "files": [
+   [
+    "collatz.py",
+    "def next_collatz(n):\n    if n<=1: return 1\n    if n%2==0: return n//2\n    return 3*n+1\n"
+   ]
+  ]
+ },
+ "D09": {
+  "files": [
+   [
+    "roman.py",
+    "def to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(90,'XC'),(50,'L'),(40,'XL'),(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        while n>=v: out+=s; n-=v\n    return out\n"
+   ]
+  ]
+ },
+ "D10": {
+  "files": [
+   [
+    "sorting.py",
+    "def stable_sort_by(items, keyfn, reverse=False):\n    return sorted(items, key=keyfn, reverse=reverse)\n"
+   ]
+  ]
+ },
+ "D11": {
+  "files": [
+   [
+    "lib/__init__.py",
+    "def square(x): return x*x\n"
+   ],
+   [
+    "pipeline.py",
+    "from lib import square\n\nprint('RESULT', square(7))\n"
+   ]
+  ]
+ },
+ "D12": {
+  "files": [
+   [
+    "config.ini",
+    "[paths]\nDATA_DIR = .\ndelimiter = ,\n"
+   ],
+   [
+    "run_data.py",
+    "import configparser, csv, os\ncfg=configparser.ConfigParser(); cfg.optionxform=str; cfg.read('config.ini')\npath=os.path.join(cfg['paths']['DATA_DIR'],'inputs.csv')\nrows=list(csv.reader(open(path), delimiter=cfg['paths']['delimiter']))\nassert rows==[['a','b'],['1','2']]\nprint('OK')\n"
+   ]
+  ],
+  "note": "run_data.py also needs optionxform=str: configparser lowercases option keys, so cfg['paths']['DATA_DIR'] raises KeyError even with correct config.ini"
+ },
+ "D13": {
+  "files": [
+   [
+    "app/core/core.py",
+    "def boot():\n    return 0\n"
+   ]
+  ]
+ },
+ "D14": {
+  "files": [
+   [
+    "loader.py",
+    "import json\ncfg=json.load(open('config.json'))\nassert cfg['stage']=='prod' and cfg['replicas']>=1\nprint('LOADED')\n"
+   ]
+  ]
+ },
+ "D15": {
+  "files": [
+   [
+    "toolchain.py",
+    "import subprocess\ngcc = 'GCC OK'\ntry:\n    r=subprocess.run(['gcc','--version'],capture_output=True)\n    if r.returncode!=0: raise FileNotFoundError\nexcept (FileNotFoundError, OSError):\n    gcc = 'NOGCC'\nmake = 'MAKE OK'\ntry:\n    m=subprocess.run(['make','--version'],capture_output=True)\n    if m.returncode!=0: raise FileNotFoundError\nexcept (FileNotFoundError, OSError):\n    make = 'NOMAKE'\nprint(gcc, make)\n"
+   ]
+  ],
+  "note": "never crashes; prints GCC OK/NOGCC and MAKE OK/NOMAKE"
+ },
+ "D16": {
+  "files": [
+   [
+    ".env",
+    "DB_URL=sqlite:///local.db\n"
+   ],
+   [
+    "db_seed.py",
+    "url=None\nfor line in open('.env'):\n    line=line.strip()\n    if line.startswith('DB_URL='):\n        url=line.split('=',1)[1]\nassert url and url.endswith('local.db')\nprint('DB READY')\n"
+   ]
+  ]
+ },
+ "D17": {
+  "files": [
+   [
+    "casefile.py",
+    "import os\n\npath=os.environ.get('INPUT_FILE','sample.txt')\ntext=open(path).read()\nassert 'hello-world' in text\nprint('FILE OK')\n"
+   ]
+  ],
+  "note": "gate found a second fixture bug: shipped casefile.py used os.environ without importing os"
+ },
+ "D18": {
+  "files": [
+   [
+    "vendor/requests.py",
+    "def get(url):\n    return None\n"
+   ],
+   [
+    "install.sh",
+    "#!/usr/bin/env bash\nset -e\nmkdir -p vendor\ncat > vendor/requests.py <<'PY'\ndef get(url):\n    return None\nPY\necho OK_INSTALL\n"
+   ]
+  ],
+  "note": "network blocked: vendor stub replaces pip install"
+ },
+ "D19": {
+  "commands": [
+   "chmod +x util.sh"
+  ],
+  "files": [],
+  "note": "util.sh contents unchanged; only the executable bit is missing"
+ },
+ "D20": {
+  "files": [
+   [
+    "legacy.cfg",
+    "[defaults]\ncount = 7\nkeep = 2\nmode = good\n"
+   ]
+  ]
+ },
+ "D21": {
+  "files": [
+   [
+    "run.sh",
+    "#!/usr/bin/env bash\nset -e\nmkdir -p data\nprintf 'id,name\\n1,a\\n2,b\\n' > data/x.csv\npython3 csv2json.py\n"
+   ]
+  ]
+ },
+ "D22": {
+  "files": [
+   [
+    "bundle.sh",
+    "#!/usr/bin/env bash\nset -e\nmkdir -p data\nprintf 'a1\\n' > data/a.txt\nprintf 'b1\\n' > data/b.txt\nprintf 'c1\\n' > data/c.txt\ncat data/*.txt > bundle.txt\n"
+   ]
+  ]
+ },
+ "D23": {
+  "files": [
+   [
+    "build.sh",
+    "#!/usr/bin/env bash\nset -e\npython3 numbers.py\npython3 stats.py\n"
+   ]
+  ]
+ },
+ "D24": {
+  "files": [
+   [
+    "merge.py",
+    "import csv\nrows={'x':{'k':'x'},'y':{'k':'y'}}\nfor fname,key in [('a.csv','v1'),('b.csv','v2'),('c.csv','v3')]:\n    for r in csv.DictReader(open(fname)):\n        rows[r['k']][key]=r[key]\nwith open('merged.csv','w',newline='') as f:\n    w=csv.DictWriter(f,fieldnames=['k','v1','v2','v3'])\n    w.writeheader(); w.writerows(rows.values())\n"
+   ]
+  ]
+ },
+ "D25": {
+  "files": [
+   [
+    "bench.py",
+    "import time,os\nos.makedirs('data',exist_ok=True)\nvals=[]\nfor i in range(3):\n    vals.append(int(time.time()*1000)+i)\n    time.sleep(0.01)\nwith open('data/timing.txt','w') as f:\n    for i,t in enumerate(vals):\n        f.write(f'epoch{i}={t}\\n')\n"
+   ],
+   [
+    "bench.sh",
+    "#!/usr/bin/env bash\nset -e\npython3 bench.py\n"
+   ]
+  ]
+ },
+ "D26": {
+  "files": [
+   [
+    "sanitize.sh",
+    "#!/usr/bin/env bash\nset -e\nsed '/^[[:space:]]*$/d' messy.txt | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' > clean.txt\n"
+   ]
+  ]
+ },
+ "D27": {
+  "files": [
+   [
+    "cmdparse.py",
+    "import sys\nfrom configparser import ConfigParser\nc=ConfigParser(); c['args']={}\nfor a in sys.argv[1:]:\n    if a.startswith('--'):\n        body=a[2:]\n        if '=' in body:\n            k,v=body.split('=',1); c['args'][k]=v\n        else:\n            c['args'][body]='true'\nwith open('parsed.ini','w') as f:\n    c.write(f)\nprint('PARSED')\n"
+   ]
+  ]
+ },
+ "D28": {
+  "files": [
+   [
+    "bump.sh",
+    "#!/usr/bin/env bash\nset -e\npython3 - <<'PY'\nimport json\nv=json.load(open('version.json')); v['patch']+=1\njson.dump(v,open('version.json','w'))\nopen('tag.txt','w').write(\"v{}.{}.{}\".format(v['major'],v['minor'],v['patch']))\nPY\n"
+   ]
+  ]
+ },
+ "D29": {
+  "files": [
+   [
+    "archive.sh",
+    "#!/usr/bin/env bash\nset -e\nmkdir -p filedata\nprintf 'hi' > filedata/hello.txt\ntar czf hello.tgz filedata\n"
+   ]
+  ]
+ },
+ "D30": {
+  "commands": [],
+  "files": [],
+  "note": "existing envaware.py already handles PORT unset/set correctly; hidden grader passes unchanged. FLAGGED: nothing to fix \u2014 intent unclear."
+ },
+ "_meta": {
+  "format": "task_id -> {files: [[name, content]], commands: [shell commands], note: str}",
+  "purpose": "CI task-validation gate: known-correct solutions applied to fresh workspaces; hidden grader must pass."
+ }
+}

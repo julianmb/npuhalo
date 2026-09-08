@@ -1,0 +1,178 @@
+{
+  "task_id": "D02",
+  "seed": 1,
+  "config": "parser_active",
+  "passed": false,
+  "steps": 15,
+  "wall_time_s": 189.3,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 80,
+      "latency_ms": 1623,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\nls -la && echo \"---- dedup.py ----\" && cat dedup.py && echo \"---- test_dedup.py ----\" && cat test_dedup.py\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14357,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14305,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14248,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14339,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14307,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14387,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14442,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14283,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14346,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14452,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14368,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14352,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 181,
+      "latency_ms": 2889,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>\ndedup.py\n</parameter>\n<parameter=content>\ndef dedup(items):\n    seen = []\n    out = []\n    for it in items:\n        key = type(it).__name__\n        if not"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 895,
+      "latency_ms": 12545,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>\npython test_dedup.py\n</parameter>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

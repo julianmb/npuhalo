@@ -1,0 +1,302 @@
+diff --git a/tools/server/server-common.cpp b/tools/server/server-common.cpp
+index ed5e306..e485a3f 100644
+--- a/tools/server/server-common.cpp
++++ b/tools/server/server-common.cpp
+@@ -803,10 +803,7 @@ json oaicompat_completion_params_parse(const json & body) {
+         llama_params["stop"] = json_value(body, "stop", json::array());
+     }
+ 
+-    // Handle "echo" field
+-    if (json_value(body, "echo", false)) {
+-        throw std::runtime_error("Only no echo is supported");
+-    }
++    // echo=true is now supported (prompt logprobs)
+ 
+     // Params supported by OAI but unsupported by llama.cpp
+     static const std::vector<std::string> unsupported_params { "best_of", "suffix" };
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index d341545..73f3244 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -89,6 +89,11 @@ struct server_slot {
+ 
+     std::vector<completion_token_output> generated_token_probs;
+ 
++    // echo=true prompt logprobs: {batch_idx, token_id} pairs from current batch
++    std::vector<std::pair<int32_t, llama_token>> echo_batch_tokens;
++    int32_t echo_last_batch_idx = -1;  // last token's batch idx from previous batch (for cross-batch logprobs)
++    std::vector<completion_token_output> prompt_token_probs;
++
+     bool has_next_token = true;
+     bool has_new_line   = false;
+     bool truncated      = false;
+@@ -181,6 +186,9 @@ struct server_slot {
+         i_batch_dft.clear();
+         generated_tokens.clear();
+         generated_token_probs.clear();
++        echo_batch_tokens.clear();
++        echo_last_batch_idx = -1;
++        prompt_token_probs.clear();
+         json_schema = json();
+ 
+         // clear speculative decoding stats
+@@ -1540,6 +1548,11 @@ private:
+             }
+         }
+ 
++        res->echo = slot.task->params.echo;
++        if (slot.task->params.echo && !slot.prompt_token_probs.empty()) {
++            res->prompt_probs_output = slot.prompt_token_probs;
++        }
++
+         res->generation_params = slot.task->params; // copy the parameters
+ 
+         queue_results.send(std::move(res));
+@@ -2549,6 +2562,10 @@ private:
+                     }
+ 
+                     // add prompt tokens for processing in the current batch
++                    const bool need_echo_logprobs = slot.task->params.echo
++                        && slot.task->params.sampling.n_probs > 0;
++                    slot.echo_batch_tokens.clear();
++
+                     while (slot.prompt.n_tokens() < slot.task->n_tokens() && batch.n_tokens < n_batch) {
+                         // get next token to process
+                         llama_token cur_tok = input_tokens[slot.prompt.n_tokens()];
+@@ -2565,13 +2582,19 @@ private:
+                         }
+ 
+                         // embedding requires all tokens in the batch to be output
++                        // echo=true also requires logits at every prompt position
+                         common_batch_add(batch,
+                             cur_tok,
+                             slot.prompt.tokens.pos_next(),
+                             { slot.id },
+-                            slot.task->need_embd());
++                            slot.task->need_embd() || need_echo_logprobs);
+                         slot.prompt.tokens.push_back(cur_tok);
+ 
++                        // track prompt tokens for echo logprobs extraction
++                        if (need_echo_logprobs) {
++                            slot.echo_batch_tokens.push_back({batch.n_tokens - 1, cur_tok});
++                        }
++
+                         slot.n_prompt_tokens_processed++;
+ 
+                         // process the last few tokens of the prompt separately in order to allow for a checkpoint to be created.
+@@ -2826,6 +2849,93 @@ private:
+                     if (slot.task->params.stream && slot.task->params.return_progress) {
+                         send_partial_response(slot, {}, true);
+                     }
++
++                    // extract prompt logprobs for echo=true
++                    if (!slot.echo_batch_tokens.empty()) {
++                        const size_t n_probs = slot.task->params.sampling.n_probs;
++                        const int n_vocab = llama_vocab_n_tokens(vocab);
++
++                        auto compute_logprobs = [&](int prev_idx, llama_token tok_id, completion_token_output & result) {
++                            const float * logits_prev = llama_get_logits_ith(ctx, prev_idx);
++                            if (!logits_prev) {
++                                result.prob = -std::numeric_limits<float>::infinity();
++                                return;
++                            }
++                            float max_logit = logits_prev[0];
++                            for (int v = 1; v < n_vocab; v++) {
++                                max_logit = std::max(max_logit, logits_prev[v]);
++                            }
++                            double sum_exp = 0.0;
++                            for (int v = 0; v < n_vocab; v++) {
++                                sum_exp += std::exp(double(logits_prev[v] - max_logit));
++                            }
++                            float log_sum_exp = max_logit + std::log(float(sum_exp));
++                            result.prob = logits_prev[tok_id] - log_sum_exp;
++
++                            if (n_probs > 0) {
++                                std::vector<std::pair<float, llama_token>> candidates;
++                                candidates.reserve(n_vocab);
++                                for (int v = 0; v < n_vocab; v++) {
++                                    candidates.push_back({logits_prev[v] - log_sum_exp, (llama_token)v});
++                                }
++                                std::partial_sort(candidates.begin(),
++                                    candidates.begin() + std::min(n_probs, candidates.size()),
++                                    candidates.end(),
++                                    [](const auto& a, const auto& b) { return a.first > b.first; });
++                                for (size_t k = 0; k < std::min(n_probs, candidates.size()); k++) {
++                                    result.probs.push_back({
++                                        candidates[k].second,
++                                        common_token_to_piece(ctx, candidates[k].second, params_base.special),
++                                        candidates[k].first
++                                    });
++                                }
++                            }
++                        };
++
++                        for (size_t j = 0; j < slot.echo_batch_tokens.size(); j++) {
++                            auto [tok_idx, tok_id] = slot.echo_batch_tokens[j];
++                            completion_token_output result;
++                            result.tok = tok_id;
++                            result.text_to_send = common_token_to_piece(ctx, tok_id, params_base.special);
++
++                            if (j == 0 && slot.prompt_token_probs.empty()) {
++                                // Very first prompt token ever — no preceding logits
++                                result.prob = -std::numeric_limits<float>::infinity();
++                            } else if (j == 0 && !slot.prompt_token_probs.empty()) {
++                                // First token of a new batch — the logprob was pre-computed
++                                // at the end of the previous batch (see "cross-batch bridge" below)
++                                // and stored as the last entry in prompt_token_probs.
++                                // It's already there, so skip this token.
++                                continue;
++                            } else {
++                                int prev_idx = slot.echo_batch_tokens[j - 1].first;
++                                compute_logprobs(prev_idx, tok_id, result);
++                            }
++                            slot.prompt_token_probs.push_back(result);
++                        }
++
++                        // Cross-batch bridge: the last token of this batch has logits
++                        // that predict the first token of the NEXT batch. If we know
++                        // what that next token is (from input_tokens), compute its
++                        // logprob now before the logits are overwritten.
++                        if (!slot.echo_batch_tokens.empty()) {
++                            auto [last_idx, last_tok] = slot.echo_batch_tokens.back();
++                            // Check if there's a next prompt token to predict
++                            size_t next_prompt_pos = slot.prompt.n_tokens();
++                            const auto & input_tokens = slot.task->tokens;
++                            if (next_prompt_pos < (size_t)slot.task->n_tokens()) {
++                                llama_token next_tok = input_tokens[next_prompt_pos];
++                                if (next_tok != LLAMA_TOKEN_NULL) {
++                                    completion_token_output bridge_result;
++                                    bridge_result.tok = next_tok;
++                                    bridge_result.text_to_send = common_token_to_piece(ctx, next_tok, params_base.special);
++                                    compute_logprobs(last_idx, next_tok, bridge_result);
++                                    slot.prompt_token_probs.push_back(bridge_result);
++                                }
++                            }
++                        }
++                        slot.echo_batch_tokens.clear();
++                    }
+                 }
+ 
+                 if (slot.i_batch < (int) i || slot.i_batch >= (int) (i + n_tokens)) {
+diff --git a/tools/server/server-task.cpp b/tools/server/server-task.cpp
+index 6a06171..7f57df4 100644
+--- a/tools/server/server-task.cpp
++++ b/tools/server/server-task.cpp
+@@ -258,6 +258,7 @@ task_params server_task::params_from_json_cmpl(
+     params.timings_per_token = json_value(data, "timings_per_token", false);
+ 
+     params.stream           = json_value(data,       "stream",             false);
++    params.echo             = json_value(data,       "echo",               false);
+     auto stream_opt         = json_value(data,       "stream_options",     json::object());
+     params.include_usage    = json_value(stream_opt, "include_usage",      false);
+     params.cache_prompt     = json_value(data,       "cache_prompt",       defaults.cache_prompt);
+@@ -768,20 +769,83 @@ json server_task_result_cmpl_final::usage_json_oaicompat() {
+ 
+ json server_task_result_cmpl_final::to_json_oaicompat() {
+     std::time_t t = std::time(0);
+-    json logprobs = json(nullptr); // OAI default to null
+-    if (!stream && probs_output.size() > 0) {
++
++    // Build logprobs, including prompt logprobs when echo=true
++    json logprobs = json(nullptr);
++    if (!stream && (probs_output.size() > 0 || (echo && prompt_probs_output.size() > 0))) {
++        json tokens_arr     = json::array();
++        json logprobs_arr   = json::array();
++        json top_logprobs_arr = json::array();
++        json offsets_arr    = json::array();
++        int offset = 0;
++
++        // prompt token logprobs (echo=true)
++        if (echo && !prompt_probs_output.empty()) {
++            for (const auto & p : prompt_probs_output) {
++                tokens_arr.push_back(p.text_to_send);
++                offsets_arr.push_back(offset);
++                offset += (int)p.text_to_send.size();
++
++                if (std::isinf(p.prob) && p.prob < 0) {
++                    logprobs_arr.push_back(nullptr);
++                    top_logprobs_arr.push_back(nullptr);
++                } else {
++                    logprobs_arr.push_back(p.prob);
++                    json top_map = json::object();
++                    for (const auto & tp : p.probs) {
++                        top_map[tp.txt] = tp.prob;
++                    }
++                    top_logprobs_arr.push_back(top_map);
++                }
++            }
++        }
++
++        // generated token logprobs
++        for (const auto & p : probs_output) {
++            tokens_arr.push_back(p.text_to_send);
++            offsets_arr.push_back(offset);
++            offset += (int)p.text_to_send.size();
++
++            if (post_sampling_probs) {
++                if (p.prob > 0.0f) {
++                    logprobs_arr.push_back(std::log(p.prob));
++                } else {
++                    logprobs_arr.push_back(nullptr);
++                }
++            } else {
++                logprobs_arr.push_back(p.prob);
++            }
++
++            json top_map = json::object();
++            for (const auto & tp : p.probs) {
++                float lp = post_sampling_probs
++                    ? (tp.prob > 0.0f ? std::log(tp.prob) : -std::numeric_limits<float>::infinity())
++                    : tp.prob;
++                top_map[tp.txt] = lp;
++            }
++            top_logprobs_arr.push_back(top_map);
++        }
++
+         logprobs = json{
+-            {"content", completion_token_output::probs_vector_to_json(probs_output, post_sampling_probs)},
++            {"tokens",        tokens_arr},
++            {"token_logprobs", logprobs_arr},
++            {"top_logprobs",  top_logprobs_arr},
++            {"text_offset",   offsets_arr},
+         };
+     }
++
+     json finish_reason = "length";
+     if (stop == STOP_TYPE_WORD || stop == STOP_TYPE_EOS) {
+         finish_reason = "stop";
+     }
++
++    // echo=true: prepend prompt to generated text
++    std::string response_text = echo ? (prompt + content) : content;
++
+     json res = json {
+         {"choices",            json::array({
+             json{
+-                {"text",          content},
++                {"text",          response_text},
+                 {"index",         index},
+                 {"logprobs",      logprobs},
+                 {"finish_reason", finish_reason},
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index 243e47a..2b44a35 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -48,6 +48,7 @@ enum stop_type {
+ struct task_params {
+     bool stream          = true;
+     bool include_usage   = false;
++    bool echo            = false; // echo the prompt in the output with logprobs
+     bool cache_prompt    = true; // remember the prompt to avoid reprocessing all prompt
+     bool return_tokens   = false;
+     bool return_progress = false;
+@@ -352,7 +353,9 @@ struct server_task_result_cmpl_final : server_task_result {
+     stop_type stop = STOP_TYPE_NONE;
+ 
+     bool post_sampling_probs;
++    bool echo = false;
+     std::vector<completion_token_output> probs_output;
++    std::vector<completion_token_output> prompt_probs_output;
+     std::vector<std::string>  response_fields;
+ 
+     task_params generation_params;

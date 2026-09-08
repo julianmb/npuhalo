@@ -1,0 +1,100 @@
+{
+  "hardware": {
+    "backends": {
+      "flm/npu": "v0.9.46"
+    },
+    "cpu": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S",
+    "gpu": [
+      {
+        "integrated": true,
+        "name": "110501",
+        "type": "amd",
+        "vram_gb": 0.5
+      }
+    ],
+    "os": "linux",
+    "ram_gb": 124.94
+  },
+  "models": [
+    {
+      "config": {
+        "measurement_runs": 1,
+        "memory_tracking": true,
+        "warmup_runs": 0
+      },
+      "model": "qwen3.5-0.8b-FLM",
+      "results": [
+        {
+          "backend": "npu",
+          "backend_args": "",
+          "ctx_size": 4096,
+          "recipe": "flm",
+          "scenarios": [
+            {
+              "category": "chat",
+              "duration_ms": {
+                "max": 898.710297,
+                "mean": 898.710297,
+                "min": 898.710297,
+                "p50": 898.710297,
+                "p95": 898.710297
+              },
+              "failed_runs": 0,
+              "input_tokens": 27,
+              "memory_peak_gb": 10.4,
+              "name": "chat-short",
+              "output_tokens": 19,
+              "tps": {
+                "max": 38.78374185541421,
+                "mean": 38.78374185541421,
+                "min": 38.78374185541421,
+                "p50": 38.78374185541421,
+                "p95": 38.78374185541421
+              },
+              "ttft_ms": {
+                "max": 347.168352,
+                "mean": 347.168352,
+                "min": 347.168352,
+                "p50": 347.168352,
+                "p95": 347.168352
+              },
+              "vram_peak_gb": 0.16161727905273438
+            },
+            {
+              "category": "coding",
+              "duration_ms": {
+                "max": 1850.601157,
+                "mean": 1850.601157,
+                "min": 1850.601157,
+                "p50": 1850.601157,
+                "p95": 1850.601157
+              },
+              "failed_runs": 0,
+              "input_tokens": 34,
+              "memory_peak_gb": 10.4,
+              "name": "code-short",
+              "output_tokens": 60,
+              "tps": {
+                "max": 41.4750175231949,
+                "mean": 41.4750175231949,
+                "min": 41.4750175231949,
+                "p50": 41.4750175231949,
+                "p95": 41.4750175231949
+              },
+              "ttft_ms": {
+                "max": 349.177984,
+                "mean": 349.177984,
+                "min": 349.177984,
+                "p50": 349.177984,
+                "p95": 349.177984
+              },
+              "vram_peak_gb": 0.16161727905273438
+            }
+          ]
+        }
+      ],
+      "timestamp": "2026-08-18T19:26:27Z"
+    }
+  ],
+  "timestamp": "2026-08-18T19:26:27Z"
+}

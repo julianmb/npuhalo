@@ -1,0 +1,389 @@
+{
+  "task_id": "D09",
+  "config": "active_esc",
+  "passed": true,
+  "num_steps": 12,
+  "wall_time": 137.89205193519592,
+  "gpu_tokens": {
+    "in": 27041,
+    "out": 8884
+  },
+  "verdicts": {
+    "CONTINUE": 0,
+    "SUSPECT": 6,
+    "ABORT": 0
+  },
+  "rollbacks": 2,
+  "abort_events": [
+    {
+      "step": 6,
+      "tier": "tier1_parser_guard",
+      "reason": "malformed_or_missing_tool_call",
+      "rollback_to": 4,
+      "new_temperature": 0.5
+    },
+    {
+      "step": 5,
+      "tier": "tier1_parser_guard",
+      "reason": "malformed_or_missing_tool_call",
+      "rollback_to": 4,
+      "new_temperature": 0.7
+    }
+  ],
+  "transcript_changes": 0,
+  "escalations": 6,
+  "steps_per_sample_pre_abort": [],
+  "steps": [
+    {
+      "step": 1,
+      "temperature": 0.3,
+      "raw_text": "<tool_call>\n<function=read>\n<parameter=path>roman.py</parameter>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "read",
+        "arguments": {
+          "path": "roman.py"
+        }
+      },
+      "tool_result": {
+        "name": "read",
+        "arguments": {
+          "path": "roman.py"
+        },
+        "stdout": "def to_roman(n):\n    pairs=[(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out\n",
+        "stderr": "",
+        "exit_code": 0,
+        "tool_time_ms": 0.027418136596679688
+      },
+      "gen_latency_ms": 2370.4662322998047,
+      "verdict": {
+        "verdict": "SUSPECT",
+        "votes": {
+          "CONTINUE": 1,
+          "SUSPECT": 2
+        },
+        "evidence": "",
+        "raw_responses": [
+          "First, I need to understand the task. The goal is to fix two bugs in the `to_roman()` function",
+          "",
+          ""
+        ],
+        "latency_ms": 1134.2053413391113,
+        "prompt_tokens": 282,
+        "model_id": "lfm2.5-tk:1.2b",
+        "backend": "npu",
+        "gate": "ABSTAIN"
+      },
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    },
+    {
+      "step": 2,
+      "temperature": 0.3,
+      "raw_text": "<tool_call>\n<function=read>\n<parameter=path>test_roman.py</parameter>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "read",
+        "arguments": {
+          "path": "test_roman.py"
+        }
+      },
+      "tool_result": {
+        "name": "read",
+        "arguments": {
+          "path": "test_roman.py"
+        },
+        "stdout": "from roman import to_roman\nassert to_roman(3)=='III'\nprint('VISIBLE PASS')\n",
+        "stderr": "",
+        "exit_code": 0,
+        "tool_time_ms": 0.028371810913085938
+      },
+      "gen_latency_ms": 4167.387247085571,
+      "verdict": {
+        "verdict": "SUSPECT",
+        "votes": {
+          "CONTINUE": 1,
+          "SUSPECT": 2
+        },
+        "evidence": "",
+        "raw_responses": [
+          "First, I need to understand the task. The goal is to fix two bugs in the `to_roman()` function",
+          "",
+          ""
+        ],
+        "latency_ms": 952.6617527008057,
+        "prompt_tokens": 322,
+        "model_id": "lfm2.5-tk:1.2b",
+        "backend": "npu",
+        "escalated_abort": true
+      },
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": true
+    },
+    {
+      "step": 3,
+      "temperature": 0.3,
+      "raw_text": "<tool_call>\n<function=write>\n<parameter=path>roman.py</parameter>\n<parameter=content>\ndef to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out\n\n</parameter>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "write",
+        "arguments": {
+          "path": "roman.py",
+          "content": "def to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out"
+        }
+      },
+      "tool_result": {
+        "name": "write",
+        "arguments": {
+          "path": "roman.py",
+          "content": "def to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out"
+        },
+        "stdout": "OK wrote 191 chars",
+        "stderr": "",
+        "exit_code": 0,
+        "tool_time_ms": 0.16188621520996094
+      },
+      "gen_latency_ms": 5475.834846496582,
+      "verdict": {
+        "verdict": "SUSPECT",
+        "votes": {
+          "CONTINUE": 1,
+          "SUSPECT": 2
+        },
+        "evidence": "",
+        "raw_responses": [
+          "First, I need to understand the task. The goal is to fix two bugs in the `to_roman` function:",
+          "",
+          ""
+        ],
+        "latency_ms": 962.4545574188232,
+        "prompt_tokens": 340,
+        "model_id": "lfm2.5-tk:1.2b",
+        "backend": "npu"
+      },
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": true
+    },
+    {
+      "step": 4,
+      "temperature": 0.3,
+      "raw_text": "<tool_call>\n<function=test>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "test",
+        "arguments": {}
+      },
+      "tool_result": {
+        "name": "test",
+        "arguments": {}
+      },
+      "gen_latency_ms": 10288.683652877808,
+      "verdict": null,
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    },
+    {
+      "step": 5,
+      "temperature": 0.3,
+      "raw_text": "<tool_call>\n<function=shell>\n<parameter=command>python -c \"from roman import to_roman; print(to_roman(4), to_roman(9), to_roman(49), to_roman(99), to_roman(999), to_roman(3999))\"\n</parameter>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "shell",
+        "arguments": {
+          "command": "python -c \"from roman import to_roman; print(to_roman(4), to_roman(9), to_roman(49), to_roman(99), to_roman(999), to_roman(3999))\""
+        }
+      },
+      "tool_result": {
+        "name": "shell",
+        "arguments": {
+          "command": "python -c \"from roman import to_roman; print(to_roman(4), to_roman(9), to_roman(49), to_roman(99), to_roman(999), to_roman(3999))\""
+        },
+        "stdout": "IIII VIIII XXXXVIIII LXXXXVIIII CMLXXXXVIIII MMMCMLXXXXVIIII\n",
+        "stderr": "",
+        "exit_code": 0,
+        "tool_time_ms": 19.019365310668945
+      },
+      "gen_latency_ms": 2218.6338901519775,
+      "verdict": {
+        "verdict": "SUSPECT",
+        "votes": {
+          "CONTINUE": 1,
+          "SUSPECT": 2
+        },
+        "evidence": "",
+        "raw_responses": [
+          "First, I need to understand the task. The goal is to fix two bugs in the `to_roman()` function",
+          "",
+          ""
+        ],
+        "latency_ms": 1129.133701324463,
+        "prompt_tokens": 260,
+        "model_id": "lfm2.5-tk:1.2b",
+        "backend": "npu"
+      },
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": true
+    },
+    {
+      "step": 5,
+      "temperature": 0.7,
+      "raw_text": "The test failed. Let me investigate. The test tool runs the objective grader including hidden cases. Let me look more carefully at what might be wrong.\n\nWait, the exit_code is None for the test. Let me re-run the test to see the actual output.\n\nActually, let me think about the bugs. The task says:\n1. Missing the 4/9 subtraction cases\n2. A wrong symbol for one value\n\nI fixed the missing subtraction cases by adding 900 (CM) and 400 (CD). But there's also a \"wrong symbol for one value\" bug. Let me look at the original pairs again:\n\npairs=[(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n\nHmm, that looks correct. The values and symbols are standard. Wait \u2014 but the task says there's a wrong symbol for one value. In the original, all symbols are correct. But maybe the grader expects something. Let me check the hidden cases: 4, 9, 49, 99, 999, 3999.\n\n4 = IV\n9 = IX\n49 = XLIX\n99 = XCIX\n999 = CMXCIX\n3999 = MMMCMXCIX\n\nWith my current implementation:\n- 4: 1000->0, 900->0, 500->0, 400->0, 100->0, 50->0, 10->0, 5->0, 1->'IV'... wait n//5=0, n%5=4, then 1->n//1=4 'IV'. Yes 'IV'. Correct.\n- 9: 900->0, 500->0, 100->0, 50->0, 10->n//10=0... wait 9//10=0, 9%10=9, then 5->9//5=1 'V', 9%5=4, then 1->'IV'. So 'IX'? No wait. Let me redo. 9: skip 1000,900,500,400,100,50. At 10: 9//10=0, 9%10=9. At 5: 9//5=1 -> 'V', 9%5=4. At 1: 4//1=4 -> 'IV'. So result 'VIV'? That's wrong! 9 should be 'IX'.\n\nWait, the issue is 9 < 10, so we skip 10 entirely. But 9 in proper Roman numerals is 'IX' (10-1). The subtraction case for 9 is handled by the 900 entry pattern but for the tens place there's no 900 equivalent... Actually the standard algorithm handles this because 9 = 10 - 1, which requires the (10,'X') and then... no.\n\nHmm, actually the standard greedy algorithm with pairs including 900 and 400 handles the 4 and 9 for hundreds. For units, 9 = 'IX' requires... let's see. The greedy approach: for 9, we'd need 9 to be represented. With pairs including (10,'X'), 9//10=0. So 9 is not captured by 10. Then 5->'V' remainder 4 -> 'IV'. So 'VIV'. That's WRONG.\n\nWait, but the standard algorithm should include... no. Let me reconsider. Actually the standard algorithm does NOT have a special case for 9 in units. Let me reconsider how 9 is normally written: 'IX' = 10-1. \n\nThe greedy algorithm works if we have the right subtraction pairs. For units place, the subtraction form would be... there isn't a standard \"90\" or \"9\" pair in the typical list. Actually the typical list is:\n(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(90,'XC'),(50,'L'),(40,'XL'),(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')\n\nWait, but many implementations DON'T include 90, 40, 9 because the greedy algorithm handles them through the combination. Let",
+      "tool_call": null,
+      "tool_result": {},
+      "gen_latency_ms": 14293.869972229004,
+      "verdict": null,
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    },
+    {
+      "step": 6,
+      "temperature": 0.7,
+      "raw_text": "I found the bug. The greedy algorithm without special 9 case for units fails. Let me reconsider.\n\nActually the standard algorithm works because it doesn't need 9 as a separate pair. Let me trace 9 again with pairs including 900, 400 but NOT 9:\n- 9: skip down to 10: 9//10=0. Skip to 5: 9//5=1, 'V', rem 4. Then 1: 4//1=4, 'IV'. Result 'VIV'. WRONG.\n\nSo we need the 9 case. But wait, the classic algorithm DOES work for all numbers. Let me reconsider. The classic pairs are:\n(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')\n\nFor 9 with this classic list: 9//10=0, 9//5=1 'V' rem 4, 4//1=4 'IV' = 'VIV'. That's also wrong!\n\nHmm so how does the classic algorithm produce 'IX' for 9? It doesn't with pure greedy. \n\nWait, actually the classic algorithm DOES handle 9 correctly. Let me reconsider. 9 = 'IX'. The algorithm needs 9 to map to 'IX'. \n\nOh! I see. The issue is the classic algorithm actually produces correct results because it processes 10 first. 9//10 = 0. So it never uses X. Hmm.\n\nWait, let me reconsider. Is 9 actually 'IX'? Yes. IX = 10 - 1 = 9. \n\nFor greedy to produce IX, we need a pair (9,'IX') OR we handle it differently. Actually the standard greedy algorithm used in most textbooks does NOT include 9 as a pair, yet produces correct results. Let me re-trace very carefully.\n\npairs=[(10,'X'),(5,'V'),(1,'I')] for n=9:\n- v=10,s=X: out+=X*(9//10)=X*0=''; n=9%10=9\n- v=5,s=V: out+=V*(9//5)=V*1='V'; n=9%5=4\n- v=1,s=I: out+=I*(4//1)=IIII; n=0\nResult: 'VIV'\n\nThat's wrong! So the standard greedy does NOT give correct result for 9?\n\nHmm wait, that can't be right. Let me reconsider. Actually, I think I'm wrong. Let me reconsider whether 9//5 should be 1. 9//5 = 1 (integer division). Yes.\n\nBut wait \u2014 is 'VIV' actually the correct representation? No, standard is 'IX'.\n\nSo actually the classic greedy algorithm with just [(10,'X'),(5,'V'),(1,'I')] gives wrong results for numbers like 9, 4, etc.?\n\nLet me check 4: pairs [(5,'V'),(1,'I')] n=4:\n- v=5: 4//5=0, n=4\n- v=1: 4//1=4, 'IIII'\nResult 'IIII'. That's wrong too! Standard is 'IV'.\n\nSo the classic algorithm as given in the task is indeed broken for 4 and 9. The task says \"missing the 4/9 subtraction cases\". So we need to add (4,'IV') and (9,'IX') pairs.\n\nSo the fix is to add (9,'IX') and (4,'IV') pairs. Let me also check the \"wrong symbol for one value\" bug.\n\nThe task says there's ALSO a wrong symbol for one value. In the original pairs, all symbols look correct. But maybe the hidden grader... no. Wait, the original pairs are:\npairs=[(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n\nThese all look correct. Hmm. Where's the wrong symbol? \n\nOh wait \u2014 maybe the \"wrong symbol\" bug is not in roman.py but the task wants me to fix it. Let me re-read: \"to_roman() has TWO bugs \u2014 missing the 4/9 subtraction cases AND a wrong symbol for one value.\"\n\nSo among the pairs, one value has a wrong symbol. Let me look very carefully:\n(1000,'M') \u2713\n(500,'D') \u2713\n(100,'C')",
+      "tool_call": null,
+      "tool_result": {},
+      "gen_latency_ms": 15555.20486831665,
+      "verdict": null,
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    },
+    {
+      "step": 7,
+      "temperature": 0.7,
+      "raw_text": "I need to include all subtraction cases (40, 90, 4, 9) for the greedy algorithm to work correctly.\n\n<tool_call>\n<function=write>\n<parameter=content>\ndef to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(90,'XC'),(50,'L'),(40,'XL'),(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out\n\n</parameter>\n<parameter=path>roman.py</parameter>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "write",
+        "arguments": {
+          "content": "def to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(90,'XC'),(50,'L'),(40,'XL'),(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out",
+          "path": "roman.py"
+        }
+      },
+      "tool_result": {
+        "name": "write",
+        "arguments": {
+          "content": "def to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(90,'XC'),(50,'L'),(40,'XL'),(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out",
+          "path": "roman.py"
+        },
+        "stdout": "OK wrote 229 chars",
+        "stderr": "",
+        "exit_code": 0,
+        "tool_time_ms": 0.14972686767578125
+      },
+      "gen_latency_ms": 15137.018918991089,
+      "verdict": {
+        "verdict": "SUSPECT",
+        "votes": {
+          "CONTINUE": 1,
+          "SUSPECT": 2
+        },
+        "evidence": "",
+        "raw_responses": [
+          "First, I need to understand the task. The goal is to fix two bugs in the `to_roman()` function",
+          "",
+          ""
+        ],
+        "latency_ms": 1018.7692642211914,
+        "prompt_tokens": 232,
+        "model_id": "lfm2.5-tk:1.2b",
+        "backend": "npu"
+      },
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": true
+    },
+    {
+      "step": 8,
+      "temperature": 0.7,
+      "raw_text": "Wait, but I haven't addressed the \"wrong symbol for one value\" bug. Let me reconsider the original pairs:\n\npairs=[(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n\nHmm, these all look correct. But the task says there's a wrong symbol for one value. Maybe the original file had a wrong symbol that I already... no, the original I read had correct symbols.\n\nWait, let me re-read the original: pairs=[(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\n\nAll correct. So where's the wrong symbol bug? \n\nHmm. Maybe the original file actually had a typo I didn't notice. Let me re-read what I saw: \"pairs=[(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')]\"\n\nM, D, C, L, X, V, I \u2014 all correct standard symbols. \n\nWait \u2014 maybe the wrong symbol is something subtle. Actually, none of these are wrong. So perhaps the \"wrong symbol\" was already... no.\n\nHold on. Let me reconsider. Maybe I'm missing something. The task says the function has two bugs. I've been assuming the original pairs are all correct symbols. But maybe one of them IS wrong and I need to identify it.\n\nActually, wait. Let me reconsider. Maybe the original file (before my edit) had a wrong symbol, but I overwrote it. But no, I read it fresh and it showed correct symbols.\n\nHmm, but actually maybe the wrong symbol is intentional and I need to keep it in mind. Let me reconsider the values:\n- 1000 = M \u2713\n- 500 = D \u2713\n- 100 = C \u2713\n- 50 = L \u2713\n- 10 = X \u2713\n- 5 = V \u2713\n- 1 = I \u2713\n\nAll correct. So there's no wrong symbol in the pairs I saw.\n\nWait, unless the wrong symbol bug is a red herring or was in a different form. Let me reconsider. Actually maybe the \"wrong symbol\" refers to something the grader checks. The hidden grader checks 4, 9, 49, 99, 999, 3999. \n\nLet me verify my current implementation against these:\n- 4: skip to 4 -> 'IV' \u2713\n- 9: skip to 9 -> 'IX' \u2713\n- 49: 40 -> 'XL', rem 9 -> 'IX' = 'XLIX' \u2713\n- 99: 90 -> 'XC', rem 9 -> 'IX' = 'XCIX' \u2713\n- 999: 900 -> 'CM', 90 -> 'XC', 9 -> 'IX' = 'CMXCIX' \u2713\n- 3999: 3000 'MMM', 900 'CM', 90 'XC', 9 'IX' = 'MMMCMXCIX' \u2713\n\nAll correct! So my implementation now handles all the hidden cases.\n\nBut wait, I still haven't addressed the \"wrong symbol for one value\" bug. The original pairs had all correct symbols. So either:\n1. The wrong symbol was already there and I need to check... but I saw correct symbols.\n2. Maybe the grader will pass anyway.\n\nActually, let me reconsider. The original file I read had correct symbols. So maybe the \"wrong symbol\" bug doesn't actually exist in the pairs, OR maybe I need to look again. \n\nHmm, actually wait. Let me reconsider \u2014 maybe I should re-read the original to double check. But I already overwrote it. \n\nActually, the fact that the test tool returned FAIL earlier might have been just because I hadn't fixed the subtraction cases yet. Let me just run the test now and see.\n\nActually, wait. Let me reconsider the \"wrong symbol\" more carefully. The original pairs were:\n(1000,'M'),(500,'D'),(100,'C'),(50,'L'),(10,'X'),(5,'V'),(1,'I')\n\nIs 50 'L' correct? Yes. Is there any chance one of these is subtly wrong? No, they're all standard.\n\nHmm, but the task explicitly says \"a wrong symbol for one",
+      "tool_call": null,
+      "tool_result": {},
+      "gen_latency_ms": 14618.034839630127,
+      "verdict": null,
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    },
+    {
+      "step": 9,
+      "temperature": 0.7,
+      "raw_text": "Let me first re-read the current file to verify the symbol, then run the test.\n\n<tool_call>\n<function=read>\n<parameter=path>roman.py</parameter>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "read",
+        "arguments": {
+          "path": "roman.py"
+        }
+      },
+      "tool_result": {
+        "name": "read",
+        "arguments": {
+          "path": "roman.py"
+        },
+        "stdout": "def to_roman(n):\n    pairs=[(1000,'M'),(900,'CM'),(500,'D'),(400,'CD'),(100,'C'),(90,'XC'),(50,'L'),(40,'XL'),(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    out=''\n    for v,s in pairs:\n        out+=s*(n//v); n%=v\n    return out",
+        "stderr": "",
+        "exit_code": 0,
+        "tool_time_ms": 0.03170967102050781
+      },
+      "gen_latency_ms": 2483.919143676758,
+      "verdict": {
+        "verdict": "SUSPECT",
+        "votes": {
+          "CONTINUE": 1,
+          "SUSPECT": 2
+        },
+        "evidence": "",
+        "raw_responses": [
+          "First, I need to understand the task. The goal is to fix two bugs in the `to_roman()` function",
+          "",
+          ""
+        ],
+        "latency_ms": 1112.0595932006836,
+        "prompt_tokens": 342,
+        "model_id": "lfm2.5-tk:1.2b",
+        "backend": "npu"
+      },
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": true
+    },
+    {
+      "step": 10,
+      "temperature": 0.7,
+      "raw_text": "The symbols all look correct in both original and current versions. Let me run the test to verify the hidden cases pass.\n\n<tool_call>\n<function",
+      "tool_call": null,
+      "tool_result": {},
+      "gen_latency_ms": 14823.772668838501,
+      "verdict": null,
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    },
+    {
+      "step": 11,
+      "temperature": 0.7,
+      "raw_text": "<tool_call>\n<function=test>\n</function>\n</tool_call>",
+      "tool_call": {
+        "name": "test",
+        "arguments": {}
+      },
+      "tool_result": {
+        "name": "test",
+        "arguments": {}
+      },
+      "gen_latency_ms": 640.5870914459229,
+      "verdict": null,
+      "rollback_installed": false,
+      "resampled": false,
+      "escalated": false
+    }
+  ],
+  "seed": 3,
+  "task_category": "debug",
+  "outcome": "COMPLETED",
+  "wall_time_s": 137.9,
+  "gate_stats": {
+    "suspect_checkpoints": 0,
+    "escalated": 110,
+    "abstained": 28
+  }
+}

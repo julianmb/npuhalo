@@ -1,0 +1,204 @@
+{
+  "experiment": "rebaseline_v2",
+  "date": "2026-08-22",
+  "dataset_sha256": "ee46b12d803bc2eccfbe8a65d8bd46c7d616ee3c94a3a4643e627a7c79a8bd7c",
+  "overall": {
+    "passed": 58,
+    "N": 72,
+    "rate_pct": 80.6
+  },
+  "per_task": [
+    {
+      "task": "D01",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D02",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D03",
+      "passes": 3,
+      "runs": 5,
+      "rate": 0.6
+    },
+    {
+      "task": "D04",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D05",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D06",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D07",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D08",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D09",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D10",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D11",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D12",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D13",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D14",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D15",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D16",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D17",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D18",
+      "passes": 1,
+      "runs": 5,
+      "rate": 0.2
+    },
+    {
+      "task": "D19",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D20",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D21",
+      "passes": 0,
+      "runs": 5,
+      "rate": 0.0
+    },
+    {
+      "task": "D22",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D23",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D24",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D25",
+      "passes": 2,
+      "runs": 5,
+      "rate": 0.4
+    },
+    {
+      "task": "D26",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D27",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D28",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D29",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    },
+    {
+      "task": "D30",
+      "passes": 2,
+      "runs": 2,
+      "rate": 1.0
+    }
+  ],
+  "capability_limited": [
+    {
+      "task": "D18",
+      "passes": 1,
+      "runs": 5
+    },
+    {
+      "task": "D21",
+      "passes": 0,
+      "runs": 5
+    }
+  ]
+}

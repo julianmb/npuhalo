@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Build & packaging
+dist/
+build/
+*.egg-info/
+.ruff_cache/
+
+# Model weights & binaries (hosted on Hugging Face)
+*.gguf
+*.q4nx
+*.safetensors
+*.bin
+*.xclbin
+models/
+
+# Logs & temp files
+*.log
+*.tmp
+.omo/
+session*.md

@@ -1,0 +1,178 @@
+{
+  "task_id": "D03",
+  "seed": 1,
+  "config": "parser_shadow",
+  "passed": false,
+  "steps": 15,
+  "wall_time_s": 210.1,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 88,
+      "latency_ms": 1840,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>ls -la && echo \"---\" && cat temperature.py && echo \"---\" && cat test_temperature.py</parameter>\n<parameter=command>ls -la && echo \"---\" && cat temperatu"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14912,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14811,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14971,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 956,
+      "latency_ms": 14035,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>python3 -c \"import temperature as t; print(t.c_to_f(100)); print(t.f_to_k(32)); print(t.f_to_k(212))\"\n</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 15151,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14920,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14960,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 15057,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14994,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14973,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 15067,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14764,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14823,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14801,
+      "text_head": ""
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

@@ -1,0 +1,112 @@
+{
+  "task_id": "D03",
+  "seed": 2,
+  "config": "parser_active",
+  "passed": true,
+  "steps": 9,
+  "wall_time_s": 82.6,
+  "parser_events": [
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 39,
+      "latency_ms": 712,
+      "text_head": "<tool_call>\n<function=read>\n<parameter=path>temperature.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 217,
+      "latency_ms": 3217,
+      "text_head": "<tool_call>\n<function=read>\n<parameter=path>test_temperature.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14236,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14185,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14283,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14186,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14299,
+      "text_head": ""
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 322,
+      "latency_ms": 4725,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>temperature.py</parameter>\n<parameter=content>\ndef c_to_f(c): return c*(9/5)+32\ndef f_to_c(f): return (f-32)*5/9\ndef c_to_k(c): return c+273.15\ndef k_to_c("
+    },
+    {
+      "phase": "active",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 178,
+      "latency_ms": 2729,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

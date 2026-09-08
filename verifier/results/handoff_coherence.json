@@ -1,0 +1,165 @@
+{
+  "mean_ttft_gpu_ms_short": 198,
+  "mean_ttft_handoff_ms_short": 719,
+  "mean_ttft_gpu_ms_long": 730,
+  "mean_ttft_handoff_ms_long": 1431,
+  "boundary_mid_sentence_rate": 0.92,
+  "mean_judge_pure_gpu": 7.3,
+  "mean_judge_handoff": 7.3,
+  "judge_preference": {
+    "gpu": 1,
+    "tie": 9,
+    "handoff": 1
+  },
+  "caveats": [
+    "Judge is Qwen3.5-2B \u2014 a weak instrument; treat scores as indicative only.",
+    "Burst fixed at 24 tokens; stitching prompt asks the GPU to continue seamlessly.",
+    "Open-ended prompts only; no factual-correctness grading."
+  ],
+  "rows": [
+    {
+      "prompt": "Explain how HTTPS keeps data private in transit.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 129,
+      "ttft_handoff_ms": 725,
+      "burst_chars": 120,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 7,
+      "judge_score_handoff": 7,
+      "answer_gpu_head": "The user is asking me to explain how HTTPS keeps data private in transit. This is a technical question about cryptography and network security. Let me",
+      "answer_handoff_head": "HTTPS (Hypertext Transfer Protocol Secure) keeps data private in transit by leveraging **SSL/TLS encryption** to encryptthe data exchanged between a c"
+    },
+    {
+      "prompt": "Write a short paragraph about why coastal cities flood more often.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 236,
+      "ttft_handoff_ms": 723,
+      "burst_chars": 135,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 7,
+      "judge_score_handoff": 7,
+      "answer_gpu_head": "Coastal cities flood more often because they are located at or near sea level, making them inherently vulnerable to rising water. As global temperatur",
+      "answer_handoff_head": "Coastal cities flood more often because their low elevation and proximity to the ocean create a unique vulnerability where storm surgesCoastal cities "
+    },
+    {
+      "prompt": "Describe the difference between RAM and disk storage.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 172,
+      "ttft_handoff_ms": 722,
+      "burst_chars": 119,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 7,
+      "judge_score_handoff": 7,
+      "answer_gpu_head": "## The Core Difference\n\nThe fundamental distinction comes down to **volatility** and **purpose**:\n\n- **RAM (Random Access Memory)** is *volatile* temp",
+      "answer_handoff_head": "**RAM (Random Access Memory)** and **disk storage** are two of the most fundamental components in computer systems, but**but** they serve very differe"
+    },
+    {
+      "prompt": "Summarize how a refrigerator works.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 220,
+      "ttft_handoff_ms": 708,
+      "burst_chars": 134,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 7,
+      "judge_score_handoff": 7,
+      "answer_gpu_head": "A refrigerator works by moving heat from its cold interior to the warmer outside environment, rather than \"adding cold.\" This is done using a circulat",
+      "answer_handoff_head": "A refrigerator works by creating a **cold environment** to preserve food and keep beverages cool. It achieves this through the processIt achieves this"
+    },
+    {
+      "prompt": "Explain what a database index does and when it hurts performance.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 188,
+      "ttft_handoff_ms": 705,
+      "burst_chars": 116,
+      "boundary_mid_sentence": false,
+      "judge_score_pure_gpu": 7,
+      "judge_score_handoff": 7,
+      "answer_gpu_head": "## What a Database Index Does\n\nAn index is a data structure that speeds up data retrieval from a table. Think of it like the index at the back of a bo",
+      "answer_handoff_head": "A **database index** is a data structure used to speed up the retrieval of specific rows or columns from a database....When you query a table without "
+    },
+    {
+      "prompt": "Describe the water cycle in plain language.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 229,
+      "ttft_handoff_ms": 715,
+      "burst_chars": 113,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 8,
+      "judge_score_handoff": 8,
+      "answer_gpu_head": "The water cycle is how water continuously moves between the Earth and the sky. Here's how it works, step by step:\n\n**1. Evaporation**\nThe sun heats up",
+      "answer_handoff_head": "The water cycle is the continuous, natural process that moves water around on Earth. It's not just about rain; itit involves a few stages that work to"
+    },
+    {
+      "prompt": "Explain why ice floats on water.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 188,
+      "ttft_handoff_ms": 709,
+      "burst_chars": 106,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 8,
+      "judge_score_handoff": 8,
+      "answer_gpu_head": "Ice floats on water because it is **less dense than liquid water**, which is unusual\u2014most substances become denser when they solidify, but water is a ",
+      "answer_handoff_head": "The reason ice floats on water is a result of **density**.\n\nHere is the step-by-step breakdown of why thiswhy this happens, starting from the molecula"
+    },
+    {
+      "prompt": "Write a brief explanation of compound interest for a teenager.",
+      "long_prefix": false,
+      "ttft_gpu_ms": 225,
+      "ttft_handoff_ms": 746,
+      "burst_chars": 109,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 7,
+      "judge_score_handoff": 8,
+      "answer_gpu_head": "**Compound interest is like a snowball rolling downhill.**\n\nYou start with a small snowball (your money). As it rolls, it picks up more snow (interest",
+      "answer_handoff_head": "Here is a simple explanation for a teenager:\n\n**Compound interest** isn't just \"interest on top of interest.\"...it's actually *more* than that, and th"
+    },
+    {
+      "prompt": "Given all the session notes above, what is the most likely root cause of the lat",
+      "long_prefix": true,
+      "ttft_gpu_ms": 1390,
+      "ttft_handoff_ms": 1444,
+      "burst_chars": 124,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 6,
+      "judge_score_handoff": 6,
+      "answer_gpu_head": "## Root cause of the latency spikes\n\nThe notes are",
+      "answer_handoff_head": "Based on the extensive session notes provided, here is the analysis of the root cause and recommended fixes:\n\n### Root Cause### Root Cause\n\nThe most l"
+    },
+    {
+      "prompt": "Given all the session notes above, draft a short incident-summary paragraph for ",
+      "long_prefix": true,
+      "ttft_gpu_ms": 498,
+      "ttft_handoff_ms": 1425,
+      "burst_chars": 124,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 8,
+      "judge_score_handoff": 7,
+      "answer_gpu_head": "## Incident Summary: Cache Hit Ratio Degradation During Deploys\n\n**Symptom:** During every deployment window, the cache hit ratio falls below 60%, ind",
+      "answer_handoff_head": "The incident involves a critical cache hit ratio drop below 60% during deploy windows, directly attributed to versioned keysThe incident involves a cr"
+    },
+    {
+      "prompt": "Given all the session notes above, propose a rollout plan for the connection poo",
+      "long_prefix": true,
+      "ttft_gpu_ms": 501,
+      "ttft_handoff_ms": 1433,
+      "burst_chars": 139,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": 8,
+      "judge_score_handoff": 8,
+      "answer_gpu_head": "## Rollout Plan: Connection Pool Change\n\n**Context from the notes:** The pool saturates at 200 concurrent",
+      "answer_handoff_head": "Based on the extensive session notes provided, here is a proposed rollout plan for changing the connection pool configuration.\n\n### Session### Session"
+    },
+    {
+      "prompt": "Given all the session notes above, explain whether key versioning by build hash ",
+      "long_prefix": true,
+      "ttft_gpu_ms": 532,
+      "ttft_handoff_ms": 1422,
+      "burst_chars": 137,
+      "boundary_mid_sentence": true,
+      "judge_score_pure_gpu": null,
+      "judge_score_handoff": 8,
+      "answer_gpu_head": "The user has given me extensive background notes from a codebase review session. The notes are repeated many times (looks like a copy-paste artifact),",
+      "answer_handoff_head": "Based on the extensive session notes provided, here is an analysis of key versioning by build hash and a recommended alternative strategyThe user want"
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+[
+  {
+    "k": 2,
+    "strict_qwen": false,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 46.3,
+    "gen_ts": 23.2,
+    "total_time_s": 7.9335014889993545,
+    "success": true
+  },
+  {
+    "k": 2,
+    "strict_qwen": false,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 46.0,
+    "gen_ts": 25.2,
+    "total_time_s": 7.843885688999762,
+    "success": true
+  },
+  {
+    "k": 3,
+    "strict_qwen": false,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 45.5,
+    "gen_ts": 25.7,
+    "total_time_s": 7.9145257350000975,
+    "success": true
+  },
+  {
+    "k": 3,
+    "strict_qwen": false,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 44.2,
+    "gen_ts": 30.1,
+    "total_time_s": 7.622941166000601,
+    "success": true
+  },
+  {
+    "k": 4,
+    "strict_qwen": false,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 43.1,
+    "gen_ts": 33.8,
+    "total_time_s": 7.462828750999506,
+    "success": true
+  },
+  {
+    "k": 4,
+    "strict_qwen": false,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 45.8,
+    "gen_ts": 26.7,
+    "total_time_s": 7.728015098000469,
+    "success": true
+  },
+  {
+    "k": 6,
+    "strict_qwen": false,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 45.4,
+    "gen_ts": 25.2,
+    "total_time_s": 7.992773013999795,
+    "success": true
+  },
+  {
+    "k": 6,
+    "strict_qwen": false,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 44.2,
+    "gen_ts": 29.3,
+    "total_time_s": 7.737271842000155,
+    "success": true
+  },
+  {
+    "k": 2,
+    "strict_qwen": true,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 46.2,
+    "gen_ts": 26.2,
+    "total_time_s": 7.769872754000062,
+    "success": true
+  },
+  {
+    "k": 2,
+    "strict_qwen": true,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 45.8,
+    "gen_ts": 22.7,
+    "total_time_s": 8.195708233000005,
+    "success": true
+  },
+  {
+    "k": 3,
+    "strict_qwen": true,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 43.3,
+    "gen_ts": 27.1,
+    "total_time_s": 7.821218039999621,
+    "success": true
+  },
+  {
+    "k": 3,
+    "strict_qwen": true,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 44.0,
+    "gen_ts": 24.5,
+    "total_time_s": 7.9473115920000055,
+    "success": true
+  },
+  {
+    "k": 4,
+    "strict_qwen": true,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 45.8,
+    "gen_ts": 24.7,
+    "total_time_s": 7.914606582000488,
+    "success": true
+  },
+  {
+    "k": 4,
+    "strict_qwen": true,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 45.9,
+    "gen_ts": 28.6,
+    "total_time_s": 7.719394878999992,
+    "success": true
+  },
+  {
+    "k": 6,
+    "strict_qwen": true,
+    "p_min": 0.0,
+    "device": "Vulkan0",
+    "prompt_ts": 45.1,
+    "gen_ts": 31.7,
+    "total_time_s": 7.606758769999942,
+    "success": true
+  },
+  {
+    "k": 6,
+    "strict_qwen": true,
+    "p_min": 0.6,
+    "device": "Vulkan0",
+    "prompt_ts": 42.3,
+    "gen_ts": 27.8,
+    "total_time_s": 7.908154330999423,
+    "success": true
+  }
+]

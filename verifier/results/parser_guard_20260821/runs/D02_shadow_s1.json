@@ -1,0 +1,57 @@
+{
+  "task_id": "D02",
+  "seed": 1,
+  "config": "parser_shadow",
+  "passed": true,
+  "steps": 4,
+  "wall_time_s": 27.7,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 56,
+      "latency_ms": 1333,
+      "text_head": "<tool_call>\n<function=shell>\n<parameter=command>cat dedup.py; echo \"---TEST---\"; cat test_dedup.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 14844,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 554,
+      "latency_ms": 8120,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>dedup.py</parameter>\n<parameter=content>\ndef dedup(items):\n    out = []\n    for it in items:\n        if it not in out:\n            out.append(it)\n    retur"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 218,
+      "latency_ms": 3370,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}

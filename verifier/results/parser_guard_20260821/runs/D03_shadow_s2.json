@@ -1,0 +1,68 @@
+{
+  "task_id": "D03",
+  "seed": 2,
+  "config": "parser_shadow",
+  "passed": true,
+  "steps": 5,
+  "wall_time_s": 34.3,
+  "parser_events": [
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 38,
+      "latency_ms": 820,
+      "text_head": "<tool_call>\n<function=read>\n<parameter=path>temperature.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 34,
+      "latency_ms": 773,
+      "text_head": "<tool_call>\n<function=read>\n<parameter=path>test_temperature.py</parameter>\n</function>\n</tool_call>"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 771,
+      "latency_ms": 11166,
+      "text_head": "<tool_call>\n<function=write>\n<parameter=path>temperature.py</parameter>\n<parameter=content>\ndef c_to_f(c): return c*9.0/5.0+32.0\ndef f_to_c(f): return (f-32)*5.0/9.0\ndef c_to_k(c): return c+273.15\ndef"
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 1024,
+      "latency_ms": 15051,
+      "text_head": ""
+    },
+    {
+      "phase": "shadow",
+      "attempt": 1,
+      "detected": false,
+      "reason": null,
+      "char_index": null,
+      "aborted_early": false,
+      "tokens_out": 429,
+      "latency_ms": 6426,
+      "text_head": "<tool_call>\n<function=test>\n</function>\n</tool_call>"
+    }
+  ],
+  "live_detections": 0,
+  "agreement_mismatch": 0,
+  "outcome": "COMPLETED"
+}
