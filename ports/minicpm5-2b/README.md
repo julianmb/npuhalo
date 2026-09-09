@@ -12,6 +12,7 @@ Ready-to-use quantized weights and compiled AIE firmware are available on Huggin
 > * **Prefill**: Passes cleanly on XDNA 2 (`chunk 1/1 with 38 tokens`).
 > * **Decode**: FastFlowLM's `qwen3` engine (`libqwen3_npu.so`) batches all layer forward passes into a single monolithic `xrt::runlist`. While 24-layer (`Qwen3.5-0.8B`), 28-layer (`Qwen3-1.7B`), and 36-layer (`Qwen3-4B`) models decode cleanly, queuing 42 layers in one batch trips `ERT_CMD_STATE_TIMEOUT` during decode.
 > * **Triage & Reproducer**: Tracked upstream in [ROCm/FastFlowLM#712](https://github.com/ROCm/FastFlowLM/issues/712). A standalone reproduction harness is available in the dedicated repo: [julianmb/minicpm5-xdna2](https://github.com/julianmb/minicpm5-xdna2).
+> * **Future Toolchain**: The open build system in [Atomic-Germ/OpenFlowLM-Next](https://github.com/Atomic-Germ/OpenFlowLM-Next) (`open_kernels`) is replacing the closed `.so` dispatchers with open AIE recipes, providing an upstream path for native 42-layer and 16:2 GQA compilation without runlist queue depth ceilings.
 
 
 ---
