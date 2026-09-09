@@ -5,6 +5,15 @@ This directory contains the conversion scripts and verification tools used to po
 Ready-to-use quantized weights and compiled AIE firmware are available on Hugging Face:
 👉 **[julianmb/MiniCPM5-2B-NPU2](https://huggingface.co/julianmb/MiniCPM5-2B-NPU2)**
 
+
+> [!NOTE]
+> **Upstream FastFlowLM Status (42-Layer Runlist Timeout):**
+> * **Weights & Kernels**: Fully converted and verified with GQA $16:2 \to 16:8$ replication and unit RMSNorm injection.
+> * **Prefill**: Passes cleanly on XDNA 2 (`chunk 1/1 with 38 tokens`).
+> * **Decode**: FastFlowLM's `qwen3` engine (`libqwen3_npu.so`) batches all layer forward passes into a single monolithic `xrt::runlist`. While 24-layer (`Qwen3.5-0.8B`), 28-layer (`Qwen3-1.7B`), and 36-layer (`Qwen3-4B`) models decode cleanly, queuing 42 layers in one batch trips `ERT_CMD_STATE_TIMEOUT` during decode.
+> * **Triage & Reproducer**: Tracked upstream in [ROCm/FastFlowLM#712](https://github.com/ROCm/FastFlowLM/issues/712). A standalone reproduction harness is available in the dedicated repo: [julianmb/minicpm5-xdna2](https://github.com/julianmb/minicpm5-xdna2).
+
+
 ---
 
 ### Conversion Pipeline
