@@ -16,7 +16,7 @@ import aiohttp
 from typing import Dict, Any
 
 DEFAULT_NPU_URL = "http://127.0.0.1:8001"
-DEFAULT_NPU_MODEL = "minicpm5:2b"
+DEFAULT_NPU_MODEL = "qwen3.5:0.8b"
 
 # Deterministic patterns that unequivocally require the 35B GPU model
 GPU_HARD_PATTERNS = [

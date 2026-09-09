@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 NPU_URL = "http://127.0.0.1:8001/v1/chat/completions"
-NPU_MODEL = "minicpm5:2b"
+NPU_MODEL = "qwen3.5:0.8b"
 FLM_VERSION = "0.9.46"
 COMPRESS_PROMPT_VERSION = "extract_v1"
 DEFAULT_THRESHOLD_CHARS = 16_000
@@ -67,6 +67,26 @@ class SidecarResult:
     artifact_sha256: str = ""
     schedule: dict = field(default_factory=dict)
     retained_facts: dict = field(default_factory=dict)
+
+    @property
+    def raw_tokens(self) -> int:
+        return self.original_chars // 4
+
+    @property
+    def compressed_tokens(self) -> int:
+        return self.compressed_chars // 4 if self.compressed_chars else self.raw_tokens
+
+    @property
+    def tokens_saved(self) -> int:
+        return max(0, self.raw_tokens - self.compressed_tokens)
+
+    @property
+    def action(self) -> str:
+        return self.source
+
+    @property
+    def duration_ms(self) -> float:
+        return self.compression_latency_ms
 
 
 # ---- content classification ------------------------------------------------
@@ -126,12 +146,20 @@ def retention_check(original_facts: dict, compressed: str) -> dict:
 # ---- sidecar ----------------------------------------------------------------
 
 class CompressorSidecar:
-    def __init__(self, threshold_chars: int = DEFAULT_THRESHOLD_CHARS,
-                 artifact_dir: str = ARTIFACT_DIR_DEFAULT, timeout_s: float = 60.0):
+    def __init__(
+        self,
+        threshold_chars: int = DEFAULT_THRESHOLD_CHARS,
+        artifact_dir: str = ARTIFACT_DIR_DEFAULT,
+        timeout_s: float = 60.0,
+        npu_url: str = NPU_URL,
+        npu_model: str = NPU_MODEL,
+    ):
         self.threshold = threshold_chars
         self.artifact_dir = Path(artifact_dir)
         self.artifact_dir.mkdir(parents=True, exist_ok=True)
         self.timeout = timeout_s
+        self.npu_url = npu_url
+        self.npu_model = npu_model
         self.log = []
 
     def compress_context(self, context_text: str, max_tokens: int = 250) -> SidecarResult:
@@ -145,13 +173,13 @@ class CompressorSidecar:
         res.schedule["npu_start"] = t_npu_start
         try:
             payload = {
-                "model": NPU_MODEL,
+                "model": self.npu_model,
                 "messages": [{"role": "user", "content": INPUT_CONTEXT_PROMPT.format(text=context_text[:8000])}],
                 "max_tokens": max_tokens,
                 "temperature": 0.0,
             }
             req = urllib.request.Request(
-                NPU_URL,
+                self.npu_url,
                 data=json.dumps(payload).encode(),
                 headers={"Content-Type": "application/json", "Connection": "close"}
             )
@@ -172,6 +200,14 @@ class CompressorSidecar:
             res.schedule["npu_end"] = time.time()
             res.fallback_reason = f"error: {str(e)[:80]}"
         return res
+
+    def compress_input_context(self, context_text: str, max_tokens: int = 250) -> SidecarResult:
+        """Alias for compress_context."""
+        return self.compress_context(context_text, max_tokens=max_tokens)
+
+    def compress_tool_output(self, command: str, raw_output: str, generation_in_flight: bool = False) -> SidecarResult:
+        """Alias for process."""
+        return self.process(tool_name=command, output=raw_output, gpu_decoding=generation_in_flight)
 
     def process(self, tool_name: str, output: str, gpu_decoding: bool = False) -> SidecarResult:
         """Full pipeline for one tool output. Returns what to insert + provenance."""
@@ -214,11 +250,11 @@ class CompressorSidecar:
         t_npu_start = time.time()
         res.schedule["npu_start"] = t_npu_start
         try:
-            payload = {"model": NPU_MODEL,
+            payload = {"model": self.npu_model,
                        "messages": [{"role": "user",
                                      "content": EXTRACT_PROMPT.format(output=output[:6000])}],
                        "max_tokens": 150, "temperature": 0.0}
-            req = urllib.request.Request(NPU_URL, data=json.dumps(payload).encode(),
+            req = urllib.request.Request(self.npu_url, data=json.dumps(payload).encode(),
                                          headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
                 data = json.loads(r.read())
@@ -246,7 +282,12 @@ class CompressorSidecar:
         return finish()
 
 
+# Dual-mode alias for input context and tool output compression
+DualCompressorSidecar = CompressorSidecar
+
+
 if __name__ == "__main__":
+
     sc = CompressorSidecar(threshold_chars=500)
     demo = ("Traceback (most recent call last):\n" +
             "\n".join(f'  File "mod{i}.py", line {i}, in f{i}' for i in range(40)) +

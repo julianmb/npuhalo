@@ -53,20 +53,38 @@ def render_dashboard(proxy_url: str, npu_url: str, gpu_url: str, cpu_name: str) 
     proxy_online = bool(proxy_status)
     
     npu_online = False
+    npu_model_name = "qwen3.5:0.8b (NPU)"
     try:
         req = urllib.request.Request(f"{npu_url}/v1/models", headers={"Connection": "close"})
         with urllib.request.urlopen(req, timeout=0.5) as r:
-            npu_online = (r.status == 200)
+            if r.status == 200:
+                npu_online = True
+                data = json.loads(r.read().decode())
+                m_list = [m.get("id") for m in data.get("data", []) if m.get("id")]
+                if m_list:
+                    npu_model_name = m_list[0]
     except Exception:
         pass
 
     gpu_online = False
+    gpu_model_name = "Ornith-1.5-35B-A3B (MoE)"
     try:
         req = urllib.request.Request(f"{gpu_url}/v1/models", headers={"Connection": "close"})
         with urllib.request.urlopen(req, timeout=0.5) as r:
-            gpu_online = (r.status == 200)
+            if r.status == 200:
+                gpu_online = True
+                data = json.loads(r.read().decode())
+                m_list = [m.get("id") for m in data.get("data", []) if m.get("id")]
+                if m_list:
+                    gpu_model_name = m_list[0].split("/")[-1].replace(".gguf", "")
     except Exception:
         pass
+
+    # If proxy is active, read configured targets if not resolved directly
+    if proxy_online:
+        target_npu = proxy_status.get("npu_target", "")
+        if "(" in target_npu:
+            npu_model_name = target_npu.split("(")[1].rstrip(")")
 
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lines = []
@@ -88,7 +106,9 @@ def render_dashboard(proxy_url: str, npu_url: str, gpu_url: str, cpu_name: str) 
 
     lines.append(f"{C_BOLD}{C_CYAN}│{C_RESET} {C_BOLD}AMD XDNA 2 NPU{C_RESET} (/dev/accel/accel0)     │ {C_BOLD}Radeon iGPU{C_RESET} (RDNA 3.5 UMA)         {C_BOLD}{C_CYAN}│{C_RESET}")
     lines.append(f"{C_BOLD}{C_CYAN}│{C_RESET} Status : {npu_badge:<33} │ Status : {gpu_badge:<33} {C_BOLD}{C_CYAN}│{C_RESET}")
-    lines.append(f"{C_BOLD}{C_CYAN}│{C_RESET} Model  : minicpm5:2b (63.6 tok/s)      │ Model  : Ornith-1.5-35B-A3B (MoE)     {C_BOLD}{C_CYAN}│{C_RESET}")
+    npu_model_disp = f"Model  : {npu_model_name[:26]}"
+    gpu_model_disp = f"Model  : {gpu_model_name[:26]}"
+    lines.append(f"{C_BOLD}{C_CYAN}│{C_RESET} {npu_model_disp:<38} │ {gpu_model_disp:<37} {C_BOLD}{C_CYAN}│{C_RESET}")
     lines.append(f"{C_BOLD}{C_CYAN}│{C_RESET} Role   : Router, Safety & Compressor   │ Role   : Primary Code Generator       {C_BOLD}{C_CYAN}│{C_RESET}")
     lines.append(f"{C_BOLD}{C_CYAN}├{'─' * (w - 2)}┤{C_RESET}")
 

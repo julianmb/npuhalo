@@ -96,7 +96,8 @@ def test_proxy_endpoints_sync():
             data = await resp.json()
             model_ids = [m["id"] for m in data.get("data", [])]
             assert "Ornith-1.5-35B-A3B-ROCmFP4.gguf" in model_ids
-            assert "minicpm5:2b-watchdog" in model_ids
+            assert "qwen3.5:0.8b-watchdog" in model_ids
+
 
             # 2. Test /v1/watchdog/status
             resp = await client.get("/v1/watchdog/status")

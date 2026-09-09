@@ -18,7 +18,7 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 
 NPU_URL_DEFAULT = "http://127.0.0.1:8001/v1/chat/completions"
-NPU_MODEL_DEFAULT = "minicpm5:2b"
+NPU_MODEL_DEFAULT = "qwen3.5:0.8b"
 
 # Destructive shell command patterns
 DESTRUCTIVE_PATTERNS = [

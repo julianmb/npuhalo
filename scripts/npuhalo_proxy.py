@@ -27,6 +27,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "verifier", "src"))
 from watchdog_analyzer import WatchdogAnalyzer
 from npu_router import HybridNPURouter
+from compressor_sidecar import DualCompressorSidecar
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("npuhalo_proxy")
@@ -35,7 +36,7 @@ DEFAULT_PROXY_PORT = 8000
 DEFAULT_GPU_URL = "http://127.0.0.1:8012"
 DEFAULT_NPU_URL = "http://127.0.0.1:8001"
 DEFAULT_GPU_MODEL = "Ornith-1.5-35B-A3B-ROCmFP4.gguf"
-DEFAULT_NPU_MODEL = "minicpm5:2b"
+DEFAULT_NPU_MODEL = "qwen3.5:0.8b"
 
 class NPUHaloProxy:
     def __init__(
@@ -46,6 +47,7 @@ class NPUHaloProxy:
         npu_model: str = DEFAULT_NPU_MODEL,
         guard_mode: str = "audit",  # "audit" (alert/telemetry only) | "block" (reject destructive steps)
         enable_router: bool = False,
+        enable_compressor: bool = False,
     ):
         self.gpu_url = gpu_url.rstrip("/")
         self.npu_url = npu_url.rstrip("/")
@@ -53,6 +55,13 @@ class NPUHaloProxy:
         self.npu_model = npu_model
         self.guard_mode = guard_mode
         self.enable_router = enable_router
+        self.enable_compressor = enable_compressor
+        
+        if "minicpm" in self.npu_model.lower():
+            logger.warning(
+                "MiniCPM5-2B (42 layers) may trip ERT_CMD_STATE_TIMEOUT in FastFlowLM during decode. "
+                "Recommended: qwen3.5:0.8b or qwen3:1.7b. See ROCm/FastFlowLM#712."
+            )
         
         self.watchdog = WatchdogAnalyzer(
             npu_url=f"{self.npu_url}/v1/chat/completions",
@@ -60,6 +69,7 @@ class NPUHaloProxy:
             enable_npu_eval=True,
         )
         self.router = HybridNPURouter(url=self.npu_url, model=self.npu_model) if self.enable_router else None
+        self.compressor = DualCompressorSidecar(npu_url=f"{self.npu_url}/v1/chat/completions", npu_model=self.npu_model) if self.enable_compressor else None
         self.session: Optional[aiohttp.ClientSession] = None
         self._interceptions_count = 0
 
@@ -92,6 +102,8 @@ class NPUHaloProxy:
         stats["guard_mode"] = self.guard_mode
         stats["npu_target"] = f"{self.npu_url} ({self.npu_model})"
         stats["gpu_target"] = f"{self.gpu_url} ({self.gpu_model})"
+        stats["router_enabled"] = self.enable_router
+        stats["compressor_enabled"] = self.enable_compressor
         return web.json_response(stats)
 
     async def handle_watchdog_clear(self, request: web.Request) -> web.Response:
@@ -119,6 +131,15 @@ class NPUHaloProxy:
             if dec.get("route") == "npu":
                 logger.info(f"Router: Fast-laning trivial query to NPU @ 2W (reason: {dec.get('reason')}): '{user_prompt[:50]}'")
                 return await self._forward_npu_direct(request, body)
+
+        # In-Flight Context Compression: If enabled and prompt > 16k chars, distill on NPU first
+        if self.enable_compressor and self.compressor and user_prompt and len(user_prompt) >= 16000:
+            logger.info(f"Compressor: Distilling input prompt ({len(user_prompt)} chars) on NPU before GPU prefill")
+            comp_res = self.compressor.compress_input_context(user_prompt)
+            if comp_res.action == "compressed":
+                messages[-1]["content"] = comp_res.inserted_text
+                body["messages"] = messages
+                logger.info(f"Compressor: Prompt compressed from {comp_res.raw_tokens} to {comp_res.compressed_tokens} tokens")
 
         # Standard GPU Path: Forward request to primary GPU server (:8012)
         gpu_endpoint = f"{self.gpu_url}/v1/chat/completions"
@@ -270,15 +291,21 @@ def main():
     parser.add_argument("--host", default="0.0.0.0", help="Host interface (default: 0.0.0.0)")
     parser.add_argument("--gpu-url", default=DEFAULT_GPU_URL, help="Primary GPU llama-server URL")
     parser.add_argument("--npu-url", default=DEFAULT_NPU_URL, help="NPU FastFlowLM URL")
+    parser.add_argument("--npu-model", default=DEFAULT_NPU_MODEL, help="NPU model tag (default: qwen3.5:0.8b)")
+    parser.add_argument("--gpu-model", default=DEFAULT_GPU_MODEL, help="GPU model tag")
     parser.add_argument("--guard-mode", choices=["audit", "block"], default="audit", help="Guard mode: audit or block")
     parser.add_argument("--enable-router", action="store_true", help="Enable pre-route dispatching of trivial queries to NPU")
+    parser.add_argument("--enable-compressor", action="store_true", help="Enable in-flight NPU prompt compression for long inputs (>16k chars)")
     args = parser.parse_args()
 
     proxy = NPUHaloProxy(
         gpu_url=args.gpu_url,
         npu_url=args.npu_url,
+        gpu_model=args.gpu_model,
+        npu_model=args.npu_model,
         guard_mode=args.guard_mode,
         enable_router=args.enable_router,
+        enable_compressor=args.enable_compressor,
     )
 
     app = create_app(proxy)
@@ -295,13 +322,15 @@ def main():
     print("\n========================================================")
     print("  NPUHALO SMART GUARDRAIL PROXY FOR STRIX HALO")
     print(f"  Listening on : http://{args.host}:{args.port}/v1")
-    print(f"  GPU Server   : {args.gpu_url}")
-    print(f"  NPU Coproc   : {args.npu_url} (MiniCPM5-2B @ ~2-4W)")
+    print(f"  GPU Server   : {args.gpu_url} ({args.gpu_model})")
+    print(f"  NPU Coproc   : {args.npu_url} ({args.npu_model} @ ~2-4W)")
     print(f"  Guard Mode   : {args.guard_mode.upper()}")
     print(f"  Router Gating: {'ENABLED' if args.enable_router else 'DISABLED'}")
+    print(f"  Compressor   : {'ENABLED' if args.enable_compressor else 'DISABLED'}")
     print("========================================================\n")
 
     web.run_app(app, host=args.host, port=args.port)
 
 if __name__ == "__main__":
     main()
+

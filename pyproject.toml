@@ -37,6 +37,8 @@ dev = [
 ]
 
 [project.scripts]
+npuhalo = "scripts.npuhalo_cli:main"
+npuhalo-doctor = "scripts.npuhalo_doctor:main"
 npuhalo-demo = "examples.demo_stream:main"
 npuhalo-proxy = "scripts.npuhalo_proxy:main"
 npuhalo-top = "scripts.npuhalo_top:main"
@@ -63,3 +65,7 @@ select = ["E9", "F"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "asyncio: mark test as asyncio coroutine",
+]
+
