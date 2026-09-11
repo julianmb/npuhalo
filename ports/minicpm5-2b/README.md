@@ -21,5 +21,5 @@ Ready-to-use quantized weights and compiled AIE firmware are available on Huggin
 1. `expand_kv_heads.py`: Replicates dimension 0 of `k_proj` and `v_proj` $4\times$ (from 2 heads to 8 heads). Under GQA, this preserves exact mathematical equivalence while converting the attention ratio from $16:2$ ($8:1$) to $16:8$ ($2:1$), matching the native `_gen_mha_seq_d128_q2` AIE kernel.
 2. Quantization to GGUF Q4_0 (`convert_hf_to_gguf.py` + `llama-quantize`).
 3. Packing to AMD AIE layout (`ROCm/FLM_Q4NX_Converter`).
-4. `inject_qk_norm.py`: Injects synthetic unit RMSNorm weights ($\gamma = 1.0$, $[128]$ BF16) for `q_norm` and `k_norm` across all 42 layers, routing safely through `libqwen3_npu.so`.
+4. `inject_qk_norm.py`: Injects synthetic unit scale tensors ($\gamma = 1.0$, $[128]$ BF16) for `q_norm` and `k_norm` across all 42 layers so the `libqwen3_npu.so` weight loader is satisfied. This is a loader shim, not a mathematical identity (unit-scale RMSNorm still normalizes Q/K), so output equivalence of the port is unvalidated.
 5. `test_quality.py`: Evaluates mathematical reasoning, code bug fixing, structured JSON extraction, and instruction following over FastFlowLM HTTP REST server.

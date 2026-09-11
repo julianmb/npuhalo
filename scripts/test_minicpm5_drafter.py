@@ -65,6 +65,12 @@ async def call_npu(session: aiohttp.ClientSession, prompt: str, max_tokens: int 
             async with session.post(f"{NPU_URL}/v1/chat/completions", json=payload, headers=headers) as resp:
                 data = await resp.json()
             t_elapsed = (time.perf_counter() - t0) * 1000
+            # Model-identity check (see ROCm/FastFlowLM#716): FLM can serve the
+            # resident model for an unresolvable tag while echoing the request.
+            served_model = data.get("model", "")
+            if served_model and served_model != NPU_MODEL:
+                print(f"  [WARN] NPU served model mismatch: requested '{NPU_MODEL}', "
+                      f"served '{served_model}'. Treat this run as unattributable.")
             choice = data.get("choices", [{}])[0]
             content = choice.get("message", {}).get("content", "")
             usage = data.get("usage", {})
@@ -74,12 +80,13 @@ async def call_npu(session: aiohttp.ClientSession, prompt: str, max_tokens: int 
                 "elapsed_ms": t_elapsed,
                 "tps": usage.get("decoding_speed_tps", 0.0),
                 "ttft_ms": usage.get("prefill_duration_ttft", 0.0) * 1000,
+                "served_model": served_model,
             }
         except (aiohttp.ServerDisconnectedError, aiohttp.ClientConnectorError):
             if attempt < retries:
                 await asyncio.sleep(0.2 * (attempt + 1))
                 continue
-            return {"content": "", "tokens": 0, "elapsed_ms": 0.0, "tps": 0.0, "ttft_ms": 0.0}
+            return {"content": "", "tokens": 0, "elapsed_ms": 0.0, "tps": 0.0, "ttft_ms": 0.0, "served_model": ""}
 
 async def call_gpu(session: aiohttp.ClientSession, prompt: str, max_tokens: int = 32) -> Dict[str, Any]:
     t0 = time.perf_counter()
@@ -201,7 +208,22 @@ async def run_benchmark():
         print(f"  NPU Drafter : AMD XDNA 2 ({NPU_MODEL}) @ {NPU_URL}")
         print(f"  iGPU Target : Radeon 8060S ({GPU_MODEL}) @ {GPU_URL}")
         print("=" * 80)
-        
+
+        # Model-identity pre-check (see ROCm/FastFlowLM#716): confirm the
+        # requested NPU tag is actually registered before attributing results.
+        try:
+            async with session.get(f"{NPU_URL}/v1/models", timeout=10) as mresp:
+                mdata = await mresp.json()
+            listed = [m.get("id", "") for m in mdata.get("data", [])]
+            if NPU_MODEL not in listed:
+                print(f"  [WARN] '{NPU_MODEL}' not in /v1/models ({listed}). "
+                      f"Results below cannot be attributed to MiniCPM5.")
+            else:
+                print(f"  [OK] '{NPU_MODEL}' registered in /v1/models.")
+        except Exception as e:
+            print(f"  [WARN] Could not query /v1/models: {e}. "
+                  f"Results below cannot be attributed to MiniCPM5.")
+
         results = []
         for i, item in enumerate(BENCHMARK_PROMPTS):
             category = item["category"]
@@ -243,7 +265,7 @@ async def run_benchmark():
         print(f"{'Execution Mode':<25} | {'Avg Latency (ms)':<18} | {'Details'}")
         print("-" * 80)
         print(f"{'1. GPU-Only (Ornith 1.5)':<25} | {avg_gpu_ms:10.1f} ms     | Baseline RDNA 3.5 iGPU (MTP enabled)")
-        print(f"{'2. NPU-Only (MiniCPM5-2B)':<25} | {avg_npu_ms:10.1f} ms     | AMD XDNA 2 NPU (63.6 tok/s decode)")
+        print(f"{'2. NPU-Only (MiniCPM5-2B)':<25} | {avg_npu_ms:10.1f} ms     | AMD XDNA 2 NPU (served-model verified per run; see warnings)")
         print(f"{'3. Speculative (NPU+GPU)':<25} | {avg_spec_ms:10.1f} ms     | Draft={avg_draft_ms:.0f}ms, Verify={avg_verify_ms:.0f}ms, Acc={avg_acc:.1%}")
         print("=" * 80)
         

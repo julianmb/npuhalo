@@ -40,6 +40,23 @@ print("="*70)
 print("RUNNING EXTENSIVE QUALITY EVALUATION ON MINICPM5-2B (AMD XDNA 2 NPU)")
 print("="*70)
 
+# Model-identity pre-check (see ROCm/FastFlowLM#716): FLM can serve the
+# resident model for an unresolvable tag while echoing the request, so confirm
+# the tag is registered before attributing any output to MiniCPM5.
+MODEL_TAG = "minicpm5:2b"
+try:
+    base_url = URL.rsplit("/v1/", 1)[0]
+    models = requests.get(base_url + "/v1/models", timeout=10).json()
+    listed = [m.get("id", "") for m in models.get("data", [])]
+    if MODEL_TAG not in listed:
+        print(f"[WARN] '{MODEL_TAG}' not in /v1/models ({listed}). "
+              f"Outputs below cannot be attributed to MiniCPM5.")
+    else:
+        print(f"[OK] '{MODEL_TAG}' registered in /v1/models.")
+except Exception as e:
+    print(f"[WARN] Could not query /v1/models: {e}. "
+          f"Outputs below cannot be attributed to MiniCPM5.")
+
 for idx, tc in enumerate(test_cases, 1):
     payload = {
         "model": "minicpm5:2b",
@@ -59,6 +76,11 @@ for idx, tc in enumerate(test_cases, 1):
         continue
         
     data = resp.json()
+    served_model = data.get("model", "")
+    if served_model and served_model != MODEL_TAG:
+        print(f"[{idx}] {tc['name']} MODEL MISMATCH: requested '{MODEL_TAG}', "
+              f"served '{served_model}'. Output unattributable; skipping.")
+        continue
     choice = data["choices"][0]
     content = choice["message"]["content"]
     usage = data.get("usage", {})

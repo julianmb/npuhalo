@@ -2,7 +2,12 @@
 """
 Inject q_norm and k_norm unit tensors into model.q4nx for MiniCPM5-2B.
 libqwen3_npu.so expects model.layers.{i}.self_attn.q_norm.weight and k_norm.weight (shape [128], BF16).
-Since MiniCPM5-2B has no QK normalization, all-ones weights make gamma = 1.0 (exact identity).
+
+NOTE (correctness): all-ones scale tensors satisfy the weight loader but are NOT
+a mathematical identity. RMSNorm(x, gamma=1) still divides by RMS(x), so if the
+Qwen3 engine applies QK RMSNorm, attention scores differ from the original
+MiniCPM5 architecture (which has no QK normalization). Output equivalence of
+this port is therefore unvalidated; treat any generation as unverified.
 """
 
 import sys
