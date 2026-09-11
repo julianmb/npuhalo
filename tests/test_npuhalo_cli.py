@@ -138,8 +138,14 @@ def test_cli_route_dispatch(capsys):
 
 
 def test_cli_doctor_dispatch(capsys):
+    # Mock hardware checks: CI runners have no /dev/accel/accel0, and this
+    # test covers CLI dispatch, not the physical NPU.
+    from scripts.npuhalo_doctor import CheckResult
     test_args = ["npuhalo", "doctor"]
-    with patch("sys.argv", test_args):
+    with patch("sys.argv", test_args), \
+         patch("scripts.npuhalo_doctor.run_doctor_checks",
+               return_value=[CheckResult(category="Hardware", name="Mock",
+                                         status="PASS", message="mocked")]):
         cli_main()
     captured = capsys.readouterr()
     assert "=== npuhalo doctor · System & Hardware Diagnostics ===" in captured.out
