@@ -14,7 +14,6 @@ Performs automated checks on:
 import os
 import sys
 import json
-import time
 import urllib.request
 import urllib.error
 import subprocess

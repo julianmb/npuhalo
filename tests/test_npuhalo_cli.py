@@ -1,7 +1,6 @@
 import os
 import sys
 import json
-import pytest
 from unittest.mock import patch, MagicMock, mock_open
 from io import BytesIO
 
@@ -14,7 +13,6 @@ from scripts.npuhalo_doctor import (
     check_driver_and_kernel,
     check_memlock_limit,
     check_npu_server,
-    check_gpu_server,
     run_doctor_checks,
     print_doctor_report,
 )
